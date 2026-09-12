@@ -1,0 +1,82 @@
+import React from 'react';
+import { Product, Currency } from '../types';
+import { ProductCard } from './ProductCard';
+
+interface ProductGridProps {
+  title?: string;
+  subtitle?: string;
+  categoryTag?: string;
+  products: Product[];
+  currency: Currency;
+  wishlistIds: string[];
+  onToggleWishlist: (product: Product) => void;
+  onQuickAdd: (product: Product, size: 'XS' | 'S' | 'M' | 'L' | 'XL') => void;
+  onProductClick: (product: Product) => void;
+  onViewAll?: () => void;
+}
+
+export const ProductGrid: React.FC<ProductGridProps> = ({
+  title,
+  subtitle,
+  categoryTag,
+  products,
+  currency,
+  wishlistIds,
+  onToggleWishlist,
+  onQuickAdd,
+  onProductClick,
+  onViewAll
+}) => {
+  return (
+    <section className="py-16 sm:py-24 bg-[#F7F4EF]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        {(title || categoryTag) && (
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 sm:mb-14">
+            <div>
+              {categoryTag && (
+                <span className="text-[11px] tracking-[0.28em] uppercase text-[#7C746B] font-medium block mb-2">
+                  {categoryTag}
+                </span>
+              )}
+              {title && (
+                <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-[#1D1D1B]">
+                  {title}
+                </h2>
+              )}
+              {subtitle && (
+                <p className="mt-2 text-sm sm:text-base text-[#7C746B] font-light max-w-lg">
+                  {subtitle}
+                </p>
+              )}
+            </div>
+
+            {onViewAll && (
+              <button
+                onClick={onViewAll}
+                className="mt-4 sm:mt-0 text-xs tracking-[0.2em] uppercase font-medium text-[#1D1D1B] hover:text-[#B88F88] pb-1 border-b border-[#1D1D1B] hover:border-[#B88F88] transition-all self-start sm:self-auto"
+              >
+                VIEW ALL PIECES ({products.length})
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* 4-column Desktop, 3-column Tablet, 2-column Mobile */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-10 sm:gap-y-14">
+          {products.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              currency={currency}
+              isWishlisted={wishlistIds.includes(product.id)}
+              onToggleWishlist={onToggleWishlist}
+              onQuickAdd={onQuickAdd}
+              onClick={onProductClick}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};

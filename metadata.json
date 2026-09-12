@@ -1,0 +1,6 @@
+{
+  "name": "LORÉA — Luxury Women's Fashion",
+  "description": "A luxury fashion editorial and contemporary women's e-commerce experience crafted with quiet luxury, Egyptian market accessibility, and modern minimalism.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
