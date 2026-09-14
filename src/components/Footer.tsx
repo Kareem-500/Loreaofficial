@@ -1,5 +1,5 @@
 import React from 'react';
-import { LoreaLogo } from './LoreaLogo';
+import { LogoLink } from './header/LogoLink';
 import { Instagram, Facebook, Mail, ArrowUp } from 'lucide-react';
 
 interface FooterProps {
@@ -20,7 +20,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onSelectCategory }) 
           {/* Column 1: Brand Statement (2 cols on large screen) */}
           <div className="lg:col-span-2">
             <div className="mb-5">
-              <LoreaLogo variant="dark" subtext={true} className="items-start" />
+              <LogoLink onNavigate={onNavigate} variant="dark" ariaLabel="LORÉA Home" />
             </div>
             <p className="text-sm text-[#B7ADA2] font-light leading-relaxed max-w-sm mb-6">
               Quiet luxury women’s fashion rooted in the rare craftsmanship of Egyptian extra-long staple cotton and natural flax linens. Designed in Cairo, made for effortless global elegance.

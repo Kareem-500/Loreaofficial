@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ShoppingBag, Heart, User, Menu, X, ChevronDown, Globe, ShieldCheck } from 'lucide-react';
-import { LoreaLogo } from './LoreaLogo';
+import { Menu, Globe, ShieldCheck, ChevronDown } from 'lucide-react';
+import { LogoLink } from './header/LogoLink';
+import { DesktopNavigation, NavLinkItem } from './header/DesktopNavigation';
+import { HeaderActions } from './header/HeaderActions';
+import { MobileMenu } from './header/MobileMenu';
 import { Currency } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 
-interface HeaderProps {
+export interface HeaderProps {
   isScrolled: boolean;
   cartCount: number;
   wishlistCount: number;
@@ -19,6 +22,16 @@ interface HeaderProps {
   onCurrencyChange: (c: Currency) => void;
 }
 
+/**
+ * LORÉA Header Component:
+ * - Clean, luxury women's fashion editorial layout
+ * - LEFT: LORÉA exact brand logo link
+ * - CENTER: Main navigation links
+ * - RIGHT: Search, Account, Wishlist, Shopping Bag / Cart
+ * - ON MOBILE: Hamburger button, LORÉA logo, Cart & essential icons
+ * - Fully responsive across 320px, 480px, 768px, 1024px, 1200px, 1440px+
+ * - Smooth sticky header with aspect-ratio preserving transitions
+ */
 export const Header: React.FC<HeaderProps> = ({
   isScrolled,
   cartCount,
@@ -33,13 +46,13 @@ export const Header: React.FC<HeaderProps> = ({
   onCurrencyChange
 }) => {
   const { user, isAuthenticated } = useAuth();
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage } = useLanguage();
 
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currencyDropdownOpen, setCurrencyDropdownOpen] = useState(false);
 
-  // Close mega menu on scroll or outside interaction
+  // Close mega menu on scroll
   useEffect(() => {
     const handleScroll = () => {
       if (isMegaMenuOpen) setIsMegaMenuOpen(false);
@@ -48,7 +61,8 @@ export const Header: React.FC<HeaderProps> = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isMegaMenuOpen]);
 
-  const navLinks = [
+  // Navigation links split for centered brand logo layout
+  const leftNavLinks: NavLinkItem[] = [
     { label: 'NEW IN', action: () => onNavigate('new-in') },
     {
       label: 'SHOP',
@@ -56,16 +70,21 @@ export const Header: React.FC<HeaderProps> = ({
       action: () => onNavigate('shop')
     },
     { label: 'COLLECTIONS', action: () => onNavigate('collections') },
-    { label: 'CLOTHING', action: () => onNavigate('clothing') },
+    { label: 'CLOTHING', action: () => onNavigate('clothing') }
+  ];
+
+  const rightNavLinks: NavLinkItem[] = [
     { label: 'MODEST EDIT', action: () => onSelectCategory('Modest Edit') },
     { label: 'ABOUT', action: () => onNavigate('about') },
     { label: 'JOURNAL', action: () => onNavigate('journal') },
     { label: 'SALE', action: () => onNavigate('sale'), isSale: true }
   ];
 
+  const navLinks: NavLinkItem[] = [...leftNavLinks, ...rightNavLinks];
+
   return (
     <>
-      {/* 1. Announcement Bar */}
+      {/* 1. Global Announcement Topbar */}
       <div className="bg-[#151413] text-[#F7F4EF] text-[11px] sm:text-xs tracking-wider uppercase py-2 px-4 border-b border-[#2A2826] transition-all">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="hidden md:flex items-center space-x-4 text-[#B7ADA2]">
@@ -74,7 +93,7 @@ export const Header: React.FC<HeaderProps> = ({
             <span>Handcrafted in Egypt</span>
           </div>
 
-          <div className="w-full md:w-auto text-center font-light tracking-widest text-[#F7F4EF]/90">
+          <div className="w-full md:w-auto text-center font-light tracking-widest text-[#F7F4EF]/90 text-[10px] sm:text-[11px]">
             Complimentary Cairo & Alexandria Delivery on Orders Over 2,500 EGP · Worldwide Express Shipping
           </div>
 
@@ -83,9 +102,9 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               id="language-toggle-btn"
               onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
-              className="text-[11px] font-medium tracking-wider text-[#F7F4EF] hover:text-[#B88F88] transition-colors flex items-center space-x-1"
+              className="text-[11px] font-medium tracking-wider text-[#F7F4EF] hover:text-[#BA945A] transition-colors flex items-center space-x-1"
             >
-              <Globe className="w-3 h-3 text-[#B88F88]" />
+              <Globe className="w-3 h-3 text-[#BA945A]" />
               <span>{language === 'en' ? 'العربية' : 'English'}</span>
             </button>
 
@@ -97,7 +116,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   id="header-admin-portal-link"
                   onClick={() => onNavigate('admin')}
-                  className="flex items-center space-x-1 text-[11px] font-semibold text-[#B88F88] hover:text-white uppercase tracking-wider"
+                  className="flex items-center space-x-1 text-[11px] font-semibold text-[#BA945A] hover:text-white uppercase tracking-wider"
                 >
                   <ShieldCheck className="w-3 h-3" />
                   <span>Admin Portal</span>
@@ -118,7 +137,7 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
 
               {currencyDropdownOpen && (
-                <div className="absolute right-0 mt-2 py-1.5 w-24 bg-[#1D1D1B] border border-[#333] shadow-2xl rounded-sm z-50 text-[11px]">
+                <div className="absolute right-0 mt-2 py-1.5 w-24 bg-[#1D1D1B] border border-[#333] shadow-2xl rounded-xs z-50 text-[11px]">
                   {(['EGP', 'USD', 'EUR', 'AED'] as Currency[]).map((c) => (
                     <button
                       key={c}
@@ -127,7 +146,7 @@ export const Header: React.FC<HeaderProps> = ({
                         setCurrencyDropdownOpen(false);
                       }}
                       className={`block w-full text-left px-3 py-1 hover:bg-[#2A2928] ${
-                        currency === c ? 'text-[#B88F88] font-bold' : 'text-[#F7F4EF]'
+                        currency === c ? 'text-[#BA945A] font-bold' : 'text-[#F7F4EF]'
                       }`}
                     >
                       {c}
@@ -143,7 +162,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               id="header-topbar-account-btn"
               onClick={onOpenAccount}
-              className="text-[11px] uppercase tracking-wider text-[#F7F4EF] hover:text-[#B88F88] transition-colors"
+              className="text-[11px] uppercase tracking-wider text-[#F7F4EF] hover:text-[#BA945A] transition-colors"
             >
               {isAuthenticated ? `${user?.firstName}` : language === 'ar' ? 'دخول' : 'Sign In'}
             </button>
@@ -151,139 +170,83 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* 2. Main Header */}
+      {/* 2. Main Sticky Header with Centered Luxury Brand Logo */}
       <header
         className={`sticky top-0 z-40 transition-all duration-300 ${
           isScrolled
-            ? 'bg-[#F7F4EF]/95 backdrop-blur-md shadow-xs border-b border-[#EAE5DE] py-3'
-            : 'bg-[#F7F4EF] border-b border-[#EAE5DE]/60 py-4 sm:py-5'
+            ? 'bg-[#FAF8F5]/95 backdrop-blur-md shadow-xs border-b border-[#EAE5DE] py-2.5 sm:py-3'
+            : 'bg-[#FAF8F5] border-b border-[#EAE5DE]/70 py-3.5 sm:py-4.5'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            {/* LEFT: Navigation (Desktop) / Hamburger (Mobile) */}
-            <div className="flex items-center lg:w-1/3">
-              {/* Mobile menu trigger */}
+            {/* LEFT: Desktop Left Navigation / Mobile Hamburger Menu */}
+            <div className="flex items-center justify-start w-1/4 lg:w-[35%] xl:w-[36%]">
+              {/* Mobile Hamburger Button */}
               <button
                 id="mobile-menu-btn"
                 onClick={() => setMobileMenuOpen(true)}
-                className="lg:hidden p-2 -ml-2 text-[#1D1D1B] hover:text-[#B88F88] transition-colors"
+                className="lg:hidden min-w-[44px] min-h-[44px] -ml-2 flex items-center justify-center p-2 text-[#1D1D1B] hover:text-[#BA945A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BA945A] rounded-xs transition-colors"
                 aria-label="Open Navigation Menu"
               >
                 <Menu className="w-5 h-5 stroke-[1.5]" />
               </button>
 
-              {/* Desktop Nav */}
-              <nav className="hidden lg:flex items-center space-x-6 text-[12px] tracking-[0.18em] font-medium text-[#1D1D1B]">
-                {navLinks.slice(0, 4).map((link) => (
-                  <div
-                    key={link.label}
-                    className="relative group"
-                    onMouseEnter={() => link.isMega && setIsMegaMenuOpen(true)}
-                  >
-                    <button
-                      onClick={() => {
-                        link.action();
-                        setIsMegaMenuOpen(false);
-                      }}
-                      className={`py-2 transition-colors relative hover:text-[#B88F88] flex items-center ${
-                        link.isSale ? 'text-[#964036] font-semibold' : ''
-                      }`}
-                    >
-                      <span>{link.label}</span>
-                      {link.isMega && <ChevronDown className="w-3 h-3 ml-1 opacity-50 transition-transform group-hover:rotate-180" />}
-                    </button>
-                  </div>
-                ))}
-              </nav>
+              {/* Desktop Left Navigation */}
+              <DesktopNavigation
+                navLinks={leftNavLinks}
+                isMegaMenuOpen={isMegaMenuOpen}
+                setIsMegaMenuOpen={setIsMegaMenuOpen}
+                align="left"
+              />
             </div>
 
-            {/* CENTER: LORÉA Logo */}
-            <div className="lg:w-1/3 flex justify-center cursor-pointer" onClick={() => onNavigate('home')}>
-              <LoreaLogo variant={isScrolled ? 'compact' : 'light'} />
+            {/* CENTER: LORÉA Logo (Centered on both Desktop and Mobile) */}
+            <div className="flex-1 lg:w-[30%] xl:w-[28%] flex items-center justify-center text-center px-2">
+              <LogoLink
+                onNavigate={onNavigate}
+                isScrolled={isScrolled}
+                ariaLabel="LORÉA Home"
+              />
             </div>
 
-            {/* RIGHT: Utilities (Search, Account, Wishlist, Cart) */}
-            <div className="flex items-center justify-end space-x-4 sm:space-x-5 lg:w-1/3">
-              {/* Secondary links on desktop */}
-              <div className="hidden xl:flex items-center space-x-6 text-[12px] tracking-[0.18em] font-medium text-[#1D1D1B] mr-4">
-                {navLinks.slice(4).map((link) => (
-                  <button
-                    key={link.label}
-                    onClick={link.action}
-                    className={`hover:text-[#B88F88] transition-colors ${
-                      link.isSale ? 'text-[#964036] font-semibold' : ''
-                    }`}
-                  >
-                    {link.label}
-                  </button>
-                ))}
-              </div>
+            {/* RIGHT: Desktop Right Navigation + Header Actions */}
+            <div className="flex items-center justify-end w-1/4 lg:w-[35%] xl:w-[36%] space-x-2 sm:space-x-4">
+              {/* Desktop Right Navigation */}
+              <DesktopNavigation
+                navLinks={rightNavLinks}
+                isMegaMenuOpen={false}
+                setIsMegaMenuOpen={() => {}}
+                align="right"
+                className="mr-2 xl:mr-4 hidden xl:flex"
+              />
 
-              {/* Search Icon */}
-              <button
-                id="header-search-btn"
-                onClick={onOpenSearch}
-                className="p-1.5 text-[#1D1D1B] hover:text-[#B88F88] transition-colors"
-                aria-label="Search"
-              >
-                <Search className="w-[18px] h-[18px] stroke-[1.5]" />
-              </button>
-
-              {/* Account Icon */}
-              <button
-                id="header-account-btn"
-                onClick={onOpenAccount}
-                className="hidden sm:block p-1.5 text-[#1D1D1B] hover:text-[#B88F88] transition-colors"
-                aria-label="Customer Account"
-              >
-                <User className="w-[18px] h-[18px] stroke-[1.5]" />
-              </button>
-
-              {/* Wishlist Icon with count */}
-              <button
-                id="header-wishlist-btn"
-                onClick={onOpenWishlist}
-                className="relative p-1.5 text-[#1D1D1B] hover:text-[#B88F88] transition-colors"
-                aria-label="Wishlist"
-              >
-                <Heart className="w-[18px] h-[18px] stroke-[1.5]" />
-                {wishlistCount > 0 ? (
-                  <span className="absolute -top-1 -right-1 bg-[#1D1D1B] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-medium pointer-events-none">
-                    {wishlistCount}
-                  </span>
-                ) : null}
-              </button>
-
-              {/* Cart Icon with count */}
-              <button
-                id="header-cart-btn"
-                onClick={onOpenCart}
-                className="relative p-1.5 text-[#1D1D1B] hover:text-[#B88F88] transition-colors"
-                aria-label="Shopping Cart"
-              >
-                <ShoppingBag className="w-[18px] h-[18px] stroke-[1.5]" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-[#1D1D1B] text-[#F7F4EF] text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-medium">
-                    {cartCount}
-                  </span>
-                )}
-              </button>
+              <HeaderActions
+                onOpenSearch={onOpenSearch}
+                onOpenAccount={onOpenAccount}
+                onOpenWishlist={onOpenWishlist}
+                onOpenCart={onOpenCart}
+                wishlistCount={wishlistCount}
+                cartCount={cartCount}
+                isAuthenticated={isAuthenticated}
+                userName={user?.firstName || 'Account'}
+                isMobileCompact={true}
+              />
             </div>
           </div>
         </div>
 
-        {/* 3. Mega Menu for SHOP */}
+        {/* 3. Mega Menu for SHOP (Interactive dropdown on hover or click) */}
         {isMegaMenuOpen && (
           <div
             id="mega-menu"
             onMouseLeave={() => setIsMegaMenuOpen(false)}
-            className="hidden lg:block absolute top-full left-0 w-full bg-[#F7F4EF] border-b border-[#EAE5DE] shadow-xl transition-all duration-300 z-50 py-8"
+            className="hidden lg:block absolute top-full left-0 w-full bg-[#FAF8F5] border-b border-[#EAE5DE] shadow-xl transition-all duration-300 z-50 py-8"
           >
             <div className="max-w-7xl mx-auto px-8 grid grid-cols-4 gap-8">
               {/* Column 1: Clothing */}
               <div>
-                <h3 className="text-xs uppercase tracking-[0.2em] font-medium text-[#7C746B] mb-4 pb-2 border-b border-[#EAE5DE]">
+                <h3 className="text-xs uppercase tracking-[0.24em] font-medium text-[#7C746B] mb-4 pb-2 border-b border-[#EAE5DE]">
                   Clothing
                 </h3>
                 <ul className="space-y-2.5 text-[13px] text-[#1D1D1B]">
@@ -315,7 +278,7 @@ export const Header: React.FC<HeaderProps> = ({
                           onSelectCategory(catMap[item] || 'Dresses');
                           setIsMegaMenuOpen(false);
                         }}
-                        className="hover:text-[#B88F88] hover:translate-x-1 transition-all inline-block font-light"
+                        className="hover:text-[#BA945A] hover:translate-x-1 transition-all inline-block font-light"
                       >
                         {item}
                       </button>
@@ -326,7 +289,7 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* Column 2: Collections */}
               <div>
-                <h3 className="text-xs uppercase tracking-[0.2em] font-medium text-[#7C746B] mb-4 pb-2 border-b border-[#EAE5DE]">
+                <h3 className="text-xs uppercase tracking-[0.24em] font-medium text-[#7C746B] mb-4 pb-2 border-b border-[#EAE5DE]">
                   Collections
                 </h3>
                 <ul className="space-y-2.5 text-[13px] text-[#1D1D1B]">
@@ -345,7 +308,7 @@ export const Header: React.FC<HeaderProps> = ({
                           onNavigate('collections');
                           setIsMegaMenuOpen(false);
                         }}
-                        className="hover:text-[#B88F88] hover:translate-x-1 transition-all inline-flex items-center font-light"
+                        className="hover:text-[#BA945A] hover:translate-x-1 transition-all inline-flex items-center font-light"
                       >
                         <span>{c.label}</span>
                         {c.tag && (
@@ -361,7 +324,7 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* Column 3: Editorial & Guides */}
               <div>
-                <h3 className="text-xs uppercase tracking-[0.2em] font-medium text-[#7C746B] mb-4 pb-2 border-b border-[#EAE5DE]">
+                <h3 className="text-xs uppercase tracking-[0.24em] font-medium text-[#7C746B] mb-4 pb-2 border-b border-[#EAE5DE]">
                   Editorial & Guides
                 </h3>
                 <ul className="space-y-2.5 text-[13px] text-[#1D1D1B]">
@@ -378,7 +341,7 @@ export const Header: React.FC<HeaderProps> = ({
                           item.action();
                           setIsMegaMenuOpen(false);
                         }}
-                        className="hover:text-[#B88F88] hover:translate-x-1 transition-all inline-block font-light"
+                        className="hover:text-[#BA945A] hover:translate-x-1 transition-all inline-block font-light"
                       >
                         {item.label}
                       </button>
@@ -388,7 +351,13 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
 
               {/* Column 4: Campaign Spotlight Feature */}
-              <div className="relative group overflow-hidden bg-[#EAE5DE] aspect-3/4 flex flex-col justify-end p-6 cursor-pointer" onClick={() => { onNavigate('shop'); setIsMegaMenuOpen(false); }}>
+              <div
+                className="relative group overflow-hidden bg-[#EAE5DE] aspect-3/4 flex flex-col justify-end p-6 cursor-pointer"
+                onClick={() => {
+                  onNavigate('shop');
+                  setIsMegaMenuOpen(false);
+                }}
+              >
                 <img
                   src="https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?q=80&w=800&auto=format&fit=crop"
                   alt="LORÉA New Season Campaign"
@@ -408,112 +377,24 @@ export const Header: React.FC<HeaderProps> = ({
         )}
       </header>
 
-      {/* 4. Mobile Navigation Drawer */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 flex lg:hidden">
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-
-          {/* Drawer Panel */}
-          <div className="relative w-full max-w-sm bg-[#F7F4EF] h-full shadow-2xl flex flex-col z-10">
-            {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-[#EAE5DE]">
-              <LoreaLogo variant="compact" />
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="p-1 text-[#1D1D1B] hover:text-[#B88F88]"
-                aria-label="Close Menu"
-              >
-                <X className="w-5 h-5 stroke-[1.5]" />
-              </button>
-            </div>
-
-            {/* Links */}
-            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
-              <div className="space-y-4">
-                <p className="text-[10px] tracking-[0.2em] uppercase text-[#7C746B] font-medium">Navigation</p>
-                {navLinks.map((link) => (
-                  <button
-                    key={link.label}
-                    onClick={() => {
-                      link.action();
-                      setMobileMenuOpen(false);
-                    }}
-                    className={`block w-full text-left text-lg font-serif tracking-wider ${
-                      link.isSale ? 'text-[#964036] font-semibold' : 'text-[#1D1D1B]'
-                    }`}
-                  >
-                    {link.label}
-                  </button>
-                ))}
-
-                <button
-                  onClick={() => {
-                    onOpenWishlist();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="flex items-center justify-between w-full text-left text-lg font-serif tracking-wider text-[#1D1D1B] pt-1"
-                >
-                  <span className="flex items-center space-x-2">
-                    <Heart className="w-4 h-4 stroke-[1.5]" />
-                    <span>Wishlist</span>
-                  </span>
-                  {wishlistCount > 0 ? (
-                    <span className="bg-[#1D1D1B] text-white text-[10px] px-2 py-0.5 rounded-full font-sans font-medium">
-                      {wishlistCount}
-                    </span>
-                  ) : null}
-                </button>
-              </div>
-
-              <div className="pt-4 border-t border-[#EAE5DE] space-y-3">
-                <p className="text-[10px] tracking-[0.2em] uppercase text-[#7C746B] font-medium">Featured Categories</p>
-                {['Dresses', 'Tops', 'Sets', 'Outerwear', 'Pants', 'Modest Edit'].map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => {
-                      onSelectCategory(cat);
-                      setMobileMenuOpen(false);
-                    }}
-                    className="block text-sm text-[#1D1D1B]/80 hover:text-[#B88F88] font-light"
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-
-              {/* Currency Selector Mobile */}
-              <div className="pt-4 border-t border-[#EAE5DE]">
-                <p className="text-[10px] tracking-[0.2em] uppercase text-[#7C746B] font-medium mb-2">Currency</p>
-                <div className="grid grid-cols-4 gap-2">
-                  {(['EGP', 'USD', 'EUR', 'AED'] as Currency[]).map((c) => (
-                    <button
-                      key={c}
-                      onClick={() => onCurrencyChange(c)}
-                      className={`py-1.5 text-xs text-center border ${
-                        currency === c
-                          ? 'border-[#1D1D1B] bg-[#1D1D1B] text-[#F7F4EF] font-medium'
-                          : 'border-[#D4CCC2] text-[#1D1D1B]'
-                      }`}
-                    >
-                      {c}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile Footer */}
-            <div className="p-6 bg-[#EFECE6] border-t border-[#EAE5DE] text-xs text-[#7C746B]">
-              <p className="tracking-widest uppercase font-medium text-[10px] text-[#1D1D1B] mb-1">LORÉA ATELIER</p>
-              <p>Cairo · Alexandria · Worldwide Delivery</p>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 4. Mobile Menu Drawer */}
+      <MobileMenu
+        isOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        navLinks={navLinks}
+        onNavigate={onNavigate}
+        onSelectCategory={onSelectCategory}
+        onOpenWishlist={onOpenWishlist}
+        onOpenAccount={onOpenAccount}
+        wishlistCount={wishlistCount}
+        currency={currency}
+        onCurrencyChange={onCurrencyChange}
+        language={language}
+        setLanguage={setLanguage}
+        isAuthenticated={isAuthenticated}
+        userRole={user?.role}
+        userName={user?.firstName}
+      />
     </>
   );
 };

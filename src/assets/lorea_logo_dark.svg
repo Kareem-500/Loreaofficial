@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 260" width="100%" height="100%" fill="none">
   <defs>
-    <linearGradient id="loreaGold_light" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#9E7739" />
-      <stop offset="50%" stop-color="#BA945A" />
-      <stop offset="100%" stop-color="#D5B480" />
+    <linearGradient id="loreaGold_dark" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#B8935C" />
+      <stop offset="50%" stop-color="#D6B47D" />
+      <stop offset="100%" stop-color="#F0D8AA" />
     </linearGradient>
   </defs>
 
   <!-- ==================== L ==================== -->
-  <g fill="#0F0F0E">
+  <g fill="#FDFBF7">
     <!-- Top-left bracketed serif -->
     <path d="M 46,48 L 52,48 C 60,48 64,45 64,38 L 88,38 L 88,154 C 88,172 96,178 116,178 L 136,178 C 146,178 150,171 150,162 C 150,156 146,153 142,153 C 138,153 135,156 135,161 C 135,168 130,172 118,172 L 88,172 C 72,172 64,166 64,150 L 64,48 C 64,45 60,48 46,48 Z" />
   </g>
@@ -16,7 +16,7 @@
   <!-- ==================== O with Silhouette & Hair ==================== -->
   <g>
     <!-- O Outer Ring with Didone contrast (fill-rule evenodd) -->
-    <path fill="#0F0F0E" fill-rule="evenodd" d="
+    <path fill="#FDFBF7" fill-rule="evenodd" d="
       M 242,34
       C 292,34 330,68 330,109
       C 330,150 292,184 242,184
@@ -31,7 +31,7 @@
 
     <!-- Flowing Hair Locks in Rich Gold -->
     <!-- Lock 1: Outer wave -->
-    <path fill="url(#loreaGold_light)" d="
+    <path fill="url(#loreaGold_dark)" d="
       M 216,45
       C 204,58 194,78 192,100
       C 190,122 194,144 204,162
@@ -40,7 +40,7 @@
     " />
 
     <!-- Lock 2: Middle voluptuous wave -->
-    <path fill="url(#loreaGold_light)" d="
+    <path fill="url(#loreaGold_dark)" d="
       M 232,42
       C 224,62 212,88 216,116
       C 220,138 214,156 205,170
@@ -49,7 +49,7 @@
     " />
 
     <!-- Lock 3: Inner wave framing head -->
-    <path fill="url(#loreaGold_light)" d="
+    <path fill="url(#loreaGold_dark)" d="
       M 244,52
       C 236,72 230,98 234,124
       C 238,146 230,162 218,174
@@ -71,14 +71,14 @@
       C 254,135 258,138 257,141
       C 254,147 248,152 246,156
       C 246,163 252,170 255,175
-    " fill="none" stroke="url(#loreaGold_light)" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" />
+    " fill="none" stroke="url(#loreaGold_dark)" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" />
 
     <!-- Neck & Clavicle Curve in Gold -->
-    <path d="M 236,172 C 242,168 250,170 256,174" fill="none" stroke="url(#loreaGold_light)" stroke-width="3" stroke-linecap="round" />
+    <path d="M 236,172 C 242,168 250,170 256,174" fill="none" stroke="url(#loreaGold_dark)" stroke-width="3" stroke-linecap="round" />
   </g>
 
   <!-- ==================== R ==================== -->
-  <g fill="#0F0F0E">
+  <g fill="#FDFBF7">
     <!-- Left vertical stem & bracketed serifs -->
     <path d="M 344,48 L 350,48 C 356,48 358,45 358,38 L 382,38 L 382,172 C 382,176 384,178 392,178 L 398,178 L 398,180 L 344,180 L 344,178 L 350,178 C 356,178 358,175 358,172 L 358,48 C 358,45 356,48 344,48 Z" />
     <!-- Upper bowl -->
@@ -102,7 +102,7 @@
   <!-- ==================== É with Golden Leaf Accent ==================== -->
   <g>
     <!-- Letter E -->
-    <g fill="#0F0F0E">
+    <g fill="#FDFBF7">
       <!-- Stem and serifs -->
       <path d="M 474,48 L 480,48 C 486,48 488,45 488,38 L 512,38 L 512,172 C 512,176 514,178 522,178 L 526,178 L 526,180 L 474,180 L 474,178 L 480,178 C 486,178 488,175 488,172 L 488,48 C 488,45 486,48 474,48 Z" />
       <!-- Top arm -->
@@ -114,11 +114,11 @@
     </g>
 
     <!-- Golden Leaf Accent (L'accent aigu) -->
-    <path fill="url(#loreaGold_light)" d="M 506,29 C 511,18 528,9 548,7 C 543,19 526,28 506,29 Z" />
+    <path fill="url(#loreaGold_dark)" d="M 506,29 C 511,18 528,9 548,7 C 543,19 526,28 506,29 Z" />
   </g>
 
   <!-- ==================== A ==================== -->
-  <g fill="#0F0F0E">
+  <g fill="#FDFBF7">
     <!-- Outer contour & bracketed serifs of A -->
     <path fill-rule="evenodd" d="
       M 650,38
@@ -135,7 +135,7 @@
 
   <!-- ==================== Subtitle: WOMEN'S FASHION ==================== -->
   <text x="370" y="238" 
-        fill="#0F0F0E" 
+        fill="#FDFBF7" 
         font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
         font-size="22" 
         font-weight="700" 
