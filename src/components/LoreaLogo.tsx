@@ -1,4 +1,6 @@
 import React from 'react';
+import lightLogo from '../assets/LOREA fashion.svg';
+import darkLogo from '../assets/lorea_logo_dark.svg';
 
 export interface LoreaLogoProps {
   variant?: 'light' | 'dark' | 'compact' | 'footer' | 'mark' | 'gold';
@@ -81,7 +83,7 @@ export const LoreaLogo: React.FC<LoreaLogoProps> = ({
 
   // If useImage is true, use the SVG asset file (light or dark mode)
   if (useImage) {
-    const logoSrc = isDark ? '/assets/lorea_logo_dark.svg' : '/LOREA fashion.svg';
+    const logoSrc = isDark ? darkLogo : lightLogo;
     return (
       <div
         className={`inline-flex flex-col select-none ${
