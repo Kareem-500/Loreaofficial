@@ -40,4 +40,6 @@ The workflow at `.github/workflows/deploy-pages.yml` builds and deploys the fron
 - Repository variable `VITE_SUPABASE_URL`
 - Repository secret `VITE_SUPABASE_ANON_KEY`
 
+Do not select **Deploy from a branch**. That mode serves the source `index.html` directly, so React and TypeScript components will not be bundled and the page will appear blank.
+
 GitHub Pages hosts the storefront only. The Express API still needs a Node-compatible host, and `VITE_API_URL` should point to that deployed API. The workflow creates a `404.html` SPA fallback so product and collection URLs continue to work on refresh.
