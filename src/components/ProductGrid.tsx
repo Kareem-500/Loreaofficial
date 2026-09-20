@@ -6,27 +6,51 @@ interface ProductGridProps {
   title?: string;
   subtitle?: string;
   categoryTag?: string;
-  products: Product[];
-  currency: Currency;
-  wishlistIds: string[];
+  products?: Product[];
+  currency?: Currency;
+  wishlistIds?: string[];
   onToggleWishlist: (product: Product) => void;
   onQuickAdd: (product: Product, size: 'XS' | 'S' | 'M' | 'L' | 'XL') => void;
   onProductClick: (product: Product) => void;
   onViewAll?: () => void;
+  noWrapper?: boolean;
 }
 
 export const ProductGrid: React.FC<ProductGridProps> = ({
   title,
   subtitle,
   categoryTag,
-  products,
-  currency,
-  wishlistIds,
+  products = [],
+  currency = 'EGP',
+  wishlistIds = [],
   onToggleWishlist,
   onQuickAdd,
   onProductClick,
-  onViewAll
+  onViewAll,
+  noWrapper = false
 }) => {
+  const safeProducts = products || [];
+
+  const gridContent = (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-10 sm:gap-y-14">
+      {safeProducts.map((product) => (
+        <ProductCard
+          key={product.id}
+          product={product}
+          currency={currency}
+          isWishlisted={wishlistIds.includes(product.id)}
+          onToggleWishlist={onToggleWishlist}
+          onQuickAdd={onQuickAdd}
+          onClick={onProductClick}
+        />
+      ))}
+    </div>
+  );
+
+  if (noWrapper) {
+    return gridContent;
+  }
+
   return (
     <section className="py-16 sm:py-24 bg-[#F7F4EF]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -56,26 +80,13 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                 onClick={onViewAll}
                 className="mt-4 sm:mt-0 text-xs tracking-[0.2em] uppercase font-medium text-[#1D1D1B] hover:text-[#B88F88] pb-1 border-b border-[#1D1D1B] hover:border-[#B88F88] transition-all self-start sm:self-auto"
               >
-                VIEW ALL PIECES ({products.length})
+                VIEW ALL PIECES ({safeProducts.length})
               </button>
             )}
           </div>
         )}
 
-        {/* 4-column Desktop, 3-column Tablet, 2-column Mobile */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-10 sm:gap-y-14">
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              currency={currency}
-              isWishlisted={wishlistIds.includes(product.id)}
-              onToggleWishlist={onToggleWishlist}
-              onQuickAdd={onQuickAdd}
-              onClick={onProductClick}
-            />
-          ))}
-        </div>
+        {gridContent}
       </div>
     </section>
   );

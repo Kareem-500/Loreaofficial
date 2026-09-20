@@ -1,5 +1,6 @@
 import React from 'react';
 import { LoreaLogo } from '../LoreaLogo';
+import { appPath } from '../../config/routes';
 
 export interface LogoLinkProps {
   onNavigate: (view: string) => void;
@@ -35,7 +36,7 @@ export const LogoLink: React.FC<LogoLinkProps> = ({
 
   return (
     <a
-      href="/"
+      href={appPath('/')}
       onClick={handleClick}
       aria-label={ariaLabel}
       title="LORÉA Home"

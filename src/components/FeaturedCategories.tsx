@@ -3,10 +3,16 @@ import { ArrowUpRight } from 'lucide-react';
 import { CATEGORIES } from '../data/products';
 
 interface FeaturedCategoriesProps {
+  categories?: typeof CATEGORIES;
   onSelectCategory: (categoryName: string) => void;
 }
 
-export const FeaturedCategories: React.FC<FeaturedCategoriesProps> = ({ onSelectCategory }) => {
+export const FeaturedCategories: React.FC<FeaturedCategoriesProps> = ({
+  categories = CATEGORIES,
+  onSelectCategory
+}) => {
+  const safeCategories = categories || CATEGORIES || [];
+
   return (
     <section className="py-20 sm:py-28 bg-[#F7F4EF] border-b border-[#EAE5DE]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -14,20 +20,20 @@ export const FeaturedCategories: React.FC<FeaturedCategoriesProps> = ({ onSelect
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 sm:mb-16">
           <div>
             <span className="text-[11px] tracking-[0.28em] uppercase text-[#7C746B] font-medium block mb-2">
-              DISCOVER BY SILHOUETTE
+              SHOP THE WOMEN'S EDIT
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-[#1D1D1B]">
-              Featured Categories
+              Find Your Silhouette
             </h2>
           </div>
           <p className="mt-4 md:mt-0 text-sm sm:text-base text-[#7C746B] font-light max-w-md">
-            Architectural tailoring, pure linens, and Giza cotton essentials sculpted for effortless distinction.
+            From fluid dresses to considered layers, discover the shapes that define your everyday wardrobe.
           </p>
         </div>
 
         {/* Categories Grid - 6 editorial cards */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-          {CATEGORIES.map((cat) => (
+          {safeCategories.map((cat) => (
             <div
               key={cat.id}
               onClick={() => onSelectCategory(cat.name)}
@@ -67,7 +73,7 @@ export const FeaturedCategories: React.FC<FeaturedCategoriesProps> = ({ onSelect
 
                 <div className="mt-3 overflow-hidden max-h-0 group-hover:max-h-12 transition-all duration-500 ease-in-out">
                   <span className="text-[11px] tracking-[0.16em] uppercase text-[#EAE5DE] underline underline-offset-4">
-                    Explore Silhouettes
+                    Shop This Edit
                   </span>
                 </div>
               </div>

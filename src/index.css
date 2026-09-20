@@ -12,10 +12,20 @@
   --color-cream: #FAF8F5;
 }
 
+:root {
+  --background: #F7F4EF;
+  --color-background: #F7F4EF;
+}
+
 html {
   scroll-behavior: smooth;
   font-family: var(--font-sans);
-  background-color: #F7F4EF;
+  background-color: var(--background);
+  color: #1D1D1B;
+}
+
+body {
+  background-color: var(--background);
   color: #1D1D1B;
 }
 

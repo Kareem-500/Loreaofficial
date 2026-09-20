@@ -8,7 +8,7 @@ const RATES: Record<Currency, number> = {
   AED: 0.074
 };
 
-export const formatPrice = (priceEgp: number, currency: Currency): string => {
+export const formatPrice = (priceEgp: number, currency: Currency = 'EGP'): string => {
   if (currency === 'EGP') {
     return `${priceEgp.toLocaleString('en-US')} EGP`;
   }

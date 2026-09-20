@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, Plus } from 'lucide-react';
+import { Heart, Plus, Sparkles } from 'lucide-react';
 import { Product, Currency } from '../types';
 import { formatPrice } from '../utils/currency';
 
@@ -10,6 +10,7 @@ interface ProductCardProps {
   onToggleWishlist: (product: Product) => void;
   onQuickAdd: (product: Product, size: 'XS' | 'S' | 'M' | 'L' | 'XL') => void;
   onClick: (product: Product) => void;
+  onOpenTryOn?: (product: Product) => void;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
@@ -18,7 +19,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   isWishlisted,
   onToggleWishlist,
   onQuickAdd,
-  onClick
+  onClick,
+  onOpenTryOn
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
@@ -35,10 +37,31 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     }, 900);
   };
 
+  const handleCardKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick(product);
+    }
+  };
+
+  if (!product) return null;
+
+  const images = product.images && product.images.length > 0
+    ? product.images
+    : ['https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop'];
+
   const currentImage =
-    isHovered && product.images.length > 1
-      ? product.images[1]
-      : product.images[0];
+    isHovered && images.length > 1
+      ? images[1]
+      : images[0];
+
+  const safeSizes = (product.sizes && product.sizes.length > 0)
+    ? product.sizes
+    : (['XS', 'S', 'M', 'L', 'XL'] as ('XS' | 'S' | 'M' | 'L' | 'XL')[]);
+
+  const safeColors = (product.colors && product.colors.length > 0)
+    ? product.colors
+    : [{ name: 'Standard', hex: '#1D1D1B' }];
 
   return (
     <div
@@ -49,6 +72,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         setIsQuickAddOpen(false);
       }}
       onClick={() => onClick(product)}
+      onKeyDown={handleCardKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label={`View ${product.name}`}
     >
       {/* 1. Image Container */}
       <div className="relative aspect-3/4 w-full overflow-hidden bg-[#EAE5DE] mb-3 sm:mb-4">
@@ -96,6 +123,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           />
         </button>
 
+        {/* AI Virtual Try-On Shortcut */}
+        {onOpenTryOn && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenTryOn(product);
+            }}
+            className="absolute top-12 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center bg-[#1D1D1B]/90 text-[#BA945A] hover:bg-[#BA945A] hover:text-white shadow-md transition-all duration-300 cursor-pointer"
+            title="AI Virtual Try-On / جرب اللبس بالذكاء الاصطناعي"
+            aria-label="AI Virtual Try-On"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+          </button>
+        )}
+
         {/* QUICK ADD overlay / button on Desktop & Mobile */}
         <div className="absolute inset-x-0 bottom-0 p-3 z-20">
           {!isQuickAddOpen ? (
@@ -133,7 +175,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                     </button>
                   </div>
                   <div className="grid grid-cols-5 gap-1">
-                    {product.sizes.map((size) => (
+                    {safeSizes.map((size) => (
                       <button
                         key={size}
                         onClick={(e) => handleSizeSelect(e, size)}
@@ -154,9 +196,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       <div className="flex flex-col space-y-1.5">
         {/* Color swatches */}
         <div className="flex items-center space-x-1.5 mb-0.5">
-          {product.colors.map((color, idx) => (
+          {safeColors.map((color, idx) => (
             <button
-              key={color.name}
+              key={color.name || idx}
               title={color.name}
               onClick={(e) => {
                 e.stopPropagation();
@@ -172,7 +214,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             />
           ))}
           <span className="text-[10px] text-[#7C746B] font-light ml-1">
-            {product.colors[selectedColorIndex]?.name}
+            {safeColors[selectedColorIndex]?.name || safeColors[0]?.name}
           </span>
         </div>
 

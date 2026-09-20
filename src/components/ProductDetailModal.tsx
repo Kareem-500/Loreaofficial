@@ -29,6 +29,7 @@ interface ProductDetailModalProps {
     qty: number
   ) => void;
   onOpenSizeGuide: () => void;
+  onOpenTryOn?: (product: Product) => void;
 }
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
@@ -38,7 +39,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   onClose,
   onToggleWishlist,
   onAddToCart,
-  onOpenSizeGuide
+  onOpenSizeGuide,
+  onOpenTryOn
 }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedColor, setSelectedColor] = useState<ProductColor | null>(null);
@@ -50,7 +52,21 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
   if (!product) return null;
 
-  const currentColor = selectedColor || product.colors[0];
+  const images = (product.images && product.images.length > 0)
+    ? product.images
+    : ['https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop'];
+
+  const colors = (product.colors && product.colors.length > 0)
+    ? product.colors
+    : [{ name: 'Standard', hex: '#1D1D1B' }];
+
+  const sizes = (product.sizes && product.sizes.length > 0)
+    ? product.sizes
+    : (['XS', 'S', 'M', 'L', 'XL'] as ('XS' | 'S' | 'M' | 'L' | 'XL')[]);
+
+  const reviews = product.reviews || [];
+
+  const currentColor = selectedColor || colors[0];
 
   const handleAddToCart = () => {
     onAddToCart(product, currentColor, selectedSize, quantity);
@@ -82,7 +98,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             {/* Main Stage Image with Zoom on Hover */}
             <div className="relative aspect-3/4 w-full overflow-hidden bg-[#EAE5DE] shadow-xs group">
               <img
-                src={product.images[selectedImageIndex] || product.images[0]}
+                src={images[selectedImageIndex] || images[0]}
                 alt={`${product.name} view ${selectedImageIndex + 1}`}
                 className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110 cursor-zoom-in"
               />
@@ -102,9 +118,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             </div>
 
             {/* Thumbnail Navigation */}
-            {product.images.length > 1 && (
+            {images.length > 1 && (
               <div className="flex items-center space-x-3 mt-4 overflow-x-auto no-scrollbar py-1">
-                {product.images.map((img, idx) => (
+                {images.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setSelectedImageIndex(idx)}
@@ -168,7 +184,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   </span>
                 </div>
                 <div className="flex items-center space-x-2.5">
-                  {product.colors.map((c) => (
+                  {colors.map((c) => (
                     <button
                       key={c.name}
                       onClick={() => setSelectedColor(c)}
@@ -200,7 +216,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   </button>
                 </div>
                 <div className="grid grid-cols-5 gap-2">
-                  {product.sizes.map((s) => (
+                  {sizes.map((s) => (
                     <button
                       key={s}
                       onClick={() => setSelectedSize(s)}
@@ -283,6 +299,17 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     <span>{copiedLink ? 'LINK COPIED' : 'SHARE'}</span>
                   </button>
                 </div>
+
+                {/* AI Virtual Try-On CTA */}
+                {onOpenTryOn && (
+                  <button
+                    onClick={() => onOpenTryOn(product)}
+                    className="w-full py-3 bg-[#FAF8F5] text-[#1D1D1B] hover:bg-[#1D1D1B] hover:text-[#F7F4EF] border border-[#BA945A] text-xs tracking-[0.2em] uppercase font-medium flex items-center justify-center space-x-2 transition-all cursor-pointer group shadow-xs"
+                  >
+                    <Sparkles className="w-4 h-4 text-[#BA945A] group-hover:text-white transition-colors" />
+                    <span>AI Virtual Try-On · جرب اللبس على صورتك</span>
+                  </button>
+                )}
               </div>
 
               {/* Egyptian Atelier Trust Badges */}
@@ -368,8 +395,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                           {product.rating} / 5.0 Rating
                         </span>
                       </div>
-                      {product.reviews.length > 0 ? (
-                        product.reviews.map((r) => (
+                      {reviews.length > 0 ? (
+                        reviews.map((r) => (
                           <div key={r.id} className="p-2.5 bg-[#EFECE6] border border-[#EAE5DE]">
                             <div className="flex justify-between items-center mb-1">
                               <span className="font-medium text-[#1D1D1B]">{r.author}</span>

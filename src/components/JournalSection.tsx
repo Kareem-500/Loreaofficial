@@ -19,17 +19,17 @@ export const JournalSection: React.FC<JournalSectionProps> = ({
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 sm:mb-16">
           <div>
             <span className="text-[11px] tracking-[0.3em] uppercase text-[#7C746B] font-medium block mb-2">
-              THE LORÉA JOURNAL
+              THE LORÉA JOURNAL · WOMEN'S STYLE
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-[#1D1D1B]">
-              Style, Fabric & Atelier Stories
+              Notes on Style, Fabric & Living
             </h2>
           </div>
           <button
             onClick={onViewAllArticles}
             className="mt-4 md:mt-0 text-xs tracking-[0.2em] uppercase font-medium text-[#1D1D1B] hover:text-[#B88F88] pb-1 border-b border-[#1D1D1B] hover:border-[#B88F88] transition-all flex items-center space-x-2"
           >
-            <span>READ ALL STORIES</span>
+            <span>READ THE JOURNAL</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -75,7 +75,7 @@ export const JournalSection: React.FC<JournalSectionProps> = ({
 
               <div className="pt-2">
                 <span className="inline-flex items-center space-x-1 text-xs tracking-[0.18em] uppercase text-[#1D1D1B] font-medium group-hover:text-[#B88F88] transition-colors">
-                  <span>Read Article</span>
+                  <span>Read Story</span>
                   <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
                 </span>
               </div>

@@ -6,7 +6,7 @@ import { formatPrice } from '../utils/currency';
 interface WishlistDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  products: Product[];
+  products?: Product[];
   currency: Currency;
   onRemoveFromWishlist: (productId: string) => void;
   onClearWishlist?: () => void;
@@ -17,7 +17,7 @@ interface WishlistDrawerProps {
 export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
   isOpen,
   onClose,
-  products,
+  products = [],
   currency,
   onRemoveFromWishlist,
   onClearWishlist,
@@ -25,6 +25,8 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
   onMoveToCart
 }) => {
   if (!isOpen) return null;
+
+  const safeProducts = (products || []).filter(Boolean);
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
@@ -42,14 +44,14 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
               <h3 className="font-serif text-2xl font-light text-[#1D1D1B]">
                 Your Wishlist
               </h3>
-              {products.length > 0 && (
+              {safeProducts.length > 0 && (
                 <span className="text-[11px] bg-[#1D1D1B] text-white px-2 py-0.5 rounded-full font-sans font-medium">
-                  {products.length}
+                  {safeProducts.length}
                 </span>
               )}
             </div>
             <div className="flex items-center space-x-3">
-              {products.length > 0 && onClearWishlist && (
+              {safeProducts.length > 0 && onClearWishlist && (
                 <button
                   onClick={onClearWishlist}
                   className="text-[11px] text-[#7C746B] hover:text-[#964036] tracking-[0.14em] uppercase font-medium transition-colors"
@@ -69,7 +71,7 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
 
           {/* List */}
           <div className="flex-1 overflow-y-auto px-6 py-4 divide-y divide-[#EAE5DE]">
-            {products.length === 0 ? (
+            {safeProducts.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center py-12">
                 <div className="w-16 h-16 rounded-full bg-[#EFECE6] flex items-center justify-center mb-4 text-[#7C746B]">
                   <Heart className="w-7 h-7 stroke-[1]" />
@@ -88,11 +90,11 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
                 </button>
               </div>
             ) : (
-              products.map((product) => (
+              safeProducts.map((product) => (
                 <div key={product.id} className="py-5 flex gap-4">
                   <img
-                    src={product.images[0]}
-                    alt={product.name}
+                    src={product.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop'}
+                    alt={product.name || 'Saved Piece'}
                     onClick={() => onSelectProduct?.(product)}
                     className="w-20 h-26 object-cover bg-[#EAE5DE] shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
                   />

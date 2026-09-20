@@ -76,6 +76,18 @@ router.post('/checkout', (req: Request, res: Response) => {
       return res.status(422).json({ error: 'Please provide full shipping details.' });
     }
 
+    const normalizedItems = items.map((item: any) => {
+      const productId = item.product?.id || item.productId;
+      const product = productId
+        ? db.prepare('SELECT id, name, price_egp, sku, status FROM products WHERE id = ? AND status = \'active\'').get(productId) as any
+        : null;
+      const quantity = Number(item.quantity);
+      if (!product || !Number.isInteger(quantity) || quantity < 1 || quantity > 20) {
+        throw new Error('One or more garments are no longer available. Please review your bag.');
+      }
+      return { item, product, quantity, price: Number(product.price_egp) };
+    });
+
     // Determine user ID if authenticated, else link or create guest customer
     const token = extractToken(req);
     const authPayload = token ? verifyAuthToken(token) : null;
@@ -107,10 +119,8 @@ router.post('/checkout', (req: Request, res: Response) => {
 
     // Calculate subtotal
     let subtotal = 0;
-    for (const item of items) {
-      const price = Number(item.product?.priceEgp || item.price || 0);
-      const qty = Number(item.quantity || 1);
-      subtotal += price * qty;
+    for (const normalizedItem of normalizedItems) {
+      subtotal += normalizedItem.price * normalizedItem.quantity;
     }
 
     // Discount check
@@ -168,14 +178,14 @@ router.post('/checkout', (req: Request, res: Response) => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
-    for (const item of items) {
-      const prodId = item.product?.id || item.productId;
-      const prodName = item.product?.name || item.name || 'LORÉA Garment';
+    for (const normalizedItem of normalizedItems) {
+      const { item, product, quantity, price } = normalizedItem;
+      const prodId = product.id;
+      const prodName = product.name;
       const color = item.selectedColor?.name || item.color || '';
       const size = item.selectedSize || item.size || 'M';
-      const price = Number(item.product?.priceEgp || item.price || 0);
-      const qty = Number(item.quantity || 1);
-      const itemTotal = price * qty;
+      const itemTotal = price * quantity;
+      const qty = quantity;
       const img = item.product?.images?.[0] || item.image || '';
 
       insertItem.run(

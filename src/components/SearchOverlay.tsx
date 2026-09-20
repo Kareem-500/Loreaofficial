@@ -6,9 +6,9 @@ import { formatPrice } from '../utils/currency';
 interface SearchOverlayProps {
   isOpen: boolean;
   onClose: () => void;
-  products: Product[];
-  articles: Article[];
-  currency: Currency;
+  products?: Product[];
+  articles?: Article[];
+  currency?: Currency;
   onSelectProduct: (product: Product) => void;
   onSelectArticle: (article: Article) => void;
   onSelectCategory: (category: string) => void;
@@ -17,9 +17,9 @@ interface SearchOverlayProps {
 export const SearchOverlay: React.FC<SearchOverlayProps> = ({
   isOpen,
   onClose,
-  products,
-  articles,
-  currency,
+  products = [],
+  articles = [],
+  currency = 'EGP' as Currency,
   onSelectProduct,
   onSelectArticle,
   onSelectCategory
@@ -50,24 +50,26 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({
 
     const q = query.toLowerCase().trim();
 
-    const matchedProducts = products.filter((p) => {
+    const matchedProducts = (products || []).filter((p) => {
+      if (!p) return false;
       return (
-        p.name.toLowerCase().includes(q) ||
-        p.nameAr.includes(q) ||
-        p.category.toLowerCase().includes(q) ||
-        p.subcategory.toLowerCase().includes(q) ||
-        p.fabric.toLowerCase().includes(q) ||
-        p.sku.toLowerCase().includes(q) ||
-        p.tags.some((t) => t.toLowerCase().includes(q))
+        (p.name || '').toLowerCase().includes(q) ||
+        (p.nameAr || '').includes(q) ||
+        (p.category || '').toLowerCase().includes(q) ||
+        (p.subcategory || '').toLowerCase().includes(q) ||
+        (p.fabric || '').toLowerCase().includes(q) ||
+        (p.sku || '').toLowerCase().includes(q) ||
+        (p.tags || []).some((t) => (t || '').toLowerCase().includes(q))
       );
     });
 
-    const matchedArticles = articles.filter((a) => {
+    const matchedArticles = (articles || []).filter((a) => {
+      if (!a) return false;
       return (
-        a.title.toLowerCase().includes(q) ||
-        a.titleAr.includes(q) ||
-        a.category.toLowerCase().includes(q) ||
-        a.excerpt.toLowerCase().includes(q)
+        (a.title || '').toLowerCase().includes(q) ||
+        (a.titleAr || '').includes(q) ||
+        (a.category || '').toLowerCase().includes(q) ||
+        (a.excerpt || '').toLowerCase().includes(q)
       );
     });
 
@@ -172,8 +174,8 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({
                     >
                       <div className="aspect-3/4 overflow-hidden bg-[#EAE5DE] mb-2.5">
                         <img
-                          src={p.images[0]}
-                          alt={p.name}
+                          src={p.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop'}
+                          alt={p.name || 'Garment'}
                           className="w-full h-full object-cover object-center group-hover:scale-104 transition-transform duration-500"
                         />
                       </div>

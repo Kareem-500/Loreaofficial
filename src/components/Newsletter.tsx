@@ -15,15 +15,15 @@ export const Newsletter: React.FC = () => {
     <section className="py-20 sm:py-28 bg-[#EFECE6] border-b border-[#EAE5DE]">
       <div className="max-w-3xl mx-auto px-6 text-center">
         <span className="text-[10px] tracking-[0.34em] uppercase text-[#7C746B] font-medium block mb-3">
-          PRIVATE ATELIER INVITATION
+          THE LORÉA LETTER
         </span>
 
         <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light tracking-wide text-[#1D1D1B] mb-4">
-          Stay in the LORÉA World
+          Your place in the LORÉA world
         </h2>
 
         <p className="text-sm sm:text-base text-[#7C746B] font-light max-w-md mx-auto leading-relaxed mb-8">
-          Subscribers receive early access to seasonal collection drops, private salon invitations in Cairo, and fabric sourcing stories.
+          Receive first access to new arrivals, styling notes, private events, and the stories behind our fabrics.
         </p>
 
         {isSubmitted ? (
@@ -56,7 +56,7 @@ export const Newsletter: React.FC = () => {
         )}
 
         <p className="text-[11px] text-[#A0988E] font-light mt-4">
-          By joining, you agree to our Privacy Policy. You can unsubscribe at any time.
+          By joining, you agree to our Privacy Policy. Unsubscribe whenever you choose.
         </p>
       </div>
     </section>

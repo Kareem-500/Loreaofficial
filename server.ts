@@ -10,6 +10,7 @@ import accountRoutes from './server/routes/accountRoutes';
 import wishlistRoutes from './server/routes/wishlistRoutes';
 import adminRoutes from './server/routes/adminRoutes';
 import publicRoutes from './server/routes/publicRoutes';
+import aiRoutes from './server/routes/aiRoutes';
 
 dotenv.config();
 
@@ -20,13 +21,18 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  // Middlewares
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  // Middlewares with high payload limit for photo try-on
+  app.use(express.json({ limit: '20mb' }));
+  app.use(express.urlencoded({ limit: '20mb', extended: true }));
   app.use(cookieParser());
   app.use(authenticate);
 
   // API Routes
+  app.get(['/LOREA fashion.svg', '/LOREA%20fashion.svg'], (req, res) => {
+    res.type('image/svg+xml');
+    res.sendFile(path.join(process.cwd(), 'public', 'LOREA fashion.svg'));
+  });
+
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', brand: 'LORÉA', timestamp: new Date().toISOString() });
   });
@@ -36,6 +42,7 @@ async function startServer() {
   app.use('/api/wishlist', wishlistRoutes);
   app.use('/api/admin', adminRoutes);
   app.use('/api/public', publicRoutes);
+  app.use('/api/ai', aiRoutes);
 
   // Vite middleware for development vs static for production
   if (process.env.NODE_ENV !== 'production') {

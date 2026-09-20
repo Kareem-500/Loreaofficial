@@ -1,177 +1,390 @@
 import React from 'react';
 import { LogoLink } from './header/LogoLink';
-import { Instagram, Facebook, Mail, ArrowUp } from 'lucide-react';
+import { Instagram, Facebook, ArrowUp, MessageCircle, Music2 } from 'lucide-react';
+import { ROUTES, appPath, buildCategoryUrl } from '../config/routes';
 
 interface FooterProps {
   onNavigate: (view: string) => void;
   onSelectCategory: (category: string) => void;
+  onOpenSizeGuide?: () => void;
+  onOpenWishlist?: () => void;
+  onOpenCart?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onNavigate, onSelectCategory }) => {
+export const Footer: React.FC<FooterProps> = ({
+  onNavigate,
+  onSelectCategory,
+  onOpenSizeGuide,
+  onOpenWishlist,
+  onOpenCart
+}) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const navigateTo = (e: React.MouseEvent, path: string, view: string) => {
+    if (!e.metaKey && !e.ctrlKey && !e.shiftKey && e.button === 0) {
+      e.preventDefault();
+      onNavigate(view);
+      window.history.pushState({}, '', path);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   return (
-    <footer className="bg-[#151413] text-[#F7F4EF] pt-20 pb-12 border-t border-[#262422]">
+    <footer className="bg-[#151413] text-[#F7F4EF] pt-16 sm:pt-20 pb-12 border-t border-[#262422]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top Section with 4 Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12 pb-16 border-b border-[#2A2826]">
-          {/* Column 1: Brand Statement (2 cols on large screen) */}
-          <div className="lg:col-span-2">
-            <div className="mb-5">
+        {/* Top Section with 5 Columns: Brand, Shop, Customer Care, LOREA, Account */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 sm:gap-10 pb-14 border-b border-[#2A2826]">
+          {/* Column 1 & 2: Brand Statement */}
+          <div className="col-span-2">
+            <div className="mb-4">
               <LogoLink onNavigate={onNavigate} variant="dark" ariaLabel="LORÉA Home" />
             </div>
-            <p className="text-sm text-[#B7ADA2] font-light leading-relaxed max-w-sm mb-6">
-              Quiet luxury women’s fashion rooted in the rare craftsmanship of Egyptian extra-long staple cotton and natural flax linens. Designed in Cairo, made for effortless global elegance.
+            <p className="text-xs sm:text-sm text-[#B7ADA2] font-light leading-relaxed max-w-sm mb-6">
+              LORÉA creates modern women’s fashion with a quiet point of view: fluid silhouettes, exceptional Egyptian cotton, and thoughtful craft. Designed in Cairo for everywhere.
             </p>
-            <div className="flex items-center space-x-4 text-[#B7ADA2]">
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noreferrer"
-                className="w-8 h-8 rounded-full border border-[#333] flex items-center justify-center hover:text-white hover:border-white transition-colors"
-                aria-label="Instagram"
-              >
-                <Instagram className="w-4 h-4 stroke-[1.5]" />
-              </a>
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noreferrer"
-                className="w-8 h-8 rounded-full border border-[#333] flex items-center justify-center hover:text-white hover:border-white transition-colors"
-                aria-label="Facebook"
-              >
-                <Facebook className="w-4 h-4 stroke-[1.5]" />
-              </a>
-              <a
-                href="mailto:concierge@lorea-atelier.com"
-                className="w-8 h-8 rounded-full border border-[#333] flex items-center justify-center hover:text-white hover:border-white transition-colors"
-                aria-label="Email Atelier Concierge"
-              >
-                <Mail className="w-4 h-4 stroke-[1.5]" />
-              </a>
+            {/* Socials Column */}
+            <div className="space-y-2">
+              <span className="text-[10px] tracking-[0.24em] uppercase text-[#BA945A] font-medium block">
+                FOLLOW THE LORÉA EDIT
+              </span>
+              <div className="flex items-center space-x-3 text-[#B7ADA2]">
+                <a
+                  href="https://instagram.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-8 h-8 rounded-full border border-[#333] flex items-center justify-center hover:text-white hover:border-white transition-colors"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="w-3.5 h-3.5 stroke-[1.5]" />
+                </a>
+                <a
+                  href="https://facebook.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-8 h-8 rounded-full border border-[#333] flex items-center justify-center hover:text-white hover:border-white transition-colors"
+                  aria-label="Facebook"
+                >
+                  <Facebook className="w-3.5 h-3.5 stroke-[1.5]" />
+                </a>
+                <a
+                  href="https://tiktok.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-8 h-8 rounded-full border border-[#333] flex items-center justify-center hover:text-white hover:border-white transition-colors"
+                  aria-label="TikTok"
+                >
+                  <Music2 className="w-3.5 h-3.5 stroke-[1.5]" />
+                </a>
+                <a
+                  href="https://wa.me/201000000000"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-8 h-8 rounded-full border border-[#333] flex items-center justify-center hover:text-white hover:border-white transition-colors"
+                  aria-label="WhatsApp Atelier Concierge"
+                >
+                  <MessageCircle className="w-3.5 h-3.5 stroke-[1.5]" />
+                </a>
+              </div>
             </div>
           </div>
 
-          {/* Column 2: SHOP */}
+          {/* Column 3: SHOP (10 Links) */}
           <div>
-            <h4 className="text-[11px] tracking-[0.24em] uppercase font-medium text-[#F7F4EF] mb-5">
+            <h4 className="text-[11px] tracking-[0.22em] uppercase font-semibold text-[#F7F4EF] mb-4">
               SHOP
             </h4>
-            <ul className="space-y-2.5 text-xs text-[#B7ADA2] font-light">
+            <ul className="space-y-2 text-xs text-[#B7ADA2] font-light">
               <li>
-                <button onClick={() => onNavigate('new-in')} className="hover:text-[#F7F4EF] transition-colors">
+                <a
+                  href={ROUTES.STORE}
+                  onClick={(e) => navigateTo(e, ROUTES.STORE, 'store')}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  All Products
+                </a>
+              </li>
+              <li>
+                <a
+                  href={ROUTES.NEW_IN}
+                  onClick={(e) => navigateTo(e, ROUTES.NEW_IN, 'new-in')}
+                  className="hover:text-[#F7F4EF] transition-colors font-medium text-[#D4CCC2]"
+                >
                   New In
-                </button>
+                </a>
               </li>
               <li>
-                <button onClick={() => onSelectCategory('Dresses')} className="hover:text-[#F7F4EF] transition-colors">
+                <a
+                  href={buildCategoryUrl('dresses')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSelectCategory('Dresses');
+                  }}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
                   Dresses
-                </button>
+                </a>
               </li>
               <li>
-                <button onClick={() => onSelectCategory('Tops')} className="hover:text-[#F7F4EF] transition-colors">
-                  Tops & Blouses
-                </button>
+                <a
+                  href={buildCategoryUrl('tops')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSelectCategory('Tops');
+                  }}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  Tops
+                </a>
               </li>
               <li>
-                <button onClick={() => onSelectCategory('Sets')} className="hover:text-[#F7F4EF] transition-colors">
-                  Coordinated Sets
-                </button>
+                <a
+                  href={buildCategoryUrl('bottoms')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSelectCategory('Bottoms');
+                  }}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  Bottoms
+                </a>
               </li>
               <li>
-                <button onClick={() => onSelectCategory('Outerwear')} className="hover:text-[#F7F4EF] transition-colors">
-                  Outerwear & Coats
-                </button>
+                <a
+                  href={buildCategoryUrl('sets')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSelectCategory('Sets');
+                  }}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  Sets
+                </a>
               </li>
               <li>
-                <button onClick={() => onSelectCategory('Pants')} className="hover:text-[#F7F4EF] transition-colors">
-                  Trousers & Skirts
-                </button>
+                <a
+                  href={buildCategoryUrl('outerwear')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSelectCategory('Outerwear');
+                  }}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  Outerwear
+                </a>
               </li>
               <li>
-                <button onClick={() => onSelectCategory('Modest Edit')} className="hover:text-[#F7F4EF] transition-colors">
-                  Modest Edit
-                </button>
+                <a
+                  href={buildCategoryUrl('modest')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSelectCategory('Modest Edit');
+                  }}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  Modest Wear
+                </a>
               </li>
               <li>
-                <button onClick={() => onNavigate('sale')} className="text-[#C47E75] hover:text-[#D18E85] transition-colors">
-                  Archive Sale
+                <a
+                  href={buildCategoryUrl('loungewear')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSelectCategory('Loungewear & Sleepwear');
+                  }}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  Loungewear
+                </a>
+              </li>
+              <li>
+                <a
+                  href={buildCategoryUrl('scarves')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSelectCategory('Scarves');
+                  }}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  Scarves
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 4: CUSTOMER CARE */}
+          <div>
+            <h4 className="text-[11px] tracking-[0.22em] uppercase font-semibold text-[#F7F4EF] mb-4">
+              CUSTOMER CARE
+            </h4>
+            <ul className="space-y-2 text-xs text-[#B7ADA2] font-light">
+              <li>
+                <a
+                  href={ROUTES.CONTACT}
+                  onClick={(e) => navigateTo(e, ROUTES.CONTACT, 'contact')}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  Contact Us
+                </a>
+              </li>
+              <li>
+                <a
+                  href={ROUTES.SHIPPING}
+                  onClick={(e) => navigateTo(e, ROUTES.SHIPPING, 'shipping')}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  Shipping & Delivery
+                </a>
+              </li>
+              <li>
+                <a
+                  href={ROUTES.RETURNS}
+                  onClick={(e) => navigateTo(e, ROUTES.RETURNS, 'returns')}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  Returns & Exchanges
+                </a>
+              </li>
+              <li>
+                <a
+                  href={ROUTES.FAQ}
+                  onClick={(e) => navigateTo(e, ROUTES.FAQ, 'faq')}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  FAQ
+                </a>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={onOpenSizeGuide || (() => onNavigate('size-guide'))}
+                  className="hover:text-[#F7F4EF] transition-colors text-left"
+                >
+                  Size Guide
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* Column 3: HELP & CLIENT SERVICES */}
+          {/* Column 5: LOREA */}
           <div>
-            <h4 className="text-[11px] tracking-[0.24em] uppercase font-medium text-[#F7F4EF] mb-5">
-              CLIENT SERVICES
+            <h4 className="text-[11px] tracking-[0.22em] uppercase font-semibold text-[#F7F4EF] mb-4">
+              LORÉA
             </h4>
-            <ul className="space-y-2.5 text-xs text-[#B7ADA2] font-light">
+            <ul className="space-y-2 text-xs text-[#B7ADA2] font-light">
               <li>
-                <button onClick={() => onNavigate('contact')} className="hover:text-[#F7F4EF] transition-colors">
-                  Atelier Concierge & WhatsApp
-                </button>
+                <a
+                  href={ROUTES.ABOUT}
+                  onClick={(e) => navigateTo(e, ROUTES.ABOUT, 'about')}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  About LORÉA
+                </a>
               </li>
               <li>
-                <button onClick={() => onNavigate('shipping')} className="hover:text-[#F7F4EF] transition-colors">
-                  Shipping & Delivery (Egypt & Int’l)
-                </button>
+                <a
+                  href={appPath('/story')}
+                  onClick={(e) => navigateTo(e, '/story', 'about')}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  Our Story
+                </a>
               </li>
               <li>
-                <button onClick={() => onNavigate('returns')} className="hover:text-[#F7F4EF] transition-colors">
-                  Complimentary 14-Day Returns
-                </button>
+                <a
+                  href={ROUTES.COLLECTIONS}
+                  onClick={(e) => navigateTo(e, ROUTES.COLLECTIONS, 'collections')}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  Collections
+                </a>
               </li>
               <li>
-                <button onClick={() => onNavigate('size-guide')} className="hover:text-[#F7F4EF] transition-colors">
-                  Interactive Size Guide
-                </button>
+                <a
+                  href={ROUTES.JOURNAL}
+                  onClick={(e) => navigateTo(e, ROUTES.JOURNAL, 'journal')}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  The Journal
+                </a>
               </li>
               <li>
-                <button onClick={() => onNavigate('faq')} className="hover:text-[#F7F4EF] transition-colors">
-                  Frequently Asked Questions
-                </button>
-              </li>
-              <li>
-                <button onClick={() => onNavigate('orders')} className="hover:text-[#F7F4EF] transition-colors">
-                  Track Your Order
-                </button>
+                <a
+                  href={ROUTES.CONTACT}
+                  onClick={(e) => navigateTo(e, ROUTES.CONTACT, 'contact')}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  Contact
+                </a>
               </li>
             </ul>
           </div>
 
-          {/* Column 4: ABOUT LORÉA */}
+          {/* Column 6: ACCOUNT */}
           <div>
-            <h4 className="text-[11px] tracking-[0.24em] uppercase font-medium text-[#F7F4EF] mb-5">
-              ABOUT
+            <h4 className="text-[11px] tracking-[0.22em] uppercase font-semibold text-[#F7F4EF] mb-4">
+              ACCOUNT
             </h4>
-            <ul className="space-y-2.5 text-xs text-[#B7ADA2] font-light">
+            <ul className="space-y-2 text-xs text-[#B7ADA2] font-light">
               <li>
-                <button onClick={() => onNavigate('about')} className="hover:text-[#F7F4EF] transition-colors">
-                  Our Story & Heritage
-                </button>
+                <a
+                  href={ROUTES.ACCOUNT}
+                  onClick={(e) => navigateTo(e, ROUTES.ACCOUNT, 'account')}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  My Account
+                </a>
               </li>
               <li>
-                <button onClick={() => onNavigate('journal')} className="hover:text-[#F7F4EF] transition-colors">
-                  The LORÉA Journal
-                </button>
+                <a
+                  href={ROUTES.WISHLIST}
+                  onClick={(e) => {
+                    if (onOpenWishlist) {
+                      e.preventDefault();
+                      onOpenWishlist();
+                    } else {
+                      navigateTo(e, ROUTES.WISHLIST, 'wishlist');
+                    }
+                  }}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  Wishlist
+                </a>
               </li>
               <li>
-                <button onClick={() => onNavigate('fabrics')} className="hover:text-[#F7F4EF] transition-colors">
-                  Giza 45 Cotton Sourcing
-                </button>
+                <a
+                  href={ROUTES.ACCOUNT}
+                  onClick={(e) => navigateTo(e, ROUTES.ACCOUNT, 'account')}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  Orders
+                </a>
               </li>
               <li>
-                <button onClick={() => onNavigate('sustainability')} className="hover:text-[#F7F4EF] transition-colors">
-                  Ethical Atelier Practices
-                </button>
+                <a
+                  href={ROUTES.CART}
+                  onClick={(e) => {
+                    if (onOpenCart) {
+                      e.preventDefault();
+                      onOpenCart();
+                    } else {
+                      navigateTo(e, ROUTES.CART, 'cart');
+                    }
+                  }}
+                  className="hover:text-[#F7F4EF] transition-colors"
+                >
+                  Shopping Bag
+                </a>
               </li>
               <li>
-                <button onClick={() => onNavigate('careers')} className="hover:text-[#F7F4EF] transition-colors">
-                  Careers in Cairo
-                </button>
+                <a
+                  href={ROUTES.CHECKOUT}
+                  onClick={(e) => navigateTo(e, ROUTES.CHECKOUT, 'checkout')}
+                  className="hover:text-[#F7F4EF] transition-colors text-[#BA945A]"
+                >
+                  Checkout
+                </a>
               </li>
             </ul>
           </div>
@@ -180,23 +393,23 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onSelectCategory }) 
         {/* Bottom Strip: Payment Icons, Region & Copyright */}
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-[#B7ADA2] font-light">
           {/* Payment Trust Badges */}
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-[10px] uppercase tracking-wider text-[#7C746B]">Secure Checkout:</span>
-            <span className="px-2 py-1 bg-[#222] text-[10px] font-mono border border-[#333] text-[#D4CCC2]">VISA</span>
-            <span className="px-2 py-1 bg-[#222] text-[10px] font-mono border border-[#333] text-[#D4CCC2]">MASTERCARD</span>
-            <span className="px-2 py-1 bg-[#222] text-[10px] font-mono border border-[#333] text-[#D4CCC2]">APPLE PAY</span>
-            <span className="px-2 py-1 bg-[#222] text-[10px] font-mono border border-[#333] text-[#D4CCC2]">CASH ON DELIVERY (COD)</span>
-            <span className="px-2 py-1 bg-[#222] text-[10px] font-mono border border-[#333] text-[#D4CCC2]">MEEZA / FAWRY</span>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="text-[10px] uppercase tracking-wider text-[#7C746B]">Payment:</span>
+            <span className="px-2 py-0.5 bg-[#222] text-[10px] font-mono border border-[#333] text-[#D4CCC2]">VISA</span>
+            <span className="px-2 py-0.5 bg-[#222] text-[10px] font-mono border border-[#333] text-[#D4CCC2]">MASTERCARD</span>
+            <span className="px-2 py-0.5 bg-[#222] text-[10px] font-mono border border-[#333] text-[#D4CCC2]">APPLE PAY</span>
+            <span className="px-2 py-0.5 bg-[#222] text-[10px] font-mono border border-[#333] text-[#D4CCC2]">CASH ON DELIVERY (COD)</span>
+            <span className="px-2 py-0.5 bg-[#222] text-[10px] font-mono border border-[#333] text-[#D4CCC2]">MEEZA</span>
           </div>
 
           {/* Copyright & Scroll To Top */}
           <div className="flex items-center space-x-6">
-            <span>© {new Date().getFullYear()} LORÉA Inc. All rights reserved.</span>
+            <span>© {new Date().getFullYear()} LORÉA. All rights reserved.</span>
             <button
               onClick={scrollToTop}
-              className="flex items-center space-x-1.5 hover:text-white transition-colors"
+              className="flex items-center space-x-1.5 hover:text-white transition-colors cursor-pointer"
             >
-              <span>BACK TO TOP</span>
+              <span className="tracking-wider uppercase text-[11px]">Back to Top</span>
               <ArrowUp className="w-3.5 h-3.5" />
             </button>
           </div>

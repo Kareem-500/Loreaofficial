@@ -34,31 +34,33 @@ export const HeaderActions: React.FC<HeaderActionsProps> = ({
   className = ''
 }) => {
   return (
-    <div className={`flex items-center justify-end space-x-1 sm:space-x-2 md:space-x-3 ${className}`}>
+    <div
+      className={`flex items-center justify-end gap-0.5 min-[360px]:gap-1 sm:gap-1.5 md:gap-1.5 lg:gap-2 ${className}`}
+      role="toolbar"
+      aria-label="Account and shopping utilities"
+    >
       {/* 1. Search */}
       <button
         id="header-search-btn"
         onClick={onOpenSearch}
         aria-label="Search catalog"
         title="Search (Cmd + K)"
-        className="relative min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center p-2 text-[#1D1D1B] hover:text-[#BA945A] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BA945A] rounded-sm"
+        className="relative flex items-center justify-center p-1.5 sm:p-2 text-[#1D1D1B] hover:text-[#BA945A] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#BA945A] rounded-sm cursor-pointer"
       >
-        <Search className="w-[19px] h-[19px] stroke-[1.5]" />
+        <Search className="w-[18px] h-[18px] sm:w-[19px] sm:h-[19px] md:w-5 md:h-5 stroke-[1.4]" />
       </button>
 
-      {/* 2. Customer Account (Desktop only or responsive) */}
+      {/* 2. Customer Account - Hidden on mobile (<sm) to prevent crowding the centered logo; easily accessible in the mobile drawer menu */}
       <button
         id="header-account-btn"
         onClick={onOpenAccount}
         aria-label={isAuthenticated ? `Account (${userName})` : 'Sign in to Account'}
         title={isAuthenticated ? `Welcome, ${userName}` : 'Account'}
-        className={`relative min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center p-2 text-[#1D1D1B] hover:text-[#BA945A] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BA945A] rounded-sm ${
-          isMobileCompact ? 'hidden sm:flex' : ''
-        }`}
+        className="hidden sm:flex relative items-center justify-center p-1.5 sm:p-2 text-[#1D1D1B] hover:text-[#BA945A] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#BA945A] rounded-sm cursor-pointer"
       >
-        <User className="w-[19px] h-[19px] stroke-[1.5]" />
+        <User className="w-[18px] h-[18px] sm:w-[19px] sm:h-[19px] md:w-5 md:h-5 stroke-[1.4]" />
         {isAuthenticated && (
-          <span className="hidden xl:inline-block ml-1.5 text-[11px] font-medium tracking-wider text-[#7C746B] max-w-[80px] truncate">
+          <span className="hidden xl:inline-block ml-1 text-[11px] font-medium tracking-wider text-[#7C746B] max-w-[70px] truncate">
             {userName}
           </span>
         )}
@@ -70,11 +72,11 @@ export const HeaderActions: React.FC<HeaderActionsProps> = ({
         onClick={onOpenWishlist}
         aria-label={`Wishlist, ${wishlistCount} saved items`}
         title="Saved Wishlist"
-        className="relative min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center p-2 text-[#1D1D1B] hover:text-[#BA945A] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BA945A] rounded-sm"
+        className="relative flex items-center justify-center p-1.5 sm:p-2 text-[#1D1D1B] hover:text-[#BA945A] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#BA945A] rounded-sm cursor-pointer"
       >
-        <Heart className="w-[19px] h-[19px] stroke-[1.5]" />
+        <Heart className="w-[18px] h-[18px] sm:w-[19px] sm:h-[19px] md:w-5 md:h-5 stroke-[1.4]" />
         {wishlistCount > 0 && (
-          <span className="absolute top-1.5 right-1.5 bg-[#1D1D1B] text-[#F7F4EF] text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-sans font-medium pointer-events-none transition-transform scale-100">
+          <span className="absolute -top-0.5 -right-0.5 bg-[#1D1D1B] text-[#F7F4EF] text-[8px] sm:text-[9px] w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center font-sans font-medium pointer-events-none transition-transform scale-100 shadow-xs">
             {wishlistCount > 99 ? '99+' : wishlistCount}
           </span>
         )}
@@ -86,11 +88,11 @@ export const HeaderActions: React.FC<HeaderActionsProps> = ({
         onClick={onOpenCart}
         aria-label={`Shopping Bag, ${cartCount} items in cart`}
         title="Shopping Bag"
-        className="relative min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center p-2 text-[#1D1D1B] hover:text-[#BA945A] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BA945A] rounded-sm"
+        className="relative flex items-center justify-center p-1.5 sm:p-2 text-[#1D1D1B] hover:text-[#BA945A] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#BA945A] rounded-sm cursor-pointer"
       >
-        <ShoppingBag className="w-[19px] h-[19px] stroke-[1.5]" />
+        <ShoppingBag className="w-[18px] h-[18px] sm:w-[19px] sm:h-[19px] md:w-5 md:h-5 stroke-[1.4]" />
         {cartCount > 0 && (
-          <span className="absolute top-1.5 right-1.5 bg-[#BA945A] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-sans font-semibold pointer-events-none transition-transform scale-100">
+          <span className="absolute -top-0.5 -right-0.5 bg-[#BA945A] text-white text-[8px] sm:text-[9px] w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center font-sans font-semibold pointer-events-none transition-transform scale-100 shadow-xs">
             {cartCount > 99 ? '99+' : cartCount}
           </span>
         )}

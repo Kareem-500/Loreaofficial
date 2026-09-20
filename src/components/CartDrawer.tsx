@@ -11,25 +11,27 @@ interface CartDrawerProps {
   onUpdateQuantity: (cartItemId: string, newQty: number) => void;
   onRemoveItem: (cartItemId: string) => void;
   onCheckout: () => void;
-  recommendedProducts: Product[];
+  recommendedProducts?: Product[];
   onAddRecommended: (product: Product) => void;
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({
   isOpen,
   onClose,
-  items,
+  items = [],
   currency,
   onUpdateQuantity,
   onRemoveItem,
   onCheckout,
-  recommendedProducts,
+  recommendedProducts = [],
   onAddRecommended
 }) => {
   if (!isOpen) return null;
 
-  const subtotalEgp = items.reduce(
-    (sum, item) => sum + item.product.priceEgp * item.quantity,
+  const safeItems = (items || []).filter((item) => item && item.product);
+
+  const subtotalEgp = safeItems.reduce(
+    (sum, item) => sum + (item.product.priceEgp || 0) * (item.quantity || 1),
     0
   );
 
@@ -57,7 +59,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 Shopping Bag
               </h3>
               <span className="text-xs text-[#7C746B] font-light">
-                ({items.reduce((acc, i) => acc + i.quantity, 0)})
+                ({safeItems.reduce((acc, i) => acc + i.quantity, 0)})
               </span>
             </div>
             <button
@@ -91,7 +93,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
           {/* Cart Item List */}
           <div className="flex-1 overflow-y-auto px-6 py-4 divide-y divide-[#EAE5DE]">
-            {items.length === 0 ? (
+            {safeItems.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center py-12">
                 <div className="w-16 h-16 rounded-full bg-[#EFECE6] flex items-center justify-center mb-4 text-[#7C746B]">
                   <ShoppingBag className="w-7 h-7 stroke-[1]" />
@@ -110,12 +112,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 </button>
               </div>
             ) : (
-              items.map((item) => (
+              safeItems.map((item) => (
                 <div key={item.id} className="py-5 flex gap-4">
                   {/* Thumbnail */}
                   <img
-                    src={item.product.images[0]}
-                    alt={item.product.name}
+                    src={item.product?.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop'}
+                    alt={item.product?.name || 'Garment'}
                     className="w-20 h-26 object-cover bg-[#EAE5DE] shrink-0"
                   />
 
@@ -124,7 +126,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     <div>
                       <div className="flex justify-between items-start">
                         <h4 className="font-sans text-sm font-normal text-[#1D1D1B] line-clamp-1 pr-2">
-                          {item.product.name}
+                          {item.product?.name}
                         </h4>
                         <button
                           onClick={() => onRemoveItem(item.id)}
@@ -136,7 +138,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       </div>
 
                       <div className="text-[11px] text-[#7C746B] space-x-2 mt-1 font-light">
-                        <span>Color: {item.selectedColor.name}</span>
+                        <span>Color: {item.selectedColor?.name || 'Standard'}</span>
                         <span>·</span>
                         <span>Size: {item.selectedSize}</span>
                       </div>
@@ -175,13 +177,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             )}
 
             {/* Recommended Companion Products */}
-            {items.length > 0 && recommendedProducts.length > 0 && (
+            {items.length > 0 && (recommendedProducts || []).length > 0 && (
               <div className="pt-6 pb-2">
                 <p className="text-[10px] uppercase tracking-[0.24em] font-medium text-[#7C746B] mb-3">
                   COMPLETE THE LOOK
                 </p>
                 <div className="space-y-3">
-                  {recommendedProducts.slice(0, 2).map((rec) => (
+                  {(recommendedProducts || []).slice(0, 2).map((rec) => (
                     <div
                       key={rec.id}
                       className="flex items-center justify-between p-2.5 bg-[#EFECE6]/60 border border-[#EAE5DE]"
@@ -211,7 +213,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           </div>
 
           {/* Footer with Subtotal & Checkout */}
-          {items.length > 0 && (
+          {safeItems.length > 0 && (
             <div className="p-6 border-t border-[#EAE5DE] bg-[#F7F4EF] space-y-4">
               <div className="flex justify-between items-baseline">
                 <span className="text-xs uppercase tracking-[0.18em] text-[#7C746B]">

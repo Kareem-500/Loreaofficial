@@ -8,16 +8,16 @@ import { api } from '../services/api';
 interface CheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
-  items: CartItem[];
-  currency: Currency;
+  items?: CartItem[];
+  currency?: Currency;
   onClearCart: () => void;
 }
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   isOpen,
   onClose,
-  items,
-  currency,
+  items = [],
+  currency = 'EGP' as Currency,
   onClearCart
 }) => {
   const { user, isAuthenticated } = useAuth();
@@ -54,18 +54,21 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [couponCode, setCouponCode] = useState('');
   const [discountPercent, setDiscountPercent] = useState(0);
   const [couponError, setCouponError] = useState('');
+  const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
 
   if (!isOpen) return null;
 
-  const subtotalEgp = items.reduce(
-    (sum, item) => sum + item.product.priceEgp * item.quantity,
+  const safeItems = (items || []).filter((item) => item && item.product);
+
+  const subtotalEgp = safeItems.reduce(
+    (sum, item) => sum + (item.product.priceEgp || 0) * (item.quantity || 1),
     0
   );
 
   // Free shipping above 2,500 EGP
-  const shippingFeeEgp = subtotalEgp >= 2500 ? 0 : 95;
+  const shippingFeeEgp = subtotalEgp >= 2500 ? 0 : 85;
   const discountEgp = Math.round((subtotalEgp * discountPercent) / 100);
   const finalTotalEgp = subtotalEgp - discountEgp + shippingFeeEgp;
 
@@ -82,17 +85,18 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitError('');
 
     try {
       // Build order items array
-      const orderItemsPayload = items.map((i) => ({
+      const orderItemsPayload = safeItems.map((i) => ({
         productId: i.product.id,
-        title: i.product.name,
+        name: i.product.name,
         size: i.selectedSize,
         color: i.selectedColor.name,
         quantity: i.quantity,
-        priceEgp: i.product.priceEgp,
-        imageUrl: i.product.images?.[0] || i.product.image,
+        price: i.product.priceEgp,
+        image: i.product.images?.[0] || '',
       }));
 
       // Call real backend orders API
@@ -104,6 +108,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         totalEgp: finalTotalEgp,
         currency,
         shippingAddress: {
+          fullName: `${formData.firstName} ${formData.lastName}`.trim(),
+          email: formData.email,
           firstName: formData.firstName,
           lastName: formData.lastName,
           phone: formData.phone,
@@ -122,11 +128,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       setStep('success');
       onClearCart();
     } catch (err) {
-      console.warn('Backend order creation fallback to local:', err);
-      const generatedOrderNum = `LOR-${Math.floor(100000 + Math.random() * 900000)}`;
-      setOrderNumber(generatedOrderNum);
-      setStep('success');
-      onClearCart();
+      setSubmitError(err instanceof Error ? err.message : 'We could not place your order. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -369,28 +371,28 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               <div className="lg:col-span-5 bg-[#FAF8F5] p-6 border border-[#EAE5DE] flex flex-col justify-between">
                 <div>
                   <h3 className="text-xs uppercase tracking-[0.2em] font-medium text-[#1D1D1B] mb-4 pb-2 border-b border-[#EAE5DE]">
-                    Order Summary ({items.length} items)
+                    Order Summary ({safeItems.length} items)
                   </h3>
 
                   {/* Cart preview */}
                   <div className="space-y-3 max-h-56 overflow-y-auto mb-6 pr-1 divide-y divide-[#EAE5DE]">
-                    {items.map((item) => (
+                    {safeItems.map((item) => (
                       <div key={item.id} className="pt-2 flex items-center justify-between text-xs">
                         <div className="flex items-center space-x-2.5">
                           <img
-                            src={item.product.images[0]}
-                            alt={item.product.name}
+                            src={item.product?.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop'}
+                            alt={item.product?.name || 'Garment'}
                             className="w-10 h-12 object-cover bg-[#EAE5DE]"
                           />
                           <div>
-                            <p className="font-medium text-[#1D1D1B] line-clamp-1">{item.product.name}</p>
+                            <p className="font-medium text-[#1D1D1B] line-clamp-1">{item.product?.name}</p>
                             <p className="text-[10px] text-[#7C746B]">
-                              Size {item.selectedSize} · {item.selectedColor.name} · Qty {item.quantity}
+                              Size {item.selectedSize} · {item.selectedColor?.name || 'Standard'} · Qty {item.quantity}
                             </p>
                           </div>
                         </div>
                         <span className="font-medium text-[#1D1D1B]">
-                          {formatPrice(item.product.priceEgp * item.quantity, currency)}
+                          {formatPrice((item.product?.priceEgp || 0) * (item.quantity || 1), currency)}
                         </span>
                       </div>
                     ))}
@@ -463,6 +465,12 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                       <span>CONFIRM ORDER · {formatPrice(finalTotalEgp, currency)}</span>
                     )}
                   </button>
+
+                  {submitError && (
+                    <p role="alert" className="text-xs text-rose-800 bg-rose-50 border border-rose-200 px-3 py-2">
+                      {submitError}
+                    </p>
+                  )}
 
                   <div className="flex items-center justify-center space-x-1.5 text-[10px] text-[#7C746B]">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-800" />

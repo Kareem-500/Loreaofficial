@@ -23,9 +23,11 @@ export interface Product {
   name: string;
   nameAr: string;
   subtitle: string;
-  category: 'Dresses' | 'Tops' | 'Sets' | 'Outerwear' | 'Pants' | 'Modest Edit';
+  slug?: string;
+  isNew?: boolean;
+  category: 'Dresses' | 'Tops' | 'Sets' | 'Outerwear' | 'Bottoms' | 'Pants' | 'Modest Edit' | 'Modest Wear' | 'Loungewear & Sleepwear' | 'Loungewear' | 'Scarves' | string;
   subcategory: string;
-  collection: 'New Collection' | 'Essentials' | 'Seasonal' | 'Limited Edition' | 'Best Sellers';
+  collection: 'New Collection' | 'Essentials' | 'Seasonal' | 'Limited Edition' | 'Best Sellers' | string;
   priceEgp: number;
   priceUsd: number;
   originalPriceEgp?: number;

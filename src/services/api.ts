@@ -119,6 +119,12 @@ function getStoredToken(): string | null {
   }
 }
 
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+
+export function getApiUrl(url: string): string {
+  return `${API_BASE_URL}${url}`;
+}
+
 export function setStoredToken(token: string | null) {
   try {
     if (token) {
@@ -142,7 +148,7 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(url, {
+  const res = await fetch(getApiUrl(url), {
     ...options,
     headers,
     credentials: 'include', // sends cookies

@@ -410,13 +410,13 @@ export const CustomerAccountView: React.FC<CustomerAccountViewProps> = ({
                   </button>
                 </div>
 
-                {orders.length === 0 ? (
+                {(orders || []).length === 0 ? (
                   <p className="text-xs text-[#7C746B] py-6 text-center font-light">
                     {t('common.empty_orders')}
                   </p>
                 ) : (
                   <div className="divide-y divide-[#EAE5DE]">
-                    {orders.slice(0, 3).map((order) => (
+                    {(orders || []).slice(0, 3).map((order) => (
                       <div key={order.id} className="py-4 flex items-center justify-between">
                         <div>
                           <p className="font-medium text-xs text-[#1D1D1B]">{order.order_number}</p>
@@ -492,7 +492,7 @@ export const CustomerAccountView: React.FC<CustomerAccountViewProps> = ({
                       Pieces in this Order ({selectedOrder.items?.length || 0})
                     </h4>
                     <div className="divide-y divide-[#EAE5DE] border-t border-b border-[#EAE5DE]">
-                      {selectedOrder.items?.map((item) => (
+                      {(selectedOrder.items || []).map((item) => (
                         <div key={item.id} className="py-4 flex items-center justify-between">
                           <div className="flex items-center space-x-4">
                             {item.image_url ? (
@@ -575,9 +575,9 @@ export const CustomerAccountView: React.FC<CustomerAccountViewProps> = ({
                 /* Orders List */
                 <div className="bg-white border border-[#EAE5DE] p-6">
                   <h3 className="font-serif text-2xl text-[#1D1D1B] mb-6">
-                    My Order Archive ({orders.length})
+                    My Order Archive ({(orders || []).length})
                   </h3>
-                  {orders.length === 0 ? (
+                  {(orders || []).length === 0 ? (
                     <div className="text-center py-12">
                       <Package className="w-12 h-12 text-[#EAE5DE] mx-auto mb-3" />
                       <p className="text-xs text-[#7C746B]">{t('common.empty_orders')}</p>
@@ -590,7 +590,7 @@ export const CustomerAccountView: React.FC<CustomerAccountViewProps> = ({
                     </div>
                   ) : (
                     <div className="divide-y divide-[#EAE5DE]">
-                      {orders.map((order) => (
+                      {(orders || []).map((order) => (
                         <div
                           key={order.id}
                           className="py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"

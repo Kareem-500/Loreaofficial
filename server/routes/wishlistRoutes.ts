@@ -39,6 +39,11 @@ router.post('/', (req: AuthenticatedRequest, res: Response) => {
       return res.status(400).json({ error: 'Product ID is required.' });
     }
 
+    const product = db.prepare("SELECT id FROM products WHERE id = ? AND status = 'active'").get(productId);
+    if (!product) {
+      return res.status(404).json({ error: 'This garment is no longer available.' });
+    }
+
     // Ensure wishlist exists for user
     let wishlist = db.prepare('SELECT id FROM wishlists WHERE user_id = ?').get(req.user!.userId) as any;
     if (!wishlist) {
@@ -97,7 +102,10 @@ router.post('/merge', (req: AuthenticatedRequest, res: Response) => {
 
     for (const id of guestIds) {
       if (typeof id === 'string') {
-        insertStmt.run(`wi_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`, wishlist.id, id);
+        const product = db.prepare("SELECT id FROM products WHERE id = ? AND status = 'active'").get(id);
+        if (product) {
+          insertStmt.run(`wi_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`, wishlist.id, id);
+        }
       }
     }
 

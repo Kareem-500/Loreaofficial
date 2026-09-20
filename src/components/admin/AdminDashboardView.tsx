@@ -606,7 +606,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onReturn
                     </button>
                   </div>
                   <div className="divide-y divide-[#EAE5DE]">
-                    {dashboardData.recentOrders.map((o: any) => (
+                    {(dashboardData.recentOrders || []).map((o: any) => (
                       <div key={o.id} className="py-3 flex items-center justify-between text-xs">
                         <div>
                           <p className="font-mono font-semibold text-[#1D1D1B]">{o.order_number}</p>
@@ -637,7 +637,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onReturn
                     </button>
                   </div>
                   <div className="divide-y divide-[#EAE5DE]">
-                    {dashboardData.lowStockAlerts.map((v: any) => (
+                    {(dashboardData.lowStockAlerts || []).map((v: any) => (
                       <div key={v.id} className="py-3 flex items-center justify-between text-xs">
                         <div>
                           <p className="font-medium text-[#1D1D1B]">{v.product_name}</p>

@@ -1,4 +1,5 @@
 import { Product, Category } from '../types';
+import { slugify } from '../config/routes';
 
 export const CATEGORIES: Category[] = [
   {
@@ -51,7 +52,7 @@ export const CATEGORIES: Category[] = [
   }
 ];
 
-export const PRODUCTS: Product[] = [
+const RAW_PRODUCTS: Product[] = [
   {
     id: 'lorea-01',
     name: 'Architectural Linen Column Dress',
@@ -525,5 +526,90 @@ export const PRODUCTS: Product[] = [
     isModestEdit: false,
     tags: ['Ribbed Tank', 'Layering', 'Wardrobe Foundation', 'Egyptian Cotton'],
     reviews: []
+  },
+  {
+    id: 'lorea-13',
+    slug: 'pure-mulberry-silk-kimono-robe',
+    name: 'Pure Mulberry Silk Kimono Robe',
+    nameAr: 'روب كيمونو حرير مولبيري فاخر',
+    subtitle: 'Floor-length sanctuary robe with sweeping wide sleeves and sash',
+    category: 'Loungewear & Sleepwear',
+    subcategory: 'Robes',
+    collection: 'Essentials',
+    priceEgp: 5400,
+    priceUsd: 110,
+    badge: 'NEW',
+    isNew: true,
+    colors: [
+      { name: 'Champagne Silk', hex: '#EBE2D4' },
+      { name: 'Midnight Charcoal', hex: '#1C1B1A' }
+    ],
+    sizes: ['XS', 'S', 'M', 'L', 'XL'],
+    images: [
+      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1200&auto=format&fit=crop'
+    ],
+    description: 'An elevated home retreat silhouette. Crafted from 22-momme pure mulberry silk that glides weightlessly over skin, with interior ties for secure closure and dramatic floor-skimming length.',
+    fabric: '100% Grade 6A Pure Mulberry Silk (22 momme)',
+    fit: 'Relaxed kimono silhouette with adjustable matching silk belt.',
+    care: 'Hand wash cold or gentle dry clean.',
+    shipping: 'Complimentary luxury gift boxing.',
+    sku: 'LOR-LW-6610-CP',
+    rating: 4.9,
+    reviewsCount: 19,
+    isModestEdit: true,
+    tags: ['Silk Robe', 'Loungewear', 'Sleepwear', 'Sanctuary', 'Mulberry Silk'],
+    reviews: []
+  },
+  {
+    id: 'lorea-14',
+    slug: 'featherweight-giza-cotton-modal-hijab',
+    name: 'Featherweight Giza Cotton Modal Hijab',
+    nameAr: 'طرحة قطن جيزة ومودال خفيفة الوزن',
+    subtitle: 'Non-slip breathable drape with hand-rolled artisan edges',
+    category: 'Scarves',
+    subcategory: 'Hijabs',
+    collection: 'Essentials',
+    priceEgp: 950,
+    priceUsd: 20,
+    badge: 'BEST SELLER',
+    isNew: false,
+    colors: [
+      { name: 'Sand Nude', hex: '#DFD8CC' },
+      { name: 'Pecan Brown', hex: '#7A6252' },
+      { name: 'Basalt Black', hex: '#1D1D1B' }
+    ],
+    sizes: ['M'],
+    images: [
+      'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1584273143981-41c073dfe8f8?q=80&w=1200&auto=format&fit=crop'
+    ],
+    description: 'The definitive daily luxury scarf. Blended from extra-long staple Egyptian Giza cotton and Austrian modal for a buttery touch that stays impeccably in place without pins or slippage.',
+    fabric: '60% Egyptian Giza Cotton, 40% Modal Voile',
+    fit: 'Generous 85cm x 200cm drape with hand-finished artisan hems.',
+    care: 'Hand wash cool with mild detergent. Line dry in shade.',
+    shipping: 'Ships in 24 hours.',
+    sku: 'LOR-SC-3310-SN',
+    rating: 5.0,
+    reviewsCount: 64,
+    isModestEdit: true,
+    tags: ['Hijab', 'Scarves', 'Giza Cotton', 'Modal Scarf', 'Modest Wear'],
+    reviews: []
   }
 ];
+
+export const PRODUCTS: Product[] = RAW_PRODUCTS.map((p): Product => ({
+  ...p,
+  slug: p.slug || slugify(p.name),
+  isNew: p.isNew ?? (p.badge === 'NEW')
+}));
+
+/**
+ * Lookup product by slug or id
+ */
+export function getProductBySlug(slugOrId: string): Product | undefined {
+  if (!slugOrId) return undefined;
+  const clean = slugify(slugOrId);
+  return PRODUCTS.find((p) => p.slug === clean || p.id === slugOrId || slugify(p.name) === clean);
+}
+

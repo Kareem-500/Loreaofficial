@@ -4,20 +4,20 @@ import { Product, Currency } from '../types';
 import { formatPrice } from '../utils/currency';
 
 interface CollectionSpotlightProps {
-  products: Product[];
-  currency: Currency;
+  products?: Product[];
+  currency?: Currency;
   onProductClick: (product: Product) => void;
   onExploreCollection: () => void;
 }
 
 export const CollectionSpotlight: React.FC<CollectionSpotlightProps> = ({
-  products,
-  currency,
+  products = [],
+  currency = 'EGP' as Currency,
   onProductClick,
   onExploreCollection
 }) => {
-  // Spotlight 3 standout pieces
-  const spotlightItems = products.slice(0, 3);
+  // Spotlight 3 standout pieces safely
+  const spotlightItems = (products || []).slice(0, 3);
 
   return (
     <section className="py-20 sm:py-28 bg-[#EFECE6] border-b border-[#EAE5DE]">
@@ -25,17 +25,17 @@ export const CollectionSpotlight: React.FC<CollectionSpotlightProps> = ({
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 sm:mb-16">
           <div>
             <span className="text-[11px] tracking-[0.3em] uppercase text-[#7C746B] font-medium block mb-2">
-              CURATED ATELIER EDIT
+              THE LOREA FABRIC STORY
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-[#1D1D1B]">
-              The Giza 45 Cotton Series
+              Giza 45, Made Modern
             </h2>
           </div>
           <button
             onClick={onExploreCollection}
             className="mt-4 md:mt-0 text-xs tracking-[0.2em] uppercase font-medium text-[#1D1D1B] hover:text-[#B88F88] pb-1 border-b border-[#1D1D1B] hover:border-[#B88F88] transition-all flex items-center space-x-2"
           >
-            <span>DISCOVER THE FULL SERIES</span>
+            <span>SHOP THE FULL EDIT</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -50,8 +50,8 @@ export const CollectionSpotlight: React.FC<CollectionSpotlightProps> = ({
             >
               <div className="relative aspect-3/4 overflow-hidden bg-[#EAE5DE] mb-5">
                 <img
-                  src={item.images[0]}
-                  alt={item.name}
+                  src={item.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop'}
+                  alt={item.name || 'Atelier Garment'}
                   loading="lazy"
                   className="w-full h-full object-cover object-center group-hover:scale-103 transition-transform duration-700"
                 />
@@ -77,7 +77,7 @@ export const CollectionSpotlight: React.FC<CollectionSpotlightProps> = ({
                     {formatPrice(item.priceEgp, currency)}
                   </span>
                   <span className="text-[11px] tracking-[0.16em] uppercase text-[#B88F88] font-medium group-hover:underline">
-                    View Details →
+                    Discover Piece →
                   </span>
                 </div>
               </div>

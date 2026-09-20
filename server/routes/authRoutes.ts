@@ -135,7 +135,9 @@ router.post('/register', rateLimitAuth(8, 10 * 60 * 1000), (req: Request, res: R
     return res.status(201).json({
       message: 'Registration successful. Welcome to LORÉA.',
       token,
-      verificationToken: verifyToken, // Provided for instant demo verification flow
+      ...(process.env.ENABLE_PREVIEW_TOKENS === 'true' && process.env.NODE_ENV !== 'production'
+        ? { verificationToken: verifyToken }
+        : {}),
       user: {
         id: userId,
         uuid: userUuid,
@@ -261,7 +263,7 @@ router.post('/logout', (req: Request, res: Response) => {
 // Current authenticated user session verification
 router.get('/me', (req: AuthenticatedRequest, res: Response) => {
   if (!req.user) {
-    return res.status(401).json({ user: null });
+    return res.json({ user: null });
   }
 
   const user = db.prepare(`
@@ -272,7 +274,7 @@ router.get('/me', (req: AuthenticatedRequest, res: Response) => {
 
   if (!user || user.status === 'disabled') {
     res.clearCookie('lorea_token');
-    return res.status(401).json({ user: null });
+    return res.json({ user: null });
   }
 
   let customerDetails: any = null;
@@ -338,13 +340,15 @@ router.post('/forgot-password', rateLimitAuth(5, 15 * 60 * 1000), (req: Request,
         VALUES (?, ?, ?, ?, 0)
       `).run(`pr_${Date.now()}`, user.id, resetToken, expiresAt);
 
-      previewResetToken = resetToken;
+      if (process.env.ENABLE_PREVIEW_TOKENS === 'true' && process.env.NODE_ENV !== 'production') {
+        previewResetToken = resetToken;
+      }
     }
 
     // Always respond with the same message to avoid user enumeration
     return res.json({
       message: 'If that email address is registered with LORÉA, a password reset link has been dispatched to your inbox.',
-      previewResetToken, // Provided in development for seamless preview testing
+      ...(previewResetToken ? { previewResetToken } : {}),
     });
   } catch (err: any) {
     console.error('Forgot password error:', err);
@@ -465,7 +469,9 @@ router.post('/resend-verification', (req: AuthenticatedRequest, res: Response) =
 
     return res.json({
       message: 'Verification link resent successfully.',
-      previewToken: newToken,
+      ...(process.env.ENABLE_PREVIEW_TOKENS === 'true' && process.env.NODE_ENV !== 'production'
+        ? { previewToken: newToken }
+        : {}),
     });
   } catch (err: any) {
     console.error('Resend verification error:', err);

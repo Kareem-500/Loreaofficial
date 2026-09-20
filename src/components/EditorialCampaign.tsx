@@ -24,7 +24,7 @@ export const EditorialCampaign: React.FC<EditorialCampaignProps> = ({
                 className="w-full h-full object-cover object-center transform hover:scale-103 transition-transform duration-700"
               />
               <span className="absolute bottom-3 left-3 text-[9px] uppercase tracking-[0.24em] text-[#F7F4EF]/70 bg-black/40 px-2 py-1 backdrop-blur-xs">
-                FIG. 01 — THE COLUMN DRESS
+                FIG. 01 — THE LOREA COLUMN DRESS
               </span>
             </div>
 
@@ -40,7 +40,7 @@ export const EditorialCampaign: React.FC<EditorialCampaignProps> = ({
               <div className="p-4 bg-[#1E1D1B] border border-[#2D2B28]">
                 <p className="text-[10px] uppercase tracking-[0.2em] text-[#B7ADA2] mb-1 font-medium">MATERIAL STUDY</p>
                 <p className="text-xs text-[#D4CCC2] font-light leading-relaxed">
-                  Stone-washed French flax linen (185 gsm) paired with Giza 45 poplin.
+                  Washed French flax linen paired with luminous Giza 45 poplin.
                 </p>
               </div>
             </div>
@@ -49,19 +49,19 @@ export const EditorialCampaign: React.FC<EditorialCampaignProps> = ({
           {/* Right Column: Editorial Text & Narrative */}
           <div className="lg:col-span-5 flex flex-col justify-center">
             <span className="text-[11px] tracking-[0.32em] uppercase text-[#B88F88] font-medium mb-3">
-              EDITORIAL CAMPAIGN · VOLUME IV
+              THE LATEST CAMPAIGN · VOLUME IV
             </span>
 
             <h2 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-light tracking-wide text-[#F7F4EF] leading-[1.1] mb-6">
-              The Architecture of Ease
+              Ease, With Intention
             </h2>
 
             <p className="text-base sm:text-lg font-serif italic text-[#D4CCC2] mb-6 leading-relaxed font-light">
-              “True presence does not raise its voice. It drapes naturally, honors the breeze, and endures across seasons.”
+              “The most lasting style feels like your own: considered, effortless, and entirely present.”
             </p>
 
             <p className="text-sm sm:text-base text-[#B7ADA2] font-light leading-relaxed mb-8">
-              Conceived in our Cairo atelier and realized in pure Egyptian long-staple cottons and natural European flax. Each piece in this series explores the tension between masculine tailoring and feminine fluidity—sculptural garments cut to move effortlessly from dawn meetings in New Cairo to seaside dinners in El Gouna.
+              Designed in our Cairo atelier, this collection brings soft tailoring and feminine movement into balance. Pure Egyptian cotton and European flax create a wardrobe that moves from first light to late dinners with ease.
             </p>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
@@ -69,7 +69,7 @@ export const EditorialCampaign: React.FC<EditorialCampaignProps> = ({
                 onClick={onShopCampaign}
                 className="px-8 py-4 bg-[#F7F4EF] text-[#1D1D1B] hover:bg-[#EAE5DE] text-xs tracking-[0.22em] uppercase font-medium transition-all text-center flex items-center justify-center space-x-2"
               >
-                <span>SHOP THE CAMPAIGN</span>
+                <span>SHOP THE EDIT</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
 
@@ -77,7 +77,7 @@ export const EditorialCampaign: React.FC<EditorialCampaignProps> = ({
                 onClick={onReadStory}
                 className="px-6 py-4 border border-[#B7ADA2]/40 text-[#F7F4EF] hover:border-[#F7F4EF] text-xs tracking-[0.22em] uppercase font-medium transition-all text-center"
               >
-                READ THE ATELIER STORY
+                MEET THE ATELIER
               </button>
             </div>
           </div>
