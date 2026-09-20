@@ -1,13 +1,6 @@
 import { Product } from '../types';
 
-/**
- * LORÉA's single routing source of truth.
- *
- * The storefront is deployed as a Vite SPA (including GitHub Pages), so the
- * parser below deliberately accepts the legacy aliases as well as the
- * canonical public URLs. This keeps old bookmarks working while all newly
- * generated links use the requested URL structure.
- */
+/** Canonical public routes for the Vite SPA. Legacy aliases remain supported by the parser. */
 export const ROUTES = {
   HOME: '/',
   STORE: '/shop',
@@ -40,29 +33,40 @@ export function appPath(path: string): string {
 export type RouteKey = keyof typeof ROUTES;
 
 export function slugify(text: string): string {
-  return text
-    .toString()
-    .toLowerCase()
-    .trim()
+  return text.toString().toLowerCase().trim()
     .replace(/[^\w\s-]/g, '')
     .replace(/[\s_-]+/g, '-')
     .replace(/^-+|-+$/g, '');
 }
 
 export function buildProductUrl(productOrSlug: Product | string): string {
-  if (typeof productOrSlug === 'string') {
-    return appPath(`/product/${slugify(productOrSlug)}`);
-  }
-  const slug = productOrSlug.slug || slugify(productOrSlug.name);
+  const slug = typeof productOrSlug === 'string'
+    ? slugify(productOrSlug)
+    : productOrSlug.slug || slugify(productOrSlug.name);
   return appPath(`/product/${slug}`);
 }
 
+/** Normalize display labels and legacy category names to public collection slugs. */
+export function normalizeCategorySlug(category: string): string {
+  const value = slugify(category);
+  const aliases: Record<string, string> = {
+    'trousers-skirts': 'bottoms',
+    pants: 'bottoms',
+    'modest-edit': 'modest',
+    'modest-wear': 'modest',
+    'loungewear-sleepwear': 'loungewear',
+    collections: ''
+  };
+  return aliases[value] ?? value;
+}
+
 export function buildCategoryUrl(categorySlug: string, subcategorySlug?: string): string {
-  const cleanCat = slugify(categorySlug);
-  if (!subcategorySlug || subcategorySlug === 'all') {
-    return appPath(`/collection/${cleanCat}`);
-  }
-  return appPath(`/collection/${cleanCat}?subcategory=${slugify(subcategorySlug)}`);
+  const cleanCat = normalizeCategorySlug(categorySlug);
+  if (!cleanCat) return appPath(ROUTES.COLLECTIONS);
+  const suffix = !subcategorySlug || subcategorySlug === 'all'
+    ? ''
+    : `?subcategory=${slugify(subcategorySlug)}`;
+  return appPath(`/collection/${cleanCat}${suffix}`);
 }
 
 export interface ParsedRoute {
@@ -75,77 +79,64 @@ export interface ParsedRoute {
   is404?: boolean;
 }
 
-// Keep this list local to the router to avoid coupling route parsing to UI data.
-// It includes every category exposed by the current navigation and its legacy
-// aliases, while still allowing an unknown collection URL to reach the 404 UI.
 const COLLECTION_SLUGS = new Set([
-  'dresses', 'tops', 'bottoms', 'sets', 'outerwear', 'modest',
-  'loungewear', 'scarves'
+  'dresses', 'tops', 'bottoms', 'pants', 'sets', 'outerwear',
+  'modest', 'modest-edit', 'loungewear', 'scarves', 'trousers-skirts'
 ]);
 
 export function parseCurrentRoute(
   pathname = window.location.pathname,
   search = window.location.search
 ): ParsedRoute {
-  const normalizedBasePath = BASE_PATH && BASE_PATH !== '/' ? BASE_PATH : '';
-  const pathWithoutBase = normalizedBasePath && pathname.startsWith(normalizedBasePath)
-    ? pathname.slice(normalizedBasePath.length) || '/'
+  const base = BASE_PATH && BASE_PATH !== '/' ? BASE_PATH : '';
+  const withoutBase = base && pathname.startsWith(base)
+    ? pathname.slice(base.length) || '/'
     : pathname;
-  const cleanPath = pathWithoutBase.replace(/\/+$/, '') || '/';
-  const searchParams = new URLSearchParams(search);
-  const categoryParam = searchParams.get('category') || undefined;
-  const subcategoryParam = searchParams.get('subcategory') || undefined;
-  const searchQuery = searchParams.get('q') || undefined;
+  const cleanPath = withoutBase.replace(/\/+$/, '') || '/';
+  const params = new URLSearchParams(search);
+  const categoryParam = params.get('category') || undefined;
+  const subcategoryParam = params.get('subcategory') || undefined;
+  const searchQuery = params.get('q') || undefined;
 
   if (cleanPath === '/') return { pathname: '/', view: 'home' };
-
   if (cleanPath === '/new-in' || cleanPath === '/store/new-in') {
     return { pathname: '/new-in', view: 'new-in', categoryParam: 'new-in' };
   }
-
-  if (cleanPath === '/sale') {
-    return { pathname: '/sale', view: 'sale', categoryParam: 'sale' };
-  }
-
+  if (cleanPath === '/sale') return { pathname: '/sale', view: 'sale', categoryParam: 'sale' };
   if (cleanPath === '/shop' || cleanPath === '/store' || cleanPath === '/clothing') {
     return { pathname: '/shop', view: 'store', categoryParam, subcategoryParam };
   }
-
   if (cleanPath === '/collection' || cleanPath === '/collections') {
     return { pathname: '/collection', view: 'collections' };
   }
 
   const collectionMatch = cleanPath.match(/^\/collection\/([^/]+)$/);
   if (collectionMatch) {
-    const category = slugify(collectionMatch[1]);
-    if (!COLLECTION_SLUGS.has(category)) {
+    const rawCategory = slugify(collectionMatch[1]);
+    if (!COLLECTION_SLUGS.has(rawCategory)) {
       return { pathname: cleanPath, view: '404', is404: true };
     }
     return {
       pathname: cleanPath,
       view: 'store',
-      categoryParam: category,
+      categoryParam: normalizeCategorySlug(rawCategory),
       subcategoryParam
     };
   }
 
   const productMatch = cleanPath.match(/^\/product\/([^/]+)$/);
-  if (productMatch) {
-    return { pathname: cleanPath, view: 'product', productSlug: productMatch[1] };
-  }
-
-  if (cleanPath === '/search') return { pathname: '/search', view: 'search', searchQuery };
-  if (cleanPath === '/wishlist') return { pathname: '/wishlist', view: 'wishlist' };
-  if (cleanPath === '/account') return { pathname: '/account', view: 'account' };
-  if (cleanPath === '/cart') return { pathname: '/cart', view: 'cart' };
-  if (cleanPath === '/checkout') return { pathname: '/checkout', view: 'checkout' };
+  if (productMatch) return { pathname: cleanPath, view: 'product', productSlug: productMatch[1] };
+  if (cleanPath === '/search') return { pathname: cleanPath, view: 'search', searchQuery };
+  if (cleanPath === '/wishlist') return { pathname: cleanPath, view: 'wishlist' };
+  if (cleanPath === '/account') return { pathname: cleanPath, view: 'account' };
+  if (cleanPath === '/cart') return { pathname: cleanPath, view: 'cart' };
+  if (cleanPath === '/checkout') return { pathname: cleanPath, view: 'checkout' };
   if (cleanPath === '/about' || cleanPath === '/story') return { pathname: '/story', view: 'about' };
-  if (cleanPath === '/journal') return { pathname: '/journal', view: 'journal' };
-  if (cleanPath === '/contact') return { pathname: '/contact', view: 'contact' };
-  if (cleanPath === '/shipping') return { pathname: '/shipping', view: 'shipping' };
-  if (cleanPath === '/returns') return { pathname: '/returns', view: 'returns' };
-  if (cleanPath === '/faq') return { pathname: '/faq', view: 'faq' };
-  if (cleanPath === '/admin') return { pathname: '/admin', view: 'admin' };
-
+  if (cleanPath === '/journal') return { pathname: cleanPath, view: 'journal' };
+  if (cleanPath === '/contact') return { pathname: cleanPath, view: 'contact' };
+  if (cleanPath === '/shipping') return { pathname: cleanPath, view: 'shipping' };
+  if (cleanPath === '/returns') return { pathname: cleanPath, view: 'returns' };
+  if (cleanPath === '/faq') return { pathname: cleanPath, view: 'faq' };
+  if (cleanPath === '/admin') return { pathname: cleanPath, view: 'admin' };
   return { pathname: cleanPath, view: '404', is404: true };
 }
