@@ -17,6 +17,7 @@ import { Breadcrumbs } from './common/Breadcrumbs';
 import { WOMEN_CATEGORIES } from '../config/categories';
 import { buildCategoryUrl } from '../config/routes';
 import { formatPrice } from '../utils/currency';
+import { slugify } from '../config/routes';
 
 interface ShopCatalogViewProps {
   products?: Product[];
@@ -52,6 +53,22 @@ const PRICE_RANGES = [
   { id: '7000-10000', label: '7,000 – 10,000 EGP', min: 7000, max: 10000 },
   { id: 'above-10000', label: 'Above 10,000 EGP', min: 10000, max: Infinity }
 ];
+
+const SUBCATEGORY_ALIASES: Record<string, string[]> = {
+  shirts: ['shirts', 'button-downs'],
+  't-shirts': ['t-shirts', 't-shirts-tanks'],
+  'evening-dresses': ['evening-dresses', 'evening-gowns'],
+  'two-piece-sets': ['two-piece-sets', 'resort-sets'],
+  'modest-sets': ['modest-sets'],
+  'maxi-skirts': ['maxi-skirts', 'midi-skirts']
+};
+
+const matchesSubcategory = (productSubcategory: string | undefined, selectedSubcategory: string) => {
+  const productSlug = slugify(productSubcategory || '');
+  const selectedSlug = slugify(selectedSubcategory);
+  const accepted = SUBCATEGORY_ALIASES[selectedSlug] || [selectedSlug];
+  return accepted.includes(productSlug);
+};
 
 export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
   products = [],
@@ -140,9 +157,7 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
 
         // 3. Subcategory filter
         if (selectedSubcategory !== 'All') {
-          const subLower = selectedSubcategory.toLowerCase();
-          const pSubLower = (p.subcategory || '').toLowerCase();
-          if (!pSubLower.includes(subLower) && !subLower.includes(pSubLower)) {
+          if (!matchesSubcategory(p.subcategory, selectedSubcategory)) {
             return false;
           }
         }

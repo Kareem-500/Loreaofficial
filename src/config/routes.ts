@@ -8,7 +8,9 @@ import { Product } from '../types';
 export const ROUTES = {
   HOME: '/',
   STORE: '/store',
+  SHOP: '/shop',
   NEW_IN: '/store/new-in',
+  SALE: '/sale',
   COLLECTIONS: '/collections',
   SEARCH: '/search',
   WISHLIST: '/wishlist',
@@ -64,9 +66,9 @@ export function buildProductUrl(productOrSlug: Product | string): string {
 export function buildCategoryUrl(categorySlug: string, subcategorySlug?: string): string {
   const cleanCat = slugify(categorySlug);
   if (!subcategorySlug || subcategorySlug === 'all') {
-    return appPath(`/store?category=${cleanCat}`);
+    return appPath(`/collection/${cleanCat}`);
   }
-  return appPath(`/store?category=${cleanCat}&subcategory=${slugify(subcategorySlug)}`);
+  return appPath(`/collection/${cleanCat}?subcategory=${slugify(subcategorySlug)}`);
 }
 
 export interface ParsedRoute {
@@ -106,6 +108,10 @@ export function parseCurrentRoute(
     return { pathname: '/store/new-in', view: 'new-in', categoryParam: 'new-in' };
   }
 
+  if (cleanPath === '/sale') {
+    return { pathname: '/sale', view: 'sale', categoryParam: 'sale' };
+  }
+
   // 3. Store / Shop
   if (cleanPath === '/store' || cleanPath === '/shop' || cleanPath === '/clothing') {
     return {
@@ -117,8 +123,18 @@ export function parseCurrentRoute(
   }
 
   // 4. Collections
-  if (cleanPath === '/collections') {
+  if (cleanPath === '/collections' || cleanPath === '/collection') {
     return { pathname: '/collections', view: 'collections' };
+  }
+
+  const collectionMatch = cleanPath.match(/^\/collection\/([^/]+)/);
+  if (collectionMatch) {
+    return {
+      pathname: cleanPath,
+      view: 'store',
+      categoryParam: collectionMatch[1],
+      subcategoryParam
+    };
   }
 
   // 5. Product Page (/product/:slug)

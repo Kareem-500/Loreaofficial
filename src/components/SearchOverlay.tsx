@@ -38,7 +38,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({
 
   const suggestedCategories = [
     'Dresses',
-    'Tops & Blouses',
+    'Tops',
     'Sets',
     'Outerwear',
     'Modest Edit'

@@ -30,7 +30,7 @@ import { AIVirtualTryOnModal } from './components/AIVirtualTryOnModal';
 import { CustomerAccountView } from './components/account/CustomerAccountView';
 import { AdminDashboardView } from './components/admin/AdminDashboardView';
 import { useAuth } from './context/AuthContext';
-import { api } from './services/api';
+import { api, isApiConfigured } from './services/api';
 import { ROUTES, appPath, parseCurrentRoute, buildProductUrl, buildCategoryUrl } from './config/routes';
 import { WOMEN_CATEGORIES } from './config/categories';
 
@@ -127,7 +127,7 @@ export default function App() {
 
   // Sync wishlist from backend database if authenticated
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && isApiConfigured) {
       api.wishlist
         .get()
         .then((res) => {
@@ -324,7 +324,7 @@ export default function App() {
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
 
-    if (isAuthenticated) {
+    if (isAuthenticated && isApiConfigured) {
       try {
         await api.wishlist.toggle(id);
       } catch (err) {
@@ -335,7 +335,7 @@ export default function App() {
 
   const handleRemoveFromWishlist = async (productId: string) => {
     setWishlistIds((prev) => prev.filter((id) => id !== productId));
-    if (isAuthenticated) {
+    if (isAuthenticated && isApiConfigured) {
       try {
         await api.wishlist.remove(productId);
       } catch (err) {
@@ -646,6 +646,7 @@ export default function App() {
         {currentView === 'product' && (
           <ProductPageView
             product={currentProduct}
+            allProducts={PRODUCTS}
             currency={currency}
             isWishlisted={currentProduct ? wishlistIds.includes(currentProduct.id) : false}
             onToggleWishlist={handleToggleWishlist}

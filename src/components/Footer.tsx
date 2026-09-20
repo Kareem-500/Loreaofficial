@@ -26,7 +26,7 @@ export const Footer: React.FC<FooterProps> = ({
     if (!e.metaKey && !e.ctrlKey && !e.shiftKey && e.button === 0) {
       e.preventDefault();
       onNavigate(view);
-      window.history.pushState({}, '', path);
+      window.history.pushState({}, '', appPath(path));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -98,7 +98,7 @@ export const Footer: React.FC<FooterProps> = ({
             <ul className="space-y-2 text-xs text-[#B7ADA2] font-light">
               <li>
                 <a
-                  href={ROUTES.STORE}
+                  href={appPath(ROUTES.STORE)}
                   onClick={(e) => navigateTo(e, ROUTES.STORE, 'store')}
                   className="hover:text-[#F7F4EF] transition-colors"
                 >
@@ -107,7 +107,7 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li>
                 <a
-                  href={ROUTES.NEW_IN}
+                  href={appPath(ROUTES.NEW_IN)}
                   onClick={(e) => navigateTo(e, ROUTES.NEW_IN, 'new-in')}
                   className="hover:text-[#F7F4EF] transition-colors font-medium text-[#D4CCC2]"
                 >
@@ -221,7 +221,7 @@ export const Footer: React.FC<FooterProps> = ({
             <ul className="space-y-2 text-xs text-[#B7ADA2] font-light">
               <li>
                 <a
-                  href={ROUTES.CONTACT}
+                  href={appPath(ROUTES.CONTACT)}
                   onClick={(e) => navigateTo(e, ROUTES.CONTACT, 'contact')}
                   className="hover:text-[#F7F4EF] transition-colors"
                 >
@@ -230,7 +230,7 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li>
                 <a
-                  href={ROUTES.SHIPPING}
+                  href={appPath(ROUTES.SHIPPING)}
                   onClick={(e) => navigateTo(e, ROUTES.SHIPPING, 'shipping')}
                   className="hover:text-[#F7F4EF] transition-colors"
                 >
@@ -239,7 +239,7 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li>
                 <a
-                  href={ROUTES.RETURNS}
+                  href={appPath(ROUTES.RETURNS)}
                   onClick={(e) => navigateTo(e, ROUTES.RETURNS, 'returns')}
                   className="hover:text-[#F7F4EF] transition-colors"
                 >
@@ -248,7 +248,7 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li>
                 <a
-                  href={ROUTES.FAQ}
+                  href={appPath(ROUTES.FAQ)}
                   onClick={(e) => navigateTo(e, ROUTES.FAQ, 'faq')}
                   className="hover:text-[#F7F4EF] transition-colors"
                 >
@@ -275,7 +275,7 @@ export const Footer: React.FC<FooterProps> = ({
             <ul className="space-y-2 text-xs text-[#B7ADA2] font-light">
               <li>
                 <a
-                  href={ROUTES.ABOUT}
+                  href={appPath(ROUTES.ABOUT)}
                   onClick={(e) => navigateTo(e, ROUTES.ABOUT, 'about')}
                   className="hover:text-[#F7F4EF] transition-colors"
                 >
@@ -293,7 +293,7 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li>
                 <a
-                  href={ROUTES.COLLECTIONS}
+                  href={appPath(ROUTES.COLLECTIONS)}
                   onClick={(e) => navigateTo(e, ROUTES.COLLECTIONS, 'collections')}
                   className="hover:text-[#F7F4EF] transition-colors"
                 >
@@ -302,7 +302,7 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li>
                 <a
-                  href={ROUTES.JOURNAL}
+                  href={appPath(ROUTES.JOURNAL)}
                   onClick={(e) => navigateTo(e, ROUTES.JOURNAL, 'journal')}
                   className="hover:text-[#F7F4EF] transition-colors"
                 >
@@ -311,7 +311,7 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li>
                 <a
-                  href={ROUTES.CONTACT}
+                  href={appPath(ROUTES.CONTACT)}
                   onClick={(e) => navigateTo(e, ROUTES.CONTACT, 'contact')}
                   className="hover:text-[#F7F4EF] transition-colors"
                 >
@@ -329,7 +329,7 @@ export const Footer: React.FC<FooterProps> = ({
             <ul className="space-y-2 text-xs text-[#B7ADA2] font-light">
               <li>
                 <a
-                  href={ROUTES.ACCOUNT}
+                  href={appPath(ROUTES.ACCOUNT)}
                   onClick={(e) => navigateTo(e, ROUTES.ACCOUNT, 'account')}
                   className="hover:text-[#F7F4EF] transition-colors"
                 >
@@ -338,7 +338,7 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li>
                 <a
-                  href={ROUTES.WISHLIST}
+                  href={appPath(ROUTES.WISHLIST)}
                   onClick={(e) => {
                     if (onOpenWishlist) {
                       e.preventDefault();
@@ -354,7 +354,7 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li>
                 <a
-                  href={ROUTES.ACCOUNT}
+                  href={appPath(ROUTES.ACCOUNT)}
                   onClick={(e) => navigateTo(e, ROUTES.ACCOUNT, 'account')}
                   className="hover:text-[#F7F4EF] transition-colors"
                 >
@@ -363,7 +363,7 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li>
                 <a
-                  href={ROUTES.CART}
+                  href={appPath(ROUTES.CART)}
                   onClick={(e) => {
                     if (onOpenCart) {
                       e.preventDefault();
@@ -379,7 +379,7 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li>
                 <a
-                  href={ROUTES.CHECKOUT}
+                  href={appPath(ROUTES.CHECKOUT)}
                   onClick={(e) => navigateTo(e, ROUTES.CHECKOUT, 'checkout')}
                   className="hover:text-[#F7F4EF] transition-colors text-[#BA945A]"
                 >

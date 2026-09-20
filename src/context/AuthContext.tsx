@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { api, User, setStoredToken } from '../services/api';
+import { api, User, setStoredToken, isApiConfigured } from '../services/api';
 import { supabase, isSupabaseConfigured, SupabaseProfile } from '../lib/supabase';
 import { supabaseAuthService } from '../services/supabaseService';
 
@@ -59,8 +59,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // Fallback or local dev session
-      const res = await api.auth.me();
-      setUser(res.user);
+      if (isApiConfigured) {
+        const res = await api.auth.me();
+        setUser(res.user);
+      } else {
+        setUser(null);
+      }
     } catch {
       setUser(null);
     } finally {
