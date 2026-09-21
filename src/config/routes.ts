@@ -48,7 +48,9 @@ export function getAppBasePath(): string {
 
 export function appPath(path: string): string {
   const base = getAppBasePath();
-  return `${base}${path === '/' ? '/' : path}`;
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  if (!base) return normalizedPath;
+  return `${base}${normalizedPath === '/' ? '' : normalizedPath}` || '/';
 }
 
 export type RouteKey = keyof typeof ROUTES;
@@ -110,10 +112,14 @@ export function parseCurrentRoute(
   search = window.location.search
 ): ParsedRoute {
   const base = getAppBasePath();
-  const withoutBase = base && pathname.startsWith(base)
-    ? pathname.slice(base.length) || '/'
-    : pathname;
-  const cleanPath = withoutBase.replace(/\/+$/, '') || '/';
+  let withoutBase = pathname;
+  if (base && pathname.toLowerCase().startsWith(base.toLowerCase())) {
+    withoutBase = pathname.slice(base.length) || '/';
+  }
+  let cleanPath = withoutBase.replace(/\/+$/, '') || '/';
+  if (!cleanPath.startsWith('/')) {
+    cleanPath = `/${cleanPath}`;
+  }
   const params = new URLSearchParams(search);
   const categoryParam = params.get('category') || undefined;
   const subcategoryParam = params.get('subcategory') || undefined;
