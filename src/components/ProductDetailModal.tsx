@@ -300,14 +300,14 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   </button>
                 </div>
 
-                {/* AI Virtual Try-On CTA */}
+                {/* AI Style Assistant CTA */}
                 {onOpenTryOn && (
                   <button
                     onClick={() => onOpenTryOn(product)}
                     className="w-full py-3 bg-[#FAF8F5] text-[#1D1D1B] hover:bg-[#1D1D1B] hover:text-[#F7F4EF] border border-[#BA945A] text-xs tracking-[0.2em] uppercase font-medium flex items-center justify-center space-x-2 transition-all cursor-pointer group shadow-xs"
                   >
                     <Sparkles className="w-4 h-4 text-[#BA945A] group-hover:text-white transition-colors" />
-                    <span>AI Virtual Try-On · جرب اللبس على صورتك</span>
+                    <span>AI Style Assistant · نسّق الإطلالة مع مستشار لوريا</span>
                   </button>
                 )}
               </div>

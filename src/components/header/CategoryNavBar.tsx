@@ -319,9 +319,9 @@ export const CategoryNavBar: React.FC<CategoryNavBarProps> = ({
             )}
           </div>
 
-          {/* 6. AI TRY-ON */}
+          {/* 6. AI STYLE ASSISTANT */}
           <button
-            id="nav-item-ai-try-on"
+            id="nav-item-ai-style-assistant"
             onClick={() => {
               setIsCollectionOpen(false);
               setIsStoryOpen(false);
@@ -332,9 +332,10 @@ export const CategoryNavBar: React.FC<CategoryNavBarProps> = ({
               }
             }}
             className="group relative uppercase py-1 transition-colors cursor-pointer text-[#BA945A] hover:text-[#1D1D1B] inline-flex items-center space-x-1.5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#BA945A]"
+            title="LORÉA AI Style Assistant · مستشار الأناقة الذكي"
           >
             <Sparkles className="w-3.5 h-3.5 text-[#BA945A]" />
-            <span>AI TRY-ON</span>
+            <span>AI STYLIST</span>
             <span className="w-1.5 h-1.5 rounded-full bg-[#BA945A] animate-pulse" />
           </button>
         </nav>

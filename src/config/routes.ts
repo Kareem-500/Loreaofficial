@@ -22,12 +22,33 @@ export const ROUTES = {
   ADMIN: '/admin'
 } as const;
 
-const BASE_PATH = import.meta.env.BASE_URL === './'
-  ? ''
-  : import.meta.env.BASE_URL.replace(/\/$/, '');
+export function getAppBasePath(): string {
+  const metaBase = import.meta.env.BASE_URL;
+  if (metaBase && metaBase !== '/' && metaBase !== './') {
+    return metaBase.replace(/\/$/, '');
+  }
+
+  // Dynamic GitHub Pages / sub-path detection in browser
+  if (typeof window !== 'undefined' && window.location.pathname) {
+    const isGithubPages = window.location.hostname.endsWith('github.io');
+    const segments = window.location.pathname.split('/').filter(Boolean);
+    const knownTopRoutes = new Set([
+      'shop', 'store', 'new-in', 'sale', 'collection', 'collections',
+      'product', 'search', 'wishlist', 'account', 'cart', 'checkout',
+      'story', 'about', 'journal', 'contact', 'shipping', 'returns',
+      'faq', 'admin'
+    ]);
+    if (segments.length > 0 && (isGithubPages || !knownTopRoutes.has(segments[0].toLowerCase()))) {
+      return `/${segments[0]}`;
+    }
+  }
+
+  return '';
+}
 
 export function appPath(path: string): string {
-  return `${BASE_PATH}${path === '/' ? '/' : path}`;
+  const base = getAppBasePath();
+  return `${base}${path === '/' ? '/' : path}`;
 }
 
 export type RouteKey = keyof typeof ROUTES;
@@ -88,7 +109,7 @@ export function parseCurrentRoute(
   pathname = window.location.pathname,
   search = window.location.search
 ): ParsedRoute {
-  const base = BASE_PATH && BASE_PATH !== '/' ? BASE_PATH : '';
+  const base = getAppBasePath();
   const withoutBase = base && pathname.startsWith(base)
     ? pathname.slice(base.length) || '/'
     : pathname;

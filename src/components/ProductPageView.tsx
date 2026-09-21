@@ -373,14 +373,14 @@ export const ProductPageView: React.FC<ProductPageViewProps> = ({
                   </button>
                 </div>
 
-                {/* AI Virtual Try-On Button */}
+                {/* AI Style Assistant Button */}
                 {onOpenTryOn && (
                   <button
                     onClick={() => onOpenTryOn(product)}
                     className="w-full py-3.5 bg-[#FAF8F5] border border-[#BA945A] text-[#1D1D1B] hover:bg-[#1D1D1B] hover:text-[#F7F4EF] text-xs uppercase tracking-[0.22em] font-medium flex items-center justify-center space-x-2 transition-all cursor-pointer group shadow-xs"
                   >
                     <Sparkles className="w-4 h-4 text-[#BA945A] group-hover:text-white transition-colors" />
-                    <span>AI Virtual Try-On · جرب اللبس على صورتك</span>
+                    <span>AI Style Assistant · نسّق الإطلالة مع مستشار لوريا</span>
                   </button>
                 )}
 

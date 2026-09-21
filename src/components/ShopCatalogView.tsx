@@ -257,7 +257,7 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
           />
         </div>
 
-        {/* AI Virtual Fitting Room Banner / Feature Strip */}
+        {/* AI Style Assistant Banner / Feature Strip */}
         {onOpenTryOn && (
           <div className="mb-8 p-4 sm:p-5 bg-gradient-to-r from-[#1D1D1B] via-[#2D2A26] to-[#1D1D1B] text-white border border-[#BA945A]/40 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center space-x-3.5 text-center sm:text-left">
@@ -267,14 +267,14 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
               <div>
                 <div className="flex items-center justify-center sm:justify-start space-x-2">
                   <h3 className="text-xs sm:text-sm uppercase tracking-[0.2em] font-semibold text-white">
-                    AI Virtual Fitting Room
+                    LORÉA AI STYLE ASSISTANT
                   </h3>
                   <span className="text-[9px] uppercase tracking-widest font-mono text-[#D4CCC2] bg-white/10 px-2 py-0.5 border border-white/20">
-                    جرب بالذكاء الاصطناعي
+                    مستشار الأناقة
                   </span>
                 </div>
                 <p className="text-[11px] text-[#D4CCC2] font-light mt-0.5">
-                  Upload your photo or choose a silhouette model to visualize any LORÉA piece tailored to your frame.
+                  Curate bespoke ensembles, coordinate outfit formulas, and receive fabric and sizing guidance from our atelier.
                 </p>
               </div>
             </div>
@@ -285,7 +285,7 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
               className="px-5 py-2.5 bg-[#BA945A] hover:bg-[#C9A56B] text-[#1D1D1B] text-xs tracking-[0.22em] uppercase font-semibold transition-all inline-flex items-center space-x-2 shrink-0 cursor-pointer shadow-md"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Open AI Try-On</span>
+              <span>Open Style Assistant</span>
             </button>
           </div>
         )}
@@ -534,7 +534,7 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
                   className="px-5 py-2.5 bg-[#FAF8F5] border border-[#BA945A] text-[#1D1D1B] text-xs uppercase tracking-widest font-medium hover:bg-[#1D1D1B] hover:text-white transition-colors cursor-pointer flex items-center justify-center space-x-1"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-[#BA945A]" />
-                  <span>Try-On With AI</span>
+                  <span>Ask AI Stylist</span>
                 </button>
               )}
             </div>

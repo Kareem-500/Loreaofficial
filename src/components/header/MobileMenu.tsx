@@ -228,7 +228,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
               )}
             </div>
 
-            {/* AI Virtual Try-On Link */}
+            {/* AI Style Assistant Link */}
             <button
               onClick={() => {
                 if (onOpenTryOn) onOpenTryOn();
@@ -238,9 +238,9 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
             >
               <Sparkles className="w-4 h-4 text-[#BA945A]" />
               <span className="flex items-center space-x-2">
-                <span>AI Virtual Try-On</span>
+                <span>AI Style Assistant</span>
                 <span className="text-[9px] uppercase tracking-widest font-mono bg-[#BA945A]/15 text-[#BA945A] px-2 py-0.5 rounded-xs">
-                  AI Fit
+                  Atelier
                 </span>
               </span>
             </button>

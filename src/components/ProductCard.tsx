@@ -123,7 +123,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           />
         </button>
 
-        {/* AI Virtual Try-On Shortcut */}
+        {/* AI Style Assistant Shortcut */}
         {onOpenTryOn && (
           <button
             onClick={(e) => {
@@ -131,8 +131,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               onOpenTryOn(product);
             }}
             className="absolute top-12 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center bg-[#1D1D1B]/90 text-[#BA945A] hover:bg-[#BA945A] hover:text-white shadow-md transition-all duration-300 cursor-pointer"
-            title="AI Virtual Try-On / جرب اللبس بالذكاء الاصطناعي"
-            aria-label="AI Virtual Try-On"
+            title="LORÉA AI Style Assistant · نسّق الإطلالة مع مستشار الأناقة"
+            aria-label="LORÉA AI Style Assistant"
           >
             <Sparkles className="w-3.5 h-3.5" />
           </button>

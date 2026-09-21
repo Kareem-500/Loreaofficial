@@ -240,4 +240,88 @@ Provide an expert, highly refined styling assessment in JSON format with the fol
   }
 });
 
+// LORÉA AI STYLE ASSISTANT ENDPOINT
+router.post('/style-assistant', async (req: Request, res: Response) => {
+  try {
+    const { query, selectedGarment } = req.body;
+    if (!query || typeof query !== 'string') {
+      return res.status(400).json({ error: 'Query is required.' });
+    }
+
+    const ai = getAiClient();
+    if (ai) {
+      const systemPrompt = `You are the Lead Couturier and Senior Fashion Stylist at LORÉA, a premier luxury women's fashion house based in Cairo, Egypt.
+LORÉA specializes in quiet luxury, architectural silhouettes, Egyptian Giza 45 long-staple cotton, French Normandy linen, and pure mulberry silk.
+The client asks: "${query}"
+${selectedGarment ? `Currently focused garment: ${selectedGarment.name} (${selectedGarment.category}, ${selectedGarment.fabric})` : ''}
+
+Respond with an authoritative, elegant, and highly practical styling consultation.
+Return ONLY valid JSON in this schema:
+{
+  "text": "Refined English response (2-4 sentences with distinct fashion vocabulary and styling direction)",
+  "textAr": "Arabic translation of the styling guidance in graceful, elevated phrasing",
+  "stylingTips": ["Styling tip 1", "Styling tip 2", "Styling tip 3"],
+  "outfitBreakdown": {
+    "mainPiece": "Recommended core garment",
+    "layering": "Complementary coat, duster, or scarf",
+    "footwear": "Minimalist shoes/mules/heels",
+    "accessories": "Jewelry, belt, or leather bag",
+    "palette": "Color harmony recommendation"
+  }
+}`;
+
+      try {
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: [{ text: systemPrompt }],
+          config: {
+            responseMimeType: 'application/json'
+          }
+        });
+
+        if (response?.text) {
+          const parsed = JSON.parse(response.text);
+          if (parsed && typeof parsed === 'object') {
+            return res.json({
+              success: true,
+              ...parsed
+            });
+          }
+        }
+      } catch (geminiError) {
+        console.warn('Gemini style-assistant error, falling back to atelier rules:', geminiError);
+      }
+    }
+
+    // Graceful Atelier Fallback
+    return res.json({
+      success: true,
+      text: `For a harmonious LORÉA ensemble, balance the fluid drape of our natural fabrics with crisp, architectural lines. Pair neutral earth tones such as Desert Sand and Warm Alabaster with minimal brushed gold hardware.`,
+      textAr: `لتحقيق إطلالة لوريا المتناغمة، وازني بين انسيابية الأقمشة الطبيعية والخطوط الهندسية الراقية، مع اعتماد التدرجات اللونية المحايدة والحلي الذهبية المصقولة.`,
+      stylingTips: [
+        'Select tone-on-tone monochromatic neutrals for an elongated silhouette.',
+        'Pair relaxed column pieces with structured footwear.',
+        'Preserve natural drape by using vertical steaming.'
+      ],
+      outfitBreakdown: {
+        mainPiece: selectedGarment?.name || 'Architectural Linen Column Dress',
+        layering: 'Tailored Giza Cotton Duster',
+        footwear: 'Square-toe Pointed Mule',
+        accessories: 'Sculptural Gold Cuff',
+        palette: 'Warm Alabaster & Desert Sand'
+      }
+    });
+  } catch (error: any) {
+    return res.json({
+      success: true,
+      text: `Our atelier stylist recommends embracing quiet luxury: understated silhouettes crafted from heirloom Egyptian cotton and pure linen that transition effortlessly across occasions.`,
+      textAr: `يوصي مستشار دار لوريا بالتركيز على البساطة الراقية: تصاميم هادئة من الكتان والقطن المصري الفاخر تناسب مختلف المناسبات.`,
+      stylingTips: [
+        'Balance volume: pair wide hems with clean shoulders.',
+        'Invest in timeless natural textiles that endure.'
+      ]
+    });
+  }
+});
+
 export default router;

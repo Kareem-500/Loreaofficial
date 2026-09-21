@@ -26,7 +26,7 @@ import { CheckoutModal } from './components/CheckoutModal';
 import { SizeGuideModal } from './components/SizeGuideModal';
 import { ArticleDetailModal } from './components/ArticleDetailModal';
 import { AccountModal } from './components/AccountModal';
-import { AIVirtualTryOnModal } from './components/AIVirtualTryOnModal';
+import { LoreaAIStyleAssistant } from './components/LoreaAIStyleAssistant';
 import { CustomerAccountView } from './components/account/CustomerAccountView';
 import { AdminDashboardView } from './components/admin/AdminDashboardView';
 import { useAuth } from './context/AuthContext';
@@ -840,20 +840,23 @@ export default function App() {
         onOpenTryOn={handleOpenTryOn}
       />
 
-      {/* 5. AI Virtual Try-On Modal */}
-      <AIVirtualTryOnModal
+      {/* 5. LORÉA AI Style Assistant */}
+      <LoreaAIStyleAssistant
         isOpen={isTryOnOpen}
         onClose={() => setIsTryOnOpen(false)}
-        product={tryOnProduct}
-        allProducts={PRODUCTS}
+        initialProduct={tryOnProduct}
         currency={currency}
-        onAddToCart={(prod, size, col) => {
-          handleAddToCart(
-            prod,
-            col || prod.colors?.[0] || { name: 'Standard', hex: '#1D1D1B' },
-            size,
-            1
-          );
+        onAddToCart={(prod, size, colName) => {
+          const matchedColor =
+            prod.colors?.find((c) => c.name === colName) ||
+            prod.colors?.[0] || { name: 'Standard', hex: '#1D1D1B' };
+          handleAddToCart(prod, matchedColor, size as 'XS' | 'S' | 'M' | 'L' | 'XL', 1);
+        }}
+        onNavigateProduct={(prod) => {
+          handleSelectProduct(prod);
+        }}
+        onNavigateCollection={(cat) => {
+          handleSelectCategory(cat);
         }}
       />
 
