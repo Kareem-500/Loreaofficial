@@ -4,6 +4,7 @@ import { ARTICLES } from './data/journal';
 import { Product, Article, CartItem, Currency, ProductColor } from './types';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
+import { EditorialMarquee } from './components/EditorialMarquee';
 import { FeaturedCategories } from './components/FeaturedCategories';
 import { ProductGrid } from './components/ProductGrid';
 import { EditorialCampaign } from './components/EditorialCampaign';
@@ -494,22 +495,7 @@ export default function App() {
             />
 
             {/* 02 — Editorial Marquee Banner */}
-            <div className="py-3 bg-[#151413] text-[#FAF8F5] overflow-hidden whitespace-nowrap border-y border-[#262422]">
-              <div className="inline-flex animate-marquee space-x-12 text-[10px] sm:text-xs font-mono uppercase tracking-[0.3em]">
-                <span>MODERN WOMEN'S READY-TO-WEAR</span>
-                <span className="text-[#BA945A]">✦</span>
-                <span>EGYPTIAN GIZA 45 COTTON</span>
-                <span className="text-[#BA945A]">✦</span>
-                <span>DESIGNED IN CAIRO</span>
-                <span className="text-[#BA945A]">✦</span>
-                <span>FRENCH PURE FLAX LINEN</span>
-                <span className="text-[#BA945A]">✦</span>
-                <span>SMALL-BATCH ATELIER CRAFT</span>
-                <span className="text-[#BA945A]">✦</span>
-                <span>WORLDWIDE DELIVERY</span>
-                <span className="text-[#BA945A]">✦</span>
-              </div>
-            </div>
+            <EditorialMarquee />
 
             {/* 03 — Featured Categories (Visual Curated Pillars) */}
             <FeaturedCategories
