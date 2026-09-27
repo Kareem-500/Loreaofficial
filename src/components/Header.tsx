@@ -58,25 +58,19 @@ export const Header: React.FC<HeaderProps> = ({
         onOpenAccount={onOpenAccount}
       />
 
-      {/* 2. Main Sticky Header (Both bars share the exact same luxury ivory background as the body) */}
-      <header
-        className={`sticky top-0 z-40 bg-[#F7F4EF] transition-[border-color,box-shadow] duration-200 ${
-          isScrolled
-            ? 'border-b border-[#EAE5DE] shadow-[0_2px_8px_rgba(29,29,27,0.03)]'
-            : 'border-b border-transparent shadow-none'
-        }`}
-      >
-        {/* FIRST HEADER BAR */}
-        <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 pt-3.5 pb-2.5 sm:pt-4 sm:pb-3 md:pt-4.5 md:pb-3.5 lg:pt-5 lg:pb-4 relative flex items-center justify-between min-h-[52px] sm:min-h-[58px] md:min-h-[64px]">
-          {/* Left: Mobile hamburger menu trigger */}
-          <div className="flex items-center justify-start z-10 flex-1 sm:flex-initial sm:w-28 md:w-32 lg:w-44">
+      {/* 2. Main Sticky Minimal Header */}
+      <header className="sticky top-0 z-40 bg-white border-b border-[#EAE5DE] shadow-none">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 relative flex items-center justify-between">
+          {/* Left: Hamburger menu trigger (visible on desktop and mobile) */}
+          <div className="flex items-center justify-start z-10 w-28 sm:w-36 md:w-44">
             <button
               id="mobile-menu-btn"
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden flex items-center justify-center p-1.5 -ml-1 text-[#1D1D1B] hover:text-[#BA945A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BA945A] rounded-sm transition-colors cursor-pointer"
-              aria-label="Open Navigation Menu"
+              className="flex items-center justify-center p-2 -ml-2 text-[#1D1D1B] hover:text-[#BA945A] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#BA945A] rounded-sm transition-colors cursor-pointer"
+              aria-label="Open Menu"
+              title="Menu"
             >
-              <Menu className="w-5 h-5 stroke-[1.5]" />
+              <Menu className="w-5 h-5 stroke-[1.4]" />
             </button>
           </div>
 
@@ -89,8 +83,8 @@ export const Header: React.FC<HeaderProps> = ({
             />
           </div>
 
-          {/* Right: Search, Account, Wishlist, Shopping Bag */}
-          <div className="flex items-center justify-end z-10 flex-1 sm:flex-initial sm:w-28 md:w-32 lg:w-44">
+          {/* Right: Account, Search, Shopping Bag */}
+          <div className="flex items-center justify-end z-10 w-28 sm:w-36 md:w-44">
             <HeaderActions
               onOpenSearch={onOpenSearch}
               onOpenAccount={onOpenAccount}
@@ -104,15 +98,6 @@ export const Header: React.FC<HeaderProps> = ({
             />
           </div>
         </div>
-
-        {/* SECOND NAVIGATION BAR: SHOP | NEW IN | SALE | COLLECTION | STORY US */}
-        <CategoryNavBar
-          currentView={currentView}
-          activeCategory={activeCategoryFilter}
-          onSelectCategory={onSelectCategory}
-          onNavigate={onNavigate}
-          onOpenTryOn={onOpenTryOn}
-        />
       </header>
 
       {/* 3. Mobile Menu Drawer */}

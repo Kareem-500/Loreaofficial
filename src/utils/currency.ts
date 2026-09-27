@@ -10,21 +10,21 @@ const RATES: Record<Currency, number> = {
 
 export const formatPrice = (priceEgp: number, currency: Currency = 'EGP'): string => {
   if (currency === 'EGP') {
-    return `${priceEgp.toLocaleString('en-US')} EGP`;
+    return `LE ${priceEgp.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
   if (currency === 'USD') {
-    const usd = Math.round(priceEgp * RATES.USD);
+    const usd = (priceEgp * RATES.USD).toFixed(2);
     return `$${usd}`;
   }
   if (currency === 'EUR') {
-    const eur = Math.round(priceEgp * RATES.EUR);
+    const eur = (priceEgp * RATES.EUR).toFixed(2);
     return `€${eur}`;
   }
   if (currency === 'AED') {
-    const aed = Math.round(priceEgp * RATES.AED);
-    return `${aed} AED`;
+    const aed = (priceEgp * RATES.AED).toFixed(2);
+    return `AED ${aed}`;
   }
-  return `${priceEgp} EGP`;
+  return `LE ${priceEgp.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
 export const formatDualPrice = (priceEgp: number, currency: Currency): { primary: string; secondary: string } => {

@@ -1,5 +1,9 @@
 import { Product, Category } from '../types';
 import { slugify } from '../config/routes';
+import violetteDressImg from '../assets/images/dress_violette_mermaid_1790546911621.jpg';
+import celestineDressImg from '../assets/images/dress_celestine_mermaid_1790546921019.jpg';
+import azurelleDressImg from '../assets/images/dress_azurelle_highneck_1790546930763.jpg';
+import coraliaDressImg from '../assets/images/dress_coralia_feather_1790546941004.jpg';
 
 export const CATEGORIES: Category[] = [
   {
@@ -53,6 +57,146 @@ export const CATEGORIES: Category[] = [
 ];
 
 const RAW_PRODUCTS: Product[] = [
+  {
+    id: 'lorea-dress-violette',
+    name: 'SHEER BALLOON SLEEVE EMBELLISHED MERMAID MAXI DRESS - VIOLETTE',
+    nameAr: 'فستان ماكسي ميرميد بنفسجي بأكمام بالون وتطريز راقٍ',
+    subtitle: 'Violet mermaid silhouette with delicate sheer organza sleeves',
+    category: 'Dresses',
+    subcategory: 'Occasion & Evening',
+    collection: 'Best Sellers',
+    priceEgp: 23378,
+    originalPriceEgp: 27253,
+    priceUsd: 475,
+    originalPriceUsd: 550,
+    badge: 'BEST SELLER',
+    isTrending: true,
+    colors: [
+      { name: 'Violette', hex: '#4A154B' },
+      { name: 'Midnight', hex: '#1D1D1B' }
+    ],
+    sizes: ['XS', 'S', 'M', 'L', 'XL'],
+    images: [
+      violetteDressImg,
+      'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1200&auto=format&fit=crop'
+    ],
+    description: 'A striking couture evening piece crafted with a sculpted mermaid contour, sheer statement balloon sleeves, and delicate handcrafted crystal beadwork along the cuffs.',
+    fabric: 'Crepe Silk & Italian Sheer Organza',
+    fit: 'Fitted mermaid silhouette with dramatic floor sweep.',
+    care: 'Specialist dry clean only.',
+    shipping: 'Same-day VIP dispatch in Cairo & Giza. 48-hour delivery across Alexandria and Delta.',
+    sku: 'LOR-DR-VIO-01',
+    rating: 5.0,
+    reviewsCount: 42,
+    isModestEdit: true,
+    tags: ['Trending', 'Mermaid Dress', 'Evening Wear', 'Occasion', 'Couture', 'Violette'],
+    reviews: []
+  },
+  {
+    id: 'lorea-dress-celestine',
+    name: 'CRYSTAL EMBELLISHED LONG SLEEVE MERMAID MAXI DRESS - CELESTINE',
+    nameAr: 'فستان ماكسي سماوي مطرز بالكريستال بأكمام طويلة',
+    subtitle: 'Pastel celestial blue gown with hand-sewn crystal drops',
+    category: 'Dresses',
+    subcategory: 'Occasion & Evening',
+    collection: 'Best Sellers',
+    priceEgp: 22804,
+    originalPriceEgp: 25818,
+    priceUsd: 460,
+    originalPriceUsd: 520,
+    badge: 'BEST SELLER',
+    isTrending: true,
+    colors: [
+      { name: 'Celestine Blue', hex: '#9BB8CD' },
+      { name: 'Ice Silver', hex: '#D8D9DA' }
+    ],
+    sizes: ['XS', 'S', 'M', 'L', 'XL'],
+    images: [
+      celestineDressImg,
+      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?q=80&w=1200&auto=format&fit=crop'
+    ],
+    description: 'Ethereal sky-blue mermaid dress adorned with hand-placed glass crystals cascading across the neckline and bodice.',
+    fabric: 'Heavy Silk Crepe & Shimmer Chiffon',
+    fit: 'Precision tailored mermaid cut designed to accentuate fluid movement.',
+    care: 'Specialist dry clean only.',
+    shipping: 'Same-day VIP dispatch in Cairo & Giza. 48-hour delivery across Alexandria and Delta.',
+    sku: 'LOR-DR-CEL-02',
+    rating: 4.9,
+    reviewsCount: 36,
+    isModestEdit: true,
+    tags: ['Trending', 'Couture', 'Evening', 'Crystal Embellished', 'Celestine'],
+    reviews: []
+  },
+  {
+    id: 'lorea-dress-azurelle',
+    name: 'EMBELLISHED HIGH NECK FLARED SLEEVE MAXI DRESS - AZURELLE',
+    nameAr: 'فستان ماكسي أزرق ملكي برقبة عالية وأكمام واسعة',
+    subtitle: 'Royal sapphire blue gown with flared sleeves and neck jewels',
+    category: 'Dresses',
+    subcategory: 'Occasion & Evening',
+    collection: 'Best Sellers',
+    priceEgp: 23665,
+    originalPriceEgp: 27253,
+    priceUsd: 480,
+    originalPriceUsd: 550,
+    badge: 'BEST SELLER',
+    isTrending: true,
+    colors: [
+      { name: 'Azurelle Royal', hex: '#1E3A8A' },
+      { name: 'Nightshade', hex: '#0B132B' }
+    ],
+    sizes: ['XS', 'S', 'M', 'L', 'XL'],
+    images: [
+      azurelleDressImg,
+      'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?q=80&w=1200&auto=format&fit=crop'
+    ],
+    description: 'Statuesque high-neck maxi dress with elongated bell sleeves and opulent jeweled beadwork adorning the collar.',
+    fabric: 'Fine Wool-Silk Blend with Micro Beading',
+    fit: 'Statuesque column-to-A-line silhouette with graceful drape.',
+    care: 'Specialist dry clean only.',
+    shipping: 'Same-day VIP dispatch in Cairo & Giza. 48-hour delivery across Alexandria and Delta.',
+    sku: 'LOR-DR-AZU-03',
+    rating: 5.0,
+    reviewsCount: 29,
+    isModestEdit: true,
+    tags: ['Trending', 'High Neck', 'Flared Sleeve', 'Royal Blue', 'Azurelle'],
+    reviews: []
+  },
+  {
+    id: 'lorea-dress-coralia',
+    name: 'FEATHER CUFF EMBELLISHED LONG SLEEVE MAXI DRESS - CORALIA',
+    nameAr: 'فستان ماكسي مرجاني بأساور ريش وتطريز أنيق',
+    subtitle: 'Vibrant coral gown with ostrich feather trimmed cuffs',
+    category: 'Dresses',
+    subcategory: 'Occasion & Evening',
+    collection: 'Best Sellers',
+    priceEgp: 29549,
+    originalPriceEgp: 34429,
+    priceUsd: 595,
+    originalPriceUsd: 690,
+    badge: 'BEST SELLER',
+    isTrending: true,
+    colors: [
+      { name: 'Coralia', hex: '#FA7070' },
+      { name: 'Blush Gold', hex: '#F6C90E' }
+    ],
+    sizes: ['XS', 'S', 'M', 'L', 'XL'],
+    images: [
+      coraliaDressImg,
+      'https://images.unsplash.com/photo-1548883354-7622d03aca27?q=80&w=1200&auto=format&fit=crop'
+    ],
+    description: 'An iconic runway design featuring soft feather trimmed sleeves, golden micro-thread neckline embroidery, and a tailored sheath structure.',
+    fabric: 'Sculptural Double-Faced Satin & Ethical Feather Trimming',
+    fit: 'Structured elegant sheath falling straight to the ankle.',
+    care: 'Specialist dry clean only.',
+    shipping: 'Same-day VIP dispatch in Cairo & Giza. 48-hour delivery across Alexandria and Delta.',
+    sku: 'LOR-DR-COR-04',
+    rating: 4.9,
+    reviewsCount: 31,
+    isModestEdit: true,
+    tags: ['Trending', 'Feather Cuff', 'Coral', 'Occasion', 'Coralia'],
+    reviews: []
+  },
   {
     id: 'lorea-01',
     name: 'Architectural Linen Column Dress',

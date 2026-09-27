@@ -25,6 +25,7 @@ export interface Product {
   subtitle: string;
   slug?: string;
   isNew?: boolean;
+  isTrending?: boolean;
   category: 'Dresses' | 'Tops' | 'Sets' | 'Outerwear' | 'Bottoms' | 'Pants' | 'Modest Edit' | 'Modest Wear' | 'Loungewear & Sleepwear' | 'Loungewear' | 'Scarves' | string;
   subcategory: string;
   collection: 'New Collection' | 'Essentials' | 'Seasonal' | 'Limited Edition' | 'Best Sellers' | string;

@@ -23,7 +23,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onOpenTryOn
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [selectedColorIndex, setSelectedColorIndex] = useState(0);
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [addedAnimation, setAddedAnimation] = useState(false);
 
@@ -59,13 +58,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     ? product.sizes
     : (['XS', 'S', 'M', 'L', 'XL'] as ('XS' | 'S' | 'M' | 'L' | 'XL')[]);
 
-  const safeColors = (product.colors && product.colors.length > 0)
-    ? product.colors
-    : [{ name: 'Standard', hex: '#1D1D1B' }];
+  // Show "Trending" badge if product is trending or marked as best seller/new
+  const isTrending = Boolean(product.isTrending || product.badge === 'BEST SELLER' || product.badge === 'NEW');
 
   return (
     <div
-      className="group relative flex flex-col cursor-pointer select-none"
+      className="group relative flex flex-col cursor-pointer select-none bg-white transition-opacity"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
         setIsHovered(false);
@@ -77,99 +75,87 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       tabIndex={0}
       aria-label={`View ${product.name}`}
     >
-      {/* 1. Image Container */}
-      <div className="relative aspect-3/4 w-full overflow-hidden bg-[#EAE5DE] mb-3 sm:mb-4">
+      {/* 1. Image Container — Perfectly uniform 3:4 portrait aspect ratio */}
+      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F6F6F6] mb-3.5 sm:mb-4">
         <img
           src={currentImage}
           alt={product.name}
           loading="lazy"
-          className="w-full h-full object-cover object-center transition-all duration-700 ease-out group-hover:scale-103"
+          className="w-full h-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.02]"
         />
 
-        {/* Badges (NEW, BEST SELLER, LIMITED, SALE) */}
-        {product.badge && (
-          <div className="absolute top-3 left-3 z-10">
-            <span
-              className={`text-[10px] tracking-[0.18em] uppercase font-medium px-2.5 py-1 ${
-                product.badge === 'SALE'
-                  ? 'bg-[#964036] text-white'
-                  : product.badge === 'NEW'
-                  ? 'bg-[#1D1D1B] text-[#F7F4EF]'
-                  : product.badge === 'LIMITED'
-                  ? 'bg-[#B88F88] text-white'
-                  : 'bg-[#F7F4EF]/95 text-[#1D1D1B] shadow-xs'
-              }`}
-            >
-              {product.badge}
-            </span>
+        {/* Small black "Trending" badge in upper-right corner matching reference */}
+        {isTrending && (
+          <div className="absolute top-0 right-0 z-10 bg-black text-white text-[11px] sm:text-[12px] font-normal px-2.5 sm:px-3 py-1 tracking-normal select-none">
+            Trending
           </div>
         )}
 
-        {/* Wishlist Heart Icon */}
+        {/* Wishlist Heart Icon (subtle, in top-left) */}
         <button
           onClick={(e) => {
             e.stopPropagation();
             onToggleWishlist(product);
           }}
-          className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
+          className={`absolute top-2.5 left-2.5 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer ${
             isWishlisted
-              ? 'bg-[#B88F88] text-white shadow-md'
-              : 'bg-[#F7F4EF]/80 text-[#1D1D1B] hover:bg-[#F7F4EF] hover:text-[#B88F88]'
+              ? 'bg-[#1D1D1B] text-white shadow-sm opacity-100'
+              : 'bg-white/80 hover:bg-white text-[#1D1D1B] opacity-0 group-hover:opacity-100 hover:scale-105'
           }`}
           aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
         >
           <Heart
-            className={`w-4 h-4 stroke-[1.5] ${isWishlisted ? 'fill-current' : ''}`}
+            className={`w-4 h-4 stroke-[1.5] ${isWishlisted ? 'fill-current text-white' : 'text-[#1D1D1B]'}`}
           />
         </button>
 
-        {/* AI Style Assistant Shortcut */}
+        {/* AI Style Assistant Shortcut if available */}
         {onOpenTryOn && (
           <button
             onClick={(e) => {
               e.stopPropagation();
               onOpenTryOn(product);
             }}
-            className="absolute top-12 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center bg-[#1D1D1B]/90 text-[#BA945A] hover:bg-[#BA945A] hover:text-white shadow-md transition-all duration-300 cursor-pointer"
-            title="LORÉA AI Style Assistant · نسّق الإطلالة مع مستشار الأناقة"
+            className="absolute top-12 left-2.5 z-10 w-8 h-8 rounded-full flex items-center justify-center bg-white/80 hover:bg-white text-[#BA945A] shadow-xs opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer"
+            title="LORÉA AI Style Assistant"
             aria-label="LORÉA AI Style Assistant"
           >
             <Sparkles className="w-3.5 h-3.5" />
           </button>
         )}
 
-        {/* QUICK ADD overlay / button on Desktop & Mobile */}
-        <div className="absolute inset-x-0 bottom-0 p-3 z-20">
+        {/* QUICK ADD Drawer overlay on hover */}
+        <div className="absolute inset-x-0 bottom-0 p-2 sm:p-2.5 z-20">
           {!isQuickAddOpen ? (
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setIsQuickAddOpen(true);
               }}
-              className="w-full py-2.5 bg-[#F7F4EF]/95 backdrop-blur-xs text-[#1D1D1B] hover:bg-[#1D1D1B] hover:text-[#F7F4EF] text-[11px] tracking-[0.2em] uppercase font-medium transition-all duration-300 transform translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 flex items-center justify-center space-x-1 shadow-sm"
+              className="w-full py-2 bg-white/95 backdrop-blur-xs text-[#1D1D1B] hover:bg-[#1D1D1B] hover:text-white text-[11px] tracking-[0.18em] uppercase font-medium transition-all duration-300 transform translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 flex items-center justify-center space-x-1 shadow-xs cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5 mr-1" />
               <span>QUICK ADD</span>
             </button>
           ) : (
             <div
-              className="w-full bg-[#1D1D1B] text-[#F7F4EF] p-2.5 shadow-xl transition-all duration-300"
+              className="w-full bg-[#1D1D1B] text-white p-2.5 shadow-lg transition-all duration-300"
               onClick={(e) => e.stopPropagation()}
             >
               {addedAnimation ? (
-                <div className="text-center text-[11px] tracking-widest text-[#B88F88] py-1 font-medium">
+                <div className="text-center text-[11px] tracking-widest text-[#BA945A] py-1 font-medium">
                   ADDED TO BAG ✓
                 </div>
               ) : (
                 <div>
-                  <div className="flex justify-between items-center mb-1.5 px-1 text-[9px] uppercase tracking-widest text-[#B7ADA2]">
+                  <div className="flex justify-between items-center mb-1.5 px-0.5 text-[9px] uppercase tracking-widest text-[#A8A29E]">
                     <span>SELECT SIZE</span>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setIsQuickAddOpen(false);
                       }}
-                      className="hover:text-white"
+                      className="hover:text-white cursor-pointer"
                     >
                       ✕
                     </button>
@@ -179,7 +165,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                       <button
                         key={size}
                         onClick={(e) => handleSizeSelect(e, size)}
-                        className="py-1.5 text-center text-xs font-mono font-medium hover:bg-[#B88F88] hover:text-white bg-[#2A2928] text-[#F7F4EF] transition-colors"
+                        className="py-1 text-center text-xs font-mono font-medium hover:bg-[#BA945A] hover:text-white bg-[#2A2928] text-white transition-colors cursor-pointer"
                       >
                         {size}
                       </button>
@@ -192,50 +178,27 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
       </div>
 
-      {/* 2. Minimal Information Underneath */}
-      <div className="flex flex-col space-y-1.5">
-        {/* Color swatches */}
-        <div className="flex items-center space-x-1.5 mb-0.5">
-          {safeColors.map((color, idx) => (
-            <button
-              key={color.name || idx}
-              title={color.name}
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedColorIndex(idx);
-              }}
-              className={`w-2.5 h-2.5 rounded-full border transition-all ${
-                selectedColorIndex === idx
-                  ? 'ring-1 ring-[#1D1D1B] ring-offset-1 border-[#1D1D1B]'
-                  : 'border-[#B7ADA2]/40 hover:scale-110'
-              }`}
-              style={{ backgroundColor: color.hex }}
-              aria-label={`Select color ${color.name}`}
-            />
-          ))}
-          <span className="text-[10px] text-[#7C746B] font-light ml-1">
-            {safeColors[selectedColorIndex]?.name || safeColors[0]?.name}
-          </span>
-        </div>
-
-        {/* Product Title */}
-        <h3 className="font-sans text-sm sm:text-[15px] font-normal text-[#1D1D1B] tracking-tight group-hover:text-[#B88F88] transition-colors line-clamp-1">
+      {/* 2. Text Content Directly Below Image — Centered uppercase typography and dual prices */}
+      <div className="flex flex-col items-center justify-start text-center px-1">
+        {/* Product Title — Uppercase, elegant letter spacing, centered */}
+        <h3 className="font-sans text-[11px] min-[390px]:text-[12px] sm:text-[13px] font-normal uppercase tracking-[0.14em] text-[#1D1D1B] text-center leading-relaxed line-clamp-2 group-hover:text-[#BA945A] transition-colors">
           {product.name}
         </h3>
 
-        {/* Subtitle / Fabric callout */}
-        <p className="text-[11px] text-[#7C746B] font-light line-clamp-1">
-          {product.subtitle}
-        </p>
-
-        {/* Price with dual currency support */}
-        <div className="flex items-baseline space-x-2 pt-0.5">
-          <span className="text-sm font-medium text-[#1D1D1B]">
-            {formatPrice(product.priceEgp, currency)}
-          </span>
-          {product.originalPriceEgp && (
-            <span className="text-xs text-[#7C746B] line-through font-light">
-              {formatPrice(product.originalPriceEgp, currency)}
+        {/* Pricing: Old strikethrough price + Current selling price */}
+        <div className="flex items-center justify-center gap-2 sm:gap-2.5 mt-1 sm:mt-1.5 text-center flex-wrap">
+          {product.originalPriceEgp ? (
+            <>
+              <span className="text-[11px] min-[390px]:text-[12px] sm:text-[13px] text-[#7C746B] line-through font-light tracking-wide">
+                {formatPrice(product.originalPriceEgp, currency)}
+              </span>
+              <span className="text-[11px] min-[390px]:text-[12px] sm:text-[13px] font-medium text-[#1D1D1B] tracking-wide">
+                {formatPrice(product.priceEgp, currency)}
+              </span>
+            </>
+          ) : (
+            <span className="text-[11px] min-[390px]:text-[12px] sm:text-[13px] font-medium text-[#1D1D1B] tracking-wide">
+              {formatPrice(product.priceEgp, currency)}
             </span>
           )}
         </div>

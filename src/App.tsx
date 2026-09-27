@@ -32,6 +32,8 @@ import { CustomerAccountView } from './components/account/CustomerAccountView';
 import { AdminDashboardView } from './components/admin/AdminDashboardView';
 import { useAuth } from './context/AuthContext';
 import { api, isApiConfigured } from './services/api';
+import { isSupabaseConfigured } from './lib/supabase';
+import { supabaseProductService } from './services/supabaseService';
 import { ROUTES, appPath, parseCurrentRoute, buildProductUrl, buildCategoryUrl } from './config/routes';
 import { WOMEN_CATEGORIES } from './config/categories';
 
@@ -60,6 +62,63 @@ export default function App() {
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<string>('All');
   const [activeSubcategoryFilter, setActiveSubcategoryFilter] = useState<string>('All');
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
+
+  // Products State (initialized with comprehensive catalog, dynamically synced with Supabase when configured)
+  const [productsList, setProductsList] = useState<Product[]>(PRODUCTS);
+
+  useEffect(() => {
+    if (isSupabaseConfigured()) {
+      supabaseProductService
+        .getProducts()
+        .then((items) => {
+          if (items && items.length > 0) {
+            const mapped: Product[] = items.map((dbP) => {
+              const matchedLocal = PRODUCTS.find((p) => p.id === dbP.id || p.slug === dbP.slug);
+              return {
+                id: dbP.id,
+                name: dbP.name,
+                nameAr: matchedLocal?.nameAr || dbP.name,
+                subtitle: dbP.short_description || matchedLocal?.subtitle || '',
+                slug: dbP.slug,
+                category: dbP.category?.name || matchedLocal?.category || 'Dresses',
+                subcategory: matchedLocal?.subcategory || 'Collection',
+                collection: matchedLocal?.collection || 'Essentials',
+                priceEgp: dbP.price,
+                priceUsd: Math.round(dbP.price * 0.02),
+                originalPriceEgp: dbP.compare_at_price || matchedLocal?.originalPriceEgp,
+                originalPriceUsd: dbP.compare_at_price ? Math.round(dbP.compare_at_price * 0.02) : matchedLocal?.originalPriceUsd,
+                badge: dbP.is_sale ? 'SALE' : dbP.is_new ? 'NEW' : matchedLocal?.badge || null,
+                isTrending: Boolean(dbP.is_featured || matchedLocal?.isTrending),
+                colors: matchedLocal?.colors || [{ name: 'Standard', hex: '#1D1D1B' }],
+                sizes: (dbP.product_variants && dbP.product_variants.length > 0
+                  ? Array.from(new Set(dbP.product_variants.map((v) => v.size as 'XS' | 'S' | 'M' | 'L' | 'XL')))
+                  : matchedLocal?.sizes) || ['XS', 'S', 'M', 'L', 'XL'],
+                images: (dbP.product_images && dbP.product_images.length > 0
+                  ? dbP.product_images.map((img) => img.image_url)
+                  : dbP.main_image_url ? [dbP.main_image_url] : matchedLocal?.images) || [],
+                description: dbP.description || matchedLocal?.description || '',
+                fabric: dbP.material || matchedLocal?.fabric || '',
+                fit: matchedLocal?.fit || '',
+                care: dbP.care_instructions || matchedLocal?.care || '',
+                shipping: matchedLocal?.shipping || '',
+                sku: dbP.sku,
+                rating: matchedLocal?.rating || 5.0,
+                reviewsCount: matchedLocal?.reviewsCount || 0,
+                reviews: matchedLocal?.reviews || [],
+                isModestEdit: matchedLocal?.isModestEdit || false,
+                tags: matchedLocal?.tags || []
+              };
+            });
+            const existingIds = new Set(mapped.map((p) => p.id));
+            const merged = [...mapped, ...PRODUCTS.filter((p) => !existingIds.has(p.id))];
+            setProductsList(merged);
+          }
+        })
+        .catch((err) => {
+          console.warn('Could not sync products from Supabase, using local catalog:', err);
+        });
+    }
+  }, []);
 
   // Sticky header scroll detection
   const [isScrolled, setIsScrolled] = useState(false);
@@ -490,14 +549,44 @@ export default function App() {
           <>
             {/* 01 — Hero Visual */}
             <Hero
-              onShopClick={() => handleNavigate('store')}
+              onShopClick={() => {
+                const el = document.getElementById('shop-all');
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  handleNavigate('store');
+                }
+              }}
               onDiscoverClick={() => handleNavigate('about')}
             />
 
-            {/* 02 — Editorial Marquee Banner */}
+            {/* 02 — SHOP ALL: Complete Product Collection Section immediately after Hero */}
+            <section id="shop-all" className="py-12 sm:py-16 lg:py-20 bg-white">
+              <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Centered Heading: SHOP ALL matching reference */}
+                <div className="text-center mb-8 sm:mb-12">
+                  <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#1D1D1B] tracking-[0.25em] uppercase font-light">
+                    SHOP ALL
+                  </h2>
+                </div>
+
+                {/* 4-column product grid across all available categories */}
+                <ProductGrid
+                  noWrapper
+                  products={productsList}
+                  currency={currency}
+                  wishlistIds={wishlistIds}
+                  onToggleWishlist={handleToggleWishlist}
+                  onQuickAdd={handleQuickAdd}
+                  onProductClick={handleSelectProduct}
+                />
+              </div>
+            </section>
+
+            {/* 03 — Editorial Marquee Banner */}
             <EditorialMarquee />
 
-            {/* 03 — Featured Categories (Visual Curated Pillars) */}
+            {/* 04 — Featured Categories (Visual Curated Pillars) */}
             <FeaturedCategories
               categories={CATEGORIES}
               onSelectCategory={handleSelectCategory}
