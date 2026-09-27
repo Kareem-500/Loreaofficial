@@ -2,7 +2,7 @@ name: Deploy LORÉA to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
   workflow_dispatch:
 
 permissions:
@@ -18,27 +18,42 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci || npm install
+          else
+            npm install
+          fi
 
       - name: Build frontend
-        run: npm run build:frontend
+        run: |
+          REPO_NAME="${{ github.event.repository.name }}"
+          if [[ "$REPO_NAME" == *".github.io" ]]; then
+            export VITE_BASE_PATH="/"
+          else
+            export VITE_BASE_PATH="/${REPO_NAME}/"
+          fi
+          echo "Building with VITE_BASE_PATH=$VITE_BASE_PATH"
+          npm run build:frontend
         env:
-          VITE_BASE_PATH: /${{ github.event.repository.name }}/
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-      - name: Verify SPA fallback
-        run: test -f dist/404.html || cp dist/index.html dist/404.html
+      - name: Ensure .nojekyll & SPA 404 handler
+        run: |
+          touch dist/.nojekyll
+          if [ ! -f dist/404.html ]; then
+            cp dist/index.html dist/404.html
+          fi
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

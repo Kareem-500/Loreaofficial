@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'motion/react';
 import { ArrowDown, Play, Pause } from 'lucide-react';
+import { appPath } from '../config/routes';
 
 interface HeroProps {
   onShopClick: () => void;
@@ -38,7 +39,7 @@ export const Hero: React.FC<HeroProps> = ({ onShopClick }) => {
         className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none brightness-[0.70] contrast-[1.08] filter"
       >
         <source
-          src="/videos/hero-campaign.mp4"
+          src={appPath('/videos/hero-campaign.mp4')}
           type="video/mp4"
         />
       </video>

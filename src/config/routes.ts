@@ -38,7 +38,8 @@ export function getAppBasePath(): string {
       'story', 'about', 'journal', 'contact', 'shipping', 'returns',
       'faq', 'admin'
     ]);
-    if (segments.length > 0 && (isGithubPages || !knownTopRoutes.has(segments[0].toLowerCase()))) {
+    // If the first pathname segment is NOT a known app route, it is a project repository subpath (e.g. /my-repo/)
+    if (segments.length > 0 && !knownTopRoutes.has(segments[0].toLowerCase())) {
       return `/${segments[0]}`;
     }
   }

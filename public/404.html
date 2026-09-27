@@ -6,19 +6,18 @@
     <title>LORÉA — Luxury Women's Fashion</title>
     <script type="text/javascript">
       // Single Page Apps for GitHub Pages
-      // MIT License
       // https://github.com/rafgraph/spa-github-pages
-      // This script takes the current URL and converts the path and query
-      // string into just a query string, and then redirects the browser
-      // to the new URL with only a query string and hash fragment,
-      // e.g. https://foo.github.io/bar/one/two?a=b#c becomes
-      // https://foo.github.io/bar/?/one/two&a=b#c
-      
-      // If deployed to a GitHub Pages project URL (e.g. username.github.io/repo-name),
-      // pathSegmentsToKeep is 1. If deployed to a custom domain (e.g. lorea-couture.com),
-      // pathSegmentsToKeep is 0.
-      var isGithubProject = window.location.hostname.endsWith('github.io');
-      var pathSegmentsToKeep = isGithubProject ? 1 : 0;
+      var isGithub = window.location.hostname.endsWith('github.io');
+      var pathSegments = window.location.pathname.split('/').filter(Boolean);
+      var knownRoutes = [
+        'shop', 'store', 'new-in', 'sale', 'collection', 'collections',
+        'product', 'search', 'wishlist', 'account', 'cart', 'checkout',
+        'story', 'about', 'journal', 'contact', 'shipping', 'returns',
+        'faq', 'admin'
+      ];
+
+      // If on *.github.io and the first path segment is NOT a known route, it's the repo name
+      var pathSegmentsToKeep = (isGithub && pathSegments.length > 0 && !knownRoutes.includes(pathSegments[0].toLowerCase())) ? 1 : 0;
 
       var l = window.location;
       var redirectUrl = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
