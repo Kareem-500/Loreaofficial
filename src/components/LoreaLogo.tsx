@@ -37,17 +37,17 @@ export const LoreaLogo: React.FC<LoreaLogoProps> = ({
 
   // Responsive sizing classes maintaining 500.7:214.9 (approx 2.33:1) aspect ratio with elegant breathing space
   const getResponsiveClass = () => {
-    if (size === 'sm') return 'w-[85px] sm:w-[100px] max-h-[28px] sm:max-h-[32px]';
-    if (size === 'md') return 'w-[110px] sm:w-[125px] max-h-[34px] sm:max-h-[38px]';
-    if (size === 'lg') return 'w-[135px] sm:w-[155px] max-h-[42px] sm:max-h-[48px]';
-    if (size === 'xl') return 'w-[160px] sm:w-[185px] max-h-[50px] sm:max-h-[56px]';
+    if (size === 'sm') return 'w-[95px] sm:w-[110px] max-h-[32px] sm:max-h-[36px]';
+    if (size === 'md') return 'w-[125px] sm:w-[145px] max-h-[42px] sm:max-h-[48px]';
+    if (size === 'lg') return 'w-[155px] sm:w-[175px] max-h-[50px] sm:max-h-[58px]';
+    if (size === 'xl') return 'w-[185px] sm:w-[215px] max-h-[60px] sm:max-h-[68px]';
 
-    if (isMark) return 'w-7 h-7 sm:w-8 sm:h-8';
-    if (isCompact) return 'w-[90px] sm:w-[105px] max-h-[30px] sm:max-h-[34px]';
-    if (variant === 'footer' || size === 'footer') return 'w-[130px] sm:w-[155px] lg:w-[175px]';
+    if (isMark) return 'w-8 h-8 sm:w-9 sm:h-9';
+    if (isCompact) return 'w-[100px] sm:w-[115px] max-h-[34px] sm:max-h-[38px]';
+    if (variant === 'footer' || size === 'footer') return 'w-[150px] sm:w-[175px] lg:w-[200px]';
 
-    // Standard header responsive sizing with optimal vertical and horizontal breathing room across all device breakpoints
-    return 'w-[76px] min-[360px]:w-[84px] min-[390px]:w-[92px] min-[430px]:w-[102px] sm:w-[116px] md:w-[126px] lg:w-[136px] max-h-[30px] min-[360px]:max-h-[32px] min-[390px]:max-h-[35px] sm:max-h-[38px] md:max-h-[42px] lg:max-h-[45px]';
+    // Standard header responsive sizing - prominent, clear, luxury proportions
+    return 'w-[92px] min-[360px]:w-[104px] min-[390px]:w-[115px] min-[430px]:w-[126px] sm:w-[140px] md:w-[155px] lg:w-[172px] xl:w-[185px] max-h-[36px] min-[360px]:max-h-[40px] min-[390px]:max-h-[44px] min-[430px]:max-h-[47px] sm:max-h-[50px] md:max-h-[53px] lg:max-h-[56px] xl:max-h-[58px]';
   };
 
   // Standalone Brand Mark (Iconic Silhouette inside 'O' with Golden Leaf)

@@ -60,7 +60,7 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* 2. Main Sticky Minimal Header */}
       <header className="sticky top-0 z-40 bg-white border-b border-[#EAE5DE] shadow-none">
-        <div className="max-w-[1440px] mx-auto px-3.5 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+        <div className="max-w-[1440px] mx-auto px-3.5 sm:px-6 lg:px-8 h-14 min-[390px]:h-[60px] sm:h-16 lg:h-[68px] flex items-center justify-between">
           {/* Left: Hamburger menu trigger */}
           <div className="flex-1 flex items-center justify-start min-w-0">
             <button
@@ -75,7 +75,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Center: LORÉA Logo horizontally centered with balanced responsive spacing */}
-          <div className="shrink-0 flex items-center justify-center text-center px-3 sm:px-6">
+          <div className="shrink-0 flex items-center justify-center text-center px-2 sm:px-4">
             <LogoLink
               onNavigate={onNavigate}
               isScrolled={false}
