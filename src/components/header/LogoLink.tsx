@@ -7,6 +7,7 @@ export interface LogoLinkProps {
   isScrolled?: boolean;
   className?: string;
   variant?: 'light' | 'dark' | 'compact' | 'footer' | 'mark' | 'gold';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'responsive' | 'auto' | 'footer';
   ariaLabel?: string;
 }
 
@@ -23,6 +24,7 @@ export const LogoLink: React.FC<LogoLinkProps> = ({
   isScrolled = false,
   className = '',
   variant = 'light',
+  size = 'responsive',
   ariaLabel = 'LORÉA Home'
 }) => {
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -40,11 +42,11 @@ export const LogoLink: React.FC<LogoLinkProps> = ({
       onClick={handleClick}
       aria-label={ariaLabel}
       title="LORÉA Home"
-      className={`group inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BA945A] focus-visible:ring-offset-2 rounded-xs transition-transform duration-300 active:scale-[0.99] ${className}`}
+      className={`group inline-flex items-center justify-center py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BA945A] focus-visible:ring-offset-2 rounded-xs transition-transform duration-300 active:scale-[0.99] ${className}`}
     >
       <LoreaLogo
         variant={variant}
-        size="responsive"
+        size={size}
         isScrolled={isScrolled}
         subtitle={true}
         className="group-hover:opacity-90 transition-opacity"

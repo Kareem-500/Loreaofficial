@@ -39,7 +39,7 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Column 1 & 2: Brand Statement */}
           <div className="col-span-2">
             <div className="mb-4">
-              <LogoLink onNavigate={onNavigate} variant="dark" ariaLabel="LORÉA Home" />
+              <LogoLink onNavigate={onNavigate} variant="footer" size="footer" ariaLabel="LORÉA Home" />
             </div>
             <p className="text-xs sm:text-sm text-[#B7ADA2] font-light leading-relaxed max-w-sm mb-6">
               LORÉA creates modern women’s fashion with a quiet point of view: fluid silhouettes, exceptional Egyptian cotton, and thoughtful craft. Designed in Cairo for everywhere.

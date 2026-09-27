@@ -63,7 +63,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
     <div className="max-w-md w-full mx-auto bg-white border border-[#EAE5DE] shadow-xl p-8 sm:p-10 transition-all">
       {/* Brand Header */}
       <div className="text-center mb-8">
-        <LoreaLogo variant="dark" className="mx-auto mb-4" />
+        <LoreaLogo variant="dark" size="md" className="mx-auto mb-4" />
         <span className="text-[10px] tracking-[0.3em] uppercase text-[#7C746B] font-medium block">
           {language === 'ar' ? 'بوابة عملاء الدار' : 'MAISON CLIENT PORTAL'}
         </span>

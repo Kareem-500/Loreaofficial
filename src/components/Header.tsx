@@ -60,13 +60,13 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* 2. Main Sticky Minimal Header */}
       <header className="sticky top-0 z-40 bg-white border-b border-[#EAE5DE] shadow-none">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 relative flex items-center justify-between">
-          {/* Left: Hamburger menu trigger (visible on desktop and mobile) */}
-          <div className="flex items-center justify-start z-10 w-28 sm:w-36 md:w-44">
+        <div className="max-w-[1440px] mx-auto px-3.5 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+          {/* Left: Hamburger menu trigger */}
+          <div className="flex-1 flex items-center justify-start min-w-0">
             <button
               id="mobile-menu-btn"
               onClick={() => setMobileMenuOpen(true)}
-              className="flex items-center justify-center p-2 -ml-2 text-[#1D1D1B] hover:text-[#BA945A] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#BA945A] rounded-sm transition-colors cursor-pointer"
+              className="flex items-center justify-center p-2 -ml-1 text-[#1D1D1B] hover:text-[#BA945A] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#BA945A] rounded-sm transition-colors cursor-pointer"
               aria-label="Open Menu"
               title="Menu"
             >
@@ -74,8 +74,8 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </div>
 
-          {/* Center: LORÉA Logo horizontally centered on page */}
-          <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center text-center z-10 pointer-events-auto px-2">
+          {/* Center: LORÉA Logo horizontally centered with balanced responsive spacing */}
+          <div className="shrink-0 flex items-center justify-center text-center px-3 sm:px-6">
             <LogoLink
               onNavigate={onNavigate}
               isScrolled={false}
@@ -84,7 +84,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Right: Account, Search, Shopping Bag */}
-          <div className="flex items-center justify-end z-10 w-28 sm:w-36 md:w-44">
+          <div className="flex-1 flex items-center justify-end min-w-0">
             <HeaderActions
               onOpenSearch={onOpenSearch}
               onOpenAccount={onOpenAccount}
