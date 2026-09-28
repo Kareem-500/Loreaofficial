@@ -14,18 +14,49 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="canonical" href="https://lorea-couture.com" />
-    <!-- GitHub Pages Single Page App Redirect Restore Handler -->
+    <!-- GitHub Pages Dynamic Base & Single Page App Redirect Restore Handler -->
     <script type="text/javascript">
-      (function(l) {
-        if (l.search[1] === '/') {
+      (function() {
+        var l = window.location;
+        var hostname = l.hostname || '';
+        var isGithub = hostname.endsWith('github.io');
+        var pathSegments = l.pathname.split('/').filter(Boolean);
+        var knownRoutes = [
+          'shop', 'store', 'new-in', 'sale', 'collection', 'collections',
+          'product', 'search', 'wishlist', 'account', 'cart', 'checkout',
+          'story', 'about', 'journal', 'contact', 'shipping', 'returns',
+          'faq', 'admin'
+        ];
+
+        // Determine base path for GitHub Pages or custom domain / localhost
+        var basePath = '/';
+        if (isGithub && pathSegments.length > 0 && !knownRoutes.includes(pathSegments[0].toLowerCase())) {
+          basePath = '/' + pathSegments[0] + '/';
+          // Fix missing trailing slash on repo root (e.g. /my-repo -> /my-repo/)
+          if (pathSegments.length === 1 && !l.pathname.endsWith('/')) {
+            l.replace(basePath + l.search + l.hash);
+            return;
+          }
+        }
+
+        // Dynamically inject <base> so relative assets (./assets/...) always resolve to repository root
+        if (!document.querySelector('base')) {
+          var baseTag = document.createElement('base');
+          baseTag.href = basePath;
+          document.head.appendChild(baseTag);
+        }
+
+        // SPA 404 redirect restore handler
+        if (l.search && l.search[1] === '/') {
           var decoded = l.search.slice(1).split('&').map(function(s) { 
             return s.replace(/~and~/g, '&');
           }).join('?');
+          var cleanBase = basePath.endsWith('/') ? basePath.slice(0, -1) : basePath;
           window.history.replaceState(null, null,
-            l.pathname.slice(0, -1) + decoded + l.hash
+            cleanBase + decoded + l.hash
           );
         }
-      }(window.location));
+      })();
     </script>
   </head>
   <body class="bg-[#F7F4EF] text-[#1D1D1B] antialiased selection:bg-[#B88F88]/30 selection:text-[#1D1D1B]">

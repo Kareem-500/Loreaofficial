@@ -7,8 +7,10 @@
     <script type="text/javascript">
       // Single Page Apps for GitHub Pages
       // https://github.com/rafgraph/spa-github-pages
-      var isGithub = window.location.hostname.endsWith('github.io');
-      var pathSegments = window.location.pathname.split('/').filter(Boolean);
+      var l = window.location;
+      var hostname = l.hostname || '';
+      var isGithub = hostname.endsWith('github.io');
+      var pathSegments = l.pathname.split('/').filter(Boolean);
       var knownRoutes = [
         'shop', 'store', 'new-in', 'sale', 'collection', 'collections',
         'product', 'search', 'wishlist', 'account', 'cart', 'checkout',
@@ -19,10 +21,12 @@
       // If on *.github.io and the first path segment is NOT a known route, it's the repo name
       var pathSegmentsToKeep = (isGithub && pathSegments.length > 0 && !knownRoutes.includes(pathSegments[0].toLowerCase())) ? 1 : 0;
 
-      var l = window.location;
+      var repoBase = pathSegmentsToKeep === 1 ? '/' + pathSegments[0] : '';
+      var remainingPath = pathSegments.slice(pathSegmentsToKeep).join('/');
+
       var redirectUrl = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-        l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
-        l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+        repoBase + '/?/' +
+        remainingPath.replace(/&/g, '~and~') +
         (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
         l.hash;
 

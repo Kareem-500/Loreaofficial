@@ -124,8 +124,12 @@ export default function App() {
 
   // Currency State (defaults to EGP for Egyptian market accessibility, with USD/EUR/AED)
   const [currency, setCurrency] = useState<Currency>(() => {
-    const saved = localStorage.getItem('lorea_currency');
-    return (saved as Currency) || 'EGP';
+    try {
+      const saved = localStorage.getItem('lorea_currency');
+      return (saved as Currency) || 'EGP';
+    } catch {
+      return 'EGP';
+    }
   });
 
   // Cart State (Persisted in localStorage)
@@ -151,7 +155,9 @@ export default function App() {
           );
         }
       }
-      localStorage.setItem('lorea_wishlist_clean', JSON.stringify([]));
+      try {
+        localStorage.setItem('lorea_wishlist_clean', JSON.stringify([]));
+      } catch {}
       return [];
     } catch {
       return [];
@@ -177,11 +183,15 @@ export default function App() {
 
   // Sync cart & wishlist to localStorage
   useEffect(() => {
-    localStorage.setItem('lorea_cart', JSON.stringify(cartItems));
+    try {
+      localStorage.setItem('lorea_cart', JSON.stringify(cartItems));
+    } catch {}
   }, [cartItems]);
 
   useEffect(() => {
-    localStorage.setItem('lorea_wishlist_clean', JSON.stringify(wishlistIds));
+    try {
+      localStorage.setItem('lorea_wishlist_clean', JSON.stringify(wishlistIds));
+    } catch {}
   }, [wishlistIds]);
 
   // Sync wishlist from backend database if authenticated
@@ -204,7 +214,9 @@ export default function App() {
   }, [isAuthenticated]);
 
   useEffect(() => {
-    localStorage.setItem('lorea_currency', currency);
+    try {
+      localStorage.setItem('lorea_currency', currency);
+    } catch {}
   }, [currency]);
 
   // Scroll listener for sticky header transition
