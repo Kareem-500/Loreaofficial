@@ -4,6 +4,8 @@ import violetteDressImg from '../assets/images/dress_violette_mermaid_1790546911
 import celestineDressImg from '../assets/images/dress_celestine_mermaid_1790546921019.jpg';
 import azurelleDressImg from '../assets/images/dress_azurelle_highneck_1790546930763.jpg';
 import coraliaDressImg from '../assets/images/dress_coralia_feather_1790546941004.jpg';
+import emeraldDressImg from '../assets/images/dress_emerald_oneshoulder_1790620905060.jpg';
+import whiteRuffledDressImg from '../assets/images/dress_crystal_white_ruffled_1790621016298.jpg';
 
 export const CATEGORIES: Category[] = [
   {
@@ -59,7 +61,7 @@ export const CATEGORIES: Category[] = [
 const RAW_PRODUCTS: Product[] = [
   {
     id: 'lorea-dress-violette',
-    name: 'SHEER BALLOON SLEEVE EMBELLISHED MERMAID MAXI DRESS - VIOLETTE',
+    name: 'SHEER BALLOON SLEEVE EMBELLISHED MERMAID MAXI DRESS',
     nameAr: 'فستان ماكسي ميرميد بنفسجي بأكمام بالون وتطريز راقٍ',
     subtitle: 'Violet mermaid silhouette with delicate sheer organza sleeves',
     category: 'Dresses',
@@ -100,24 +102,24 @@ const RAW_PRODUCTS: Product[] = [
     category: 'Dresses',
     subcategory: 'Occasion & Evening',
     collection: 'Best Sellers',
-    priceEgp: 22804,
+    priceEgp: 22894,
     originalPriceEgp: 25818,
-    priceUsd: 460,
-    originalPriceUsd: 520,
+    priceUsd: 465,
+    originalPriceUsd: 525,
     badge: 'BEST SELLER',
     isTrending: true,
     colors: [
-      { name: 'Celestine Blue', hex: '#9BB8CD' },
-      { name: 'Ice Silver', hex: '#D8D9DA' }
+      { name: 'Pure Ivory', hex: '#FFFFFF' },
+      { name: 'Celestine Blue', hex: '#9BB8CD' }
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      celestineDressImg,
-      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?q=80&w=1200&auto=format&fit=crop'
+      whiteRuffledDressImg,
+      celestineDressImg
     ],
-    description: 'Ethereal sky-blue mermaid dress adorned with hand-placed glass crystals cascading across the neckline and bodice.',
+    description: 'Ethereal designer mini dress and gown with off-shoulder layered ruffles and delicate crystal drops cascading across the bodice.',
     fabric: 'Heavy Silk Crepe & Shimmer Chiffon',
-    fit: 'Precision tailored mermaid cut designed to accentuate fluid movement.',
+    fit: 'Precision tailored cut designed to accentuate fluid movement.',
     care: 'Specialist dry clean only.',
     shipping: 'Same-day VIP dispatch in Cairo & Giza. 48-hour delivery across Alexandria and Delta.',
     sku: 'LOR-DR-CEL-02',
@@ -195,6 +197,41 @@ const RAW_PRODUCTS: Product[] = [
     reviewsCount: 31,
     isModestEdit: true,
     tags: ['Trending', 'Feather Cuff', 'Coral', 'Occasion', 'Coralia'],
+    reviews: []
+  },
+  {
+    id: 'lorea-dress-emerald',
+    name: 'ONE SHOULDER DRAPED MAXI DRESS - EMERALD',
+    nameAr: 'فستان ماكسي درابيه كتف واحد بلون الزمرد الملكي',
+    subtitle: 'Royal emerald green gown with fluid one-shoulder drape',
+    category: 'Dresses',
+    subcategory: 'Occasion & Evening',
+    collection: 'Best Sellers',
+    priceEgp: 20765,
+    originalPriceEgp: 24199,
+    priceUsd: 420,
+    originalPriceUsd: 490,
+    badge: 'BEST SELLER',
+    isTrending: true,
+    colors: [
+      { name: 'Emerald Green', hex: '#004B23' },
+      { name: 'Forest Noir', hex: '#1B4332' }
+    ],
+    sizes: ['XS', 'S', 'M', 'L', 'XL'],
+    images: [
+      emeraldDressImg,
+      'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1200&auto=format&fit=crop'
+    ],
+    description: 'A masterpiece of Grecian draping, this one-shoulder emerald evening gown cascades effortlessly to the floor with liquid silk jersey movement.',
+    fabric: 'Liquid Silk Georgette & Crepe de Chine',
+    fit: 'Fluid one-shoulder draped silhouette with floor-skimming length.',
+    care: 'Specialist dry clean only.',
+    shipping: 'Same-day VIP dispatch in Cairo & Giza. 48-hour delivery across Alexandria and Delta.',
+    sku: 'LOR-DR-EME-05',
+    rating: 5.0,
+    reviewsCount: 48,
+    isModestEdit: true,
+    tags: ['Trending', 'One Shoulder', 'Emerald', 'Gown', 'Occasion'],
     reviews: []
   },
   {

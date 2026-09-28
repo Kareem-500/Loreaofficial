@@ -92,7 +92,7 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
   const [selectedColor, setSelectedColor] = useState<string>('All');
   const [selectedPriceRange, setSelectedPriceRange] = useState<string>('all');
   const [isModestOnly, setIsModestOnly] = useState<boolean>(initialCategory === 'Modest Edit');
-  const [sortBy, setSortBy] = useState<'featured' | 'newest' | 'price-low' | 'price-high' | 'rating'>('featured');
+  const [sortBy, setSortBy] = useState<'featured' | 'newest' | 'price-low' | 'price-high' | 'rating' | 'best-selling'>('featured');
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
 
   // Sync with props
@@ -117,10 +117,8 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
     'Tops',
     'Bottoms',
     'Sets',
-    'Outerwear',
-    'Modest Edit',
-    'Loungewear & Sleepwear',
-    'Scarves'
+    'Scarves',
+    'Modest'
   ];
 
   const standardSizes = ['XS', 'S', 'M', 'L', 'XL'];
@@ -129,7 +127,7 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
   const currentCategoryData = useMemo(() => {
     const catQuery = selectedCategory.toLowerCase();
     return WOMEN_CATEGORIES.find(
-      (c) => c.name.toLowerCase() === catQuery || c.slug === catQuery || (catQuery === 'modest edit' && c.slug === 'modest')
+      (c) => c.name.toLowerCase() === catQuery || c.slug === catQuery || ((catQuery === 'modest' || catQuery === 'modest edit') && c.slug === 'modest')
     );
   }, [selectedCategory]);
 
@@ -147,7 +145,7 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
         }
 
         // 2. Category filter
-        if (selectedCategory === 'Modest Edit') {
+        if (selectedCategory === 'Modest' || selectedCategory === 'Modest Edit') {
           if (!p.isModestEdit && !(p.category || '').toLowerCase().includes('modest')) return false;
         } else if (selectedCategory === 'Bottoms') {
           if (p.category !== 'Bottoms' && p.category !== 'Pants') return false;
@@ -196,7 +194,8 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
         return true;
       })
       .sort((a, b) => {
-        if (sortBy === 'newest') return (b.badge === 'NEW' ? 1 : 0) - (a.badge === 'NEW' ? 1 : 0);
+        if (sortBy === 'newest') return (b.badge === 'NEW' || b.isNew ? 1 : 0) - (a.badge === 'NEW' || a.isNew ? 1 : 0);
+        if (sortBy === 'best-selling') return (b.badge === 'BEST SELLER' || b.isTrending ? 1 : 0) - (a.badge === 'BEST SELLER' || a.isTrending ? 1 : 0);
         if (sortBy === 'price-low') return (a.priceEgp || 0) - (b.priceEgp || 0);
         if (sortBy === 'price-high') return (b.priceEgp || 0) - (a.priceEgp || 0);
         if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
@@ -293,10 +292,10 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
         {/* Page Title Header */}
         <div className="text-center max-w-xl mx-auto mb-8 sm:mb-10">
           <span className="text-[10px] sm:text-[11px] tracking-[0.32em] uppercase text-[#BA945A] font-medium block mb-2 font-mono">
-            {isNewInOnly ? 'SUMMER 2026 DROP' : 'LORÉA ATELIER CATALOGUE'}
+            {isNewInOnly ? 'SUMMER 2026 DROP' : 'WOMEN’S FASHION COLLECTION'}
           </span>
-          <h1 className="font-serif text-3xl sm:text-5xl font-light tracking-tight text-[#1D1D1B]">
-            {isNewInOnly ? 'New Arrivals' : selectedCategory === 'All' ? 'Ready-to-Wear Collection' : selectedCategory}
+          <h1 className="font-serif text-3xl sm:text-5xl font-light tracking-[0.2em] uppercase text-[#1D1D1B]">
+            {isNewInOnly ? 'New Arrivals' : selectedCategory === 'All' ? 'SHOP ALL' : selectedCategory.toUpperCase()}
           </h1>
           <p className="mt-2.5 text-xs sm:text-sm text-[#7C746B] font-light">
             {filteredProducts.length} silhouettes crafted with Egyptian long-staple cotton, French linen, and mulberry silk.
@@ -405,17 +404,17 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
             </span>
 
             <div className="flex items-center space-x-1.5">
-              <span className="text-[#7C746B] text-[11px] uppercase tracking-wider hidden sm:inline">Sort:</span>
+              <span className="text-[#7C746B] text-[11px] uppercase tracking-wider hidden sm:inline">SORT BY:</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
                 className="bg-transparent border border-[#D4CCC2] px-2.5 py-1 text-xs text-[#1D1D1B] focus:outline-none cursor-pointer"
               >
-                <option value="featured">Featured (المختار)</option>
-                <option value="newest">New Arrivals (الأحدث)</option>
-                <option value="price-low">Price: Low to High (الأقل سعراً)</option>
-                <option value="price-high">Price: High to Low (الأعلى سعراً)</option>
-                <option value="rating">Customer Rating (الأعلى تقييماً)</option>
+                <option value="featured">Featured</option>
+                <option value="newest">Newest</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="best-selling">Best Selling</option>
               </select>
             </div>
           </div>
@@ -540,7 +539,7 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8 sm:gap-x-6 sm:gap-y-12">
+          <div className="grid grid-cols-1 min-[380px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-x-4 gap-y-8 sm:gap-x-6 sm:gap-y-12">
             {filteredProducts.map((product) => (
               <ProductCard
                 key={product.id}

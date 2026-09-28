@@ -7,6 +7,8 @@ import { Hero } from './components/Hero';
 import { EditorialMarquee } from './components/EditorialMarquee';
 import { FeaturedCategories } from './components/FeaturedCategories';
 import { ProductGrid } from './components/ProductGrid';
+import { ShopAllTrendingCarousel } from './components/home/ShopAllTrendingCarousel';
+import { WomenFashionCategories } from './components/home/WomenFashionCategories';
 import { EditorialCampaign } from './components/EditorialCampaign';
 import { BrandStory } from './components/BrandStory';
 import { CollectionSpotlight } from './components/CollectionSpotlight';
@@ -560,39 +562,27 @@ export default function App() {
               onDiscoverClick={() => handleNavigate('about')}
             />
 
-            {/* 02 — SHOP ALL: Complete Product Collection Section immediately after Hero */}
-            <section id="shop-all" className="py-12 sm:py-16 lg:py-20 bg-white">
-              <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Centered Heading: SHOP ALL matching reference */}
-                <div className="text-center mb-8 sm:mb-12">
-                  <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#1D1D1B] tracking-[0.25em] uppercase font-light">
-                    SHOP ALL
-                  </h2>
-                </div>
+            {/* 02 — SHOP ALL: Single-Row Trending Carousel with MORE button */}
+            <ShopAllTrendingCarousel
+              products={productsList}
+              currency={currency}
+              wishlistIds={wishlistIds}
+              onToggleWishlist={handleToggleWishlist}
+              onQuickAdd={handleQuickAdd}
+              onProductClick={handleSelectProduct}
+              onViewAll={() => handleNavigate('store')}
+              onOpenTryOn={handleOpenTryOn}
+            />
 
-                {/* 4-column product grid across all available categories */}
-                <ProductGrid
-                  noWrapper
-                  products={productsList}
-                  currency={currency}
-                  wishlistIds={wishlistIds}
-                  onToggleWishlist={handleToggleWishlist}
-                  onQuickAdd={handleQuickAdd}
-                  onProductClick={handleSelectProduct}
-                />
-              </div>
-            </section>
-
-            {/* 03 — Editorial Marquee Banner */}
-            <EditorialMarquee />
-
-            {/* 04 — Featured Categories (Visual Curated Pillars) */}
-            <FeaturedCategories
-              categories={CATEGORIES}
+            {/* 03 — WOMEN FASHION: 6 Category Cards matching reference */}
+            <WomenFashionCategories
               onSelectCategory={handleSelectCategory}
             />
 
-            {/* 04 — New Arrivals Showcase (Summer 2026 Capsule) */}
+            {/* 04 — Editorial Marquee Banner */}
+            <EditorialMarquee />
+
+            {/* 05 — New Arrivals Showcase (Summer 2026 Capsule) */}
             <section className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 pb-4 border-b border-[#EAE5DE]">
                 <div>
