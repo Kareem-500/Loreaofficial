@@ -582,42 +582,7 @@ export default function App() {
             {/* 04 — Editorial Marquee Banner */}
             <EditorialMarquee />
 
-            {/* 05 — New Arrivals Showcase (Summer 2026 Capsule) */}
-            <section className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 pb-4 border-b border-[#EAE5DE]">
-                <div>
-                  <span className="text-[10px] sm:text-[11px] tracking-[0.3em] uppercase text-[#BA945A] font-medium block mb-1">
-                    THE LATEST EDIT
-                  </span>
-                  <h2 className="font-serif text-3xl sm:text-4xl text-[#1D1D1B] tracking-tight">
-                    New In: The Cairo Edit
-                  </h2>
-                </div>
-                <button
-                  onClick={() => handleNavigate('new-in')}
-                  className="text-xs uppercase tracking-[0.2em] font-medium text-[#1D1D1B] hover:text-[#BA945A] transition-colors mt-3 sm:mt-0 underline underline-offset-4 cursor-pointer"
-                >
-                  Explore New In →
-                </button>
-              </div>
-              <ProductGrid
-                noWrapper
-                products={newArrivals}
-                currency={currency}
-                wishlistIds={wishlistIds}
-                onToggleWishlist={handleToggleWishlist}
-                onQuickAdd={handleQuickAdd}
-                onProductClick={handleSelectProduct}
-              />
-            </section>
-
-            {/* 05 — Editorial Narrative Campaign */}
-            <EditorialCampaign
-              onShopCampaign={() => handleNavigate('store')}
-              onReadStory={() => handleNavigate('journal')}
-            />
-
-            {/* 06 — Best Sellers / Core Essentials */}
+            {/* 05 — Best Sellers / Core Essentials */}
             <section className="py-16 sm:py-24 bg-[#EFECE6]/50 border-y border-[#EAE5DE]">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 pb-4 border-b border-[#D4CCC2]">
