@@ -7,7 +7,6 @@ import { Hero } from './components/Hero';
 import { ShopAllTrendingCarousel } from './components/home/ShopAllTrendingCarousel';
 import { CategoryProductCarousel } from './components/home/CategoryProductCarousel';
 import { WomenFashionCategories } from './components/home/WomenFashionCategories';
-import { EditorialCampaign } from './components/EditorialCampaign';
 import { BrandStory } from './components/BrandStory';
 import { CollectionSpotlight } from './components/CollectionSpotlight';
 import { JournalSection } from './components/JournalSection';
@@ -648,7 +647,12 @@ export default function App() {
             />
 
             {/* 07 — Brand Heritage Story */}
-            <BrandStory />
+            <BrandStory
+              onNavigateStore={() => handleNavigate('store')}
+              onExploreCollection={() => handleNavigate('collections')}
+              onProductClick={handleSelectProduct}
+              currency={currency}
+            />
 
             {/* 08 — Thematic Collection Spotlight */}
             <CollectionSpotlight
@@ -735,24 +739,12 @@ export default function App() {
 
         {/* ABOUT / BRAND STORY VIEW (/about) */}
         {currentView === 'about' && (
-          <div>
-            <div className="py-20 sm:py-28 bg-[#151413] text-[#F7F4EF] text-center px-4">
-              <span className="text-[11px] tracking-[0.38em] uppercase text-[#BA945A] font-medium block mb-3 font-mono">
-                LORÉA ATELIER · EST. 2026
-              </span>
-              <h1 className="font-serif text-4xl sm:text-6xl font-light text-[#F7F4EF] mb-4">
-                The Heritage of Pure Form
-              </h1>
-              <p className="text-sm sm:text-base text-[#D4CCC2] font-light max-w-xl mx-auto">
-                Bridging centuries of Egyptian fiber cultivation with quiet contemporary European minimalism.
-              </p>
-            </div>
-            <BrandStory />
-            <EditorialCampaign
-              onShopCampaign={() => handleNavigate('store')}
-              onReadStory={() => handleNavigate('journal')}
-            />
-          </div>
+          <BrandStory
+            onNavigateStore={() => handleNavigate('store')}
+            onExploreCollection={() => handleNavigate('collections')}
+            onProductClick={handleSelectProduct}
+            currency={currency}
+          />
         )}
 
         {/* JOURNAL VIEW (/journal) */}
