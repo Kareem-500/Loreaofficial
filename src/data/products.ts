@@ -6,6 +6,12 @@ import azurelleDressImg from '../assets/images/dress_azurelle_highneck_179054693
 import coraliaDressImg from '../assets/images/dress_coralia_feather_1790546941004.jpg';
 import emeraldDressImg from '../assets/images/dress_emerald_oneshoulder_1790620905060.jpg';
 import whiteRuffledDressImg from '../assets/images/dress_crystal_white_ruffled_1790621016298.jpg';
+import catDressesImg from '../assets/images/cat_dresses_editorial_1790620925859.jpg';
+import catTopsImg from '../assets/images/cat_tops_blouse_1790620941579.jpg';
+import catBottomsImg from '../assets/images/cat_bottoms_trousers_1790620960075.jpg';
+import catSetsImg from '../assets/images/cat_sets_tailored_1790620974010.jpg';
+import catScarvesImg from '../assets/images/cat_scarves_silk_1790620987905.jpg';
+import catModestImg from '../assets/images/cat_modest_abaya_1790621001019.jpg';
 
 export const CATEGORIES: Category[] = [
   {
@@ -232,6 +238,216 @@ const RAW_PRODUCTS: Product[] = [
     reviewsCount: 48,
     isModestEdit: true,
     tags: ['Trending', 'One Shoulder', 'Emerald', 'Gown', 'Occasion'],
+    reviews: []
+  },
+  {
+    id: 'lorea-dress-ivory-pleat',
+    name: 'PLEATED V-NECK BALLOON SLEEVE MAXI GOWN',
+    nameAr: 'فستان سهرة ماكسي بليسيه بفتحة رقبة V وأكمام بالون',
+    subtitle: 'Flowing ivory georgette with micro-accordion pleats',
+    category: 'Dresses',
+    subcategory: 'Occasion & Evening',
+    collection: 'Best Sellers',
+    priceEgp: 24500,
+    originalPriceEgp: 28000,
+    priceUsd: 495,
+    originalPriceUsd: 565,
+    badge: 'NEW',
+    isTrending: true,
+    colors: [
+      { name: 'Pure Ivory', hex: '#FAF9F6' },
+      { name: 'Champagne Gold', hex: '#E5D3B3' }
+    ],
+    sizes: ['XS', 'S', 'M', 'L', 'XL'],
+    images: [
+      catDressesImg,
+      'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1200&auto=format&fit=crop'
+    ],
+    description: 'A diaphanous vision of fluid movement, cut in airy pleated georgette with romantic sheer bishop sleeves and a flattering fitted waistband.',
+    fabric: 'Fine Silk Georgette & French Tulle',
+    fit: 'Fitted bodice with flowy sunburst pleated maxi skirt.',
+    care: 'Specialist dry clean only.',
+    shipping: 'VIP delivery within 24 hours in Cairo & Giza.',
+    sku: 'LOR-DR-PLEAT-06',
+    rating: 5.0,
+    reviewsCount: 32,
+    isModestEdit: true,
+    tags: ['Dresses', 'Pleated', 'Ivory', 'Evening', 'Occasion'],
+    reviews: []
+  },
+  {
+    id: 'lorea-top-atelier-blouse',
+    name: 'ROMANTIC BALLOON SLEEVE COTTON ATELIER BLOUSE',
+    nameAr: 'بلوزة قطن فاخرة بأكمام بالون رومانسية وتصميم فرنسي',
+    subtitle: 'Crisp Giza 45 cotton poplin with artisanal mother-of-pearl buttons',
+    category: 'Tops',
+    subcategory: 'Blouses',
+    collection: 'Best Sellers',
+    priceEgp: 4850,
+    originalPriceEgp: 5500,
+    priceUsd: 98,
+    originalPriceUsd: 110,
+    badge: 'BEST SELLER',
+    isTrending: true,
+    colors: [
+      { name: 'Optic White', hex: '#FFFFFF' },
+      { name: 'Noir Black', hex: '#1D1D1B' }
+    ],
+    sizes: ['XS', 'S', 'M', 'L', 'XL'],
+    images: [
+      catTopsImg,
+      'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1200&auto=format&fit=crop'
+    ],
+    description: 'Crafted from Egypt’s finest Giza 45 cotton poplin, this shirt features sculptural gathered bishop sleeves and a structured pointed spread collar.',
+    fabric: '100% Giza 45 Long-Staple Cotton Poplin',
+    fit: 'Fluid relaxed fit designed for effortless tucking.',
+    care: 'Machine wash gentle or dry clean.',
+    shipping: 'Same-day dispatch in Cairo & Giza.',
+    sku: 'LOR-TP-BLOUSE-01',
+    rating: 4.9,
+    reviewsCount: 41,
+    isModestEdit: true,
+    tags: ['Tops', 'Blouse', 'Giza Cotton', 'Atelier', 'Trending'],
+    reviews: []
+  },
+  {
+    id: 'lorea-bottom-pleated-trousers',
+    name: 'HIGH-WAISTED TAILORED WIDE-LEG PALAZZO TROUSERS',
+    nameAr: 'بنطال بالازو عالي الخصر بقصة رسمية مريحة بلون الرمال',
+    subtitle: 'Architectural front pleats with weighted luxury drape',
+    category: 'Bottoms',
+    subcategory: 'Trousers',
+    collection: 'Best Sellers',
+    priceEgp: 5200,
+    originalPriceEgp: 6000,
+    priceUsd: 105,
+    originalPriceUsd: 120,
+    badge: 'BEST SELLER',
+    isTrending: true,
+    colors: [
+      { name: 'Sand Dune', hex: '#E0D7C6' },
+      { name: 'Onyx Noir', hex: '#1A1A1A' }
+    ],
+    sizes: ['XS', 'S', 'M', 'L', 'XL'],
+    images: [
+      catBottomsImg,
+      'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1200&auto=format&fit=crop'
+    ],
+    description: 'Precision-tailored in heavyweight wool-viscose twill with double deep pleats that open into an elongated, sweeping wide leg silhouette.',
+    fabric: 'Fine Wool & Viscose Twill Blend',
+    fit: 'High rise with floor-length wide leg break.',
+    care: 'Eco dry clean only.',
+    shipping: 'Express delivery across Egypt.',
+    sku: 'LOR-BT-PALAZZO-01',
+    rating: 5.0,
+    reviewsCount: 28,
+    isModestEdit: true,
+    tags: ['Bottoms', 'Trousers', 'Wide Leg', 'Tailored', 'Trending'],
+    reviews: []
+  },
+  {
+    id: 'lorea-set-three-piece-linen',
+    name: 'MONOCHROMATIC THREE-PIECE TAILORED LINEN SUIT',
+    nameAr: 'بدلة كتان كاملة 3 قطع باللون العاجي بتفصيل راقٍ',
+    subtitle: 'Structured blazer, tailored waistcoat, and fluid wide-leg trouser',
+    category: 'Sets',
+    subcategory: 'Tailored Sets',
+    collection: 'Best Sellers',
+    priceEgp: 14500,
+    originalPriceEgp: 17200,
+    priceUsd: 295,
+    originalPriceUsd: 350,
+    badge: 'LIMITED',
+    isTrending: true,
+    colors: [
+      { name: 'Cream Ivory', hex: '#F4EFE6' },
+      { name: 'Sahara Sand', hex: '#D2C4B2' }
+    ],
+    sizes: ['XS', 'S', 'M', 'L', 'XL'],
+    images: [
+      catSetsImg,
+      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop'
+    ],
+    description: 'An immaculate three-piece ensemble comprising a soft-shouldered single-button blazer, fitted V-neck vest, and pleated high-rise palazzo trousers.',
+    fabric: '100% Belgian Flax Heavyweight Linen & Mulberry Silk Lining',
+    fit: 'Tailored architectural fit with flowing movement.',
+    care: 'Specialist dry clean only.',
+    shipping: 'Signature archive suit bag included.',
+    sku: 'LOR-ST-SUIT-03',
+    rating: 5.0,
+    reviewsCount: 39,
+    isModestEdit: true,
+    tags: ['Sets', 'Suit', 'Linen', 'Three Piece', 'Luxury'],
+    reviews: []
+  },
+  {
+    id: 'lorea-scarf-jacquard-silk',
+    name: 'HERITAGE JACQUARD MULBERRY SILK SCARF & WRAP',
+    nameAr: 'طرحة وشال حرير مولبيري جاكار بنقوش دقيقة فاخرة',
+    subtitle: 'Lustrous 18-momme pure silk with subtle geometric jacquard weave',
+    category: 'Scarves',
+    subcategory: 'Silk Scarves',
+    collection: 'Essentials',
+    priceEgp: 2650,
+    originalPriceEgp: 3100,
+    priceUsd: 55,
+    originalPriceUsd: 65,
+    badge: 'BEST SELLER',
+    isTrending: true,
+    colors: [
+      { name: 'Opal Champagne', hex: '#EBE5D8' },
+      { name: 'Rose Taupe', hex: '#C7B198' }
+    ],
+    sizes: ['XS', 'S', 'M', 'L', 'XL'],
+    images: [
+      catScarvesImg,
+      'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?q=80&w=1200&auto=format&fit=crop'
+    ],
+    description: 'Spun from pure grade 6A mulberry silk with an artisanal jacquard weave that catches light gracefully. Hand-rolled hems and non-slip drape.',
+    fabric: '100% Grade 6A Pure Mulberry Silk (18 momme)',
+    fit: 'Generous 100cm x 100cm square silhouette.',
+    care: 'Gentle hand wash with silk wash or dry clean.',
+    shipping: 'Packaged in signature LORÉA gold embossed box.',
+    sku: 'LOR-SC-JACQUARD-01',
+    rating: 5.0,
+    reviewsCount: 57,
+    isModestEdit: true,
+    tags: ['Scarves', 'Silk', 'Hijab', 'Jacquard', 'Trending'],
+    reviews: []
+  },
+  {
+    id: 'lorea-abaya-crepe-couture',
+    name: 'ARCHITECTURAL SILK CREPE COUTURE ABAYA',
+    nameAr: 'عباية كوتور حرير كريب بتصميم معماري انسيابي أسود',
+    subtitle: 'Deep obsidian black with clean concealed placket and weighted drape',
+    category: 'Modest Edit',
+    subcategory: 'Abayas',
+    collection: 'Best Sellers',
+    priceEgp: 8900,
+    originalPriceEgp: 10500,
+    priceUsd: 180,
+    originalPriceUsd: 215,
+    badge: 'BEST SELLER',
+    isTrending: true,
+    colors: [
+      { name: 'Obsidian Noir', hex: '#111111' },
+      { name: 'Midnight Charcoal', hex: '#1F1E1D' }
+    ],
+    sizes: ['XS', 'S', 'M', 'L', 'XL'],
+    images: [
+      catModestImg,
+      'https://images.unsplash.com/photo-1584273143981-41c073dfe8f8?q=80&w=1200&auto=format&fit=crop'
+    ],
+    description: 'An architectural expression of modern modest elegance. Tailored from weighted Japanese silk crepe that falls in uninterrupted vertical lines.',
+    fabric: 'Heavy Japanese Silk Crepe de Chine',
+    fit: 'Fluid floor-skimming loose silhouette with raglan sleeves.',
+    care: 'Specialist eco dry clean only.',
+    shipping: 'Same-day VIP courier in Cairo.',
+    sku: 'LOR-AB-COUTURE-01',
+    rating: 5.0,
+    reviewsCount: 63,
+    isModestEdit: true,
+    tags: ['Modest', 'Abaya', 'Crepe', 'Couture', 'Black Tie'],
     reviews: []
   },
   {

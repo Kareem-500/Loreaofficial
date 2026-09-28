@@ -4,10 +4,8 @@ import { ARTICLES } from './data/journal';
 import { Product, Article, CartItem, Currency, ProductColor } from './types';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
-import { EditorialMarquee } from './components/EditorialMarquee';
-import { FeaturedCategories } from './components/FeaturedCategories';
-import { ProductGrid } from './components/ProductGrid';
 import { ShopAllTrendingCarousel } from './components/home/ShopAllTrendingCarousel';
+import { CategoryProductCarousel } from './components/home/CategoryProductCarousel';
 import { WomenFashionCategories } from './components/home/WomenFashionCategories';
 import { EditorialCampaign } from './components/EditorialCampaign';
 import { BrandStory } from './components/BrandStory';
@@ -511,12 +509,18 @@ export default function App() {
     return <AdminDashboardView onReturnToStore={() => handleNavigate('home')} />;
   }
 
-  // Derived product slices for Homepage
-  const newArrivals = PRODUCTS.filter((p) => p.badge === 'NEW' || p.isNew).slice(0, 4);
-  const bestSellers = PRODUCTS.filter((p) => p.badge === 'BEST SELLER' || p.rating >= 4.9).slice(0, 4);
-  const wishlistedProducts = PRODUCTS.filter((p) => wishlistIds.includes(p.id));
+  // Category product slices for Homepage Carousels
+  const dressesProducts = productsList.filter((p) => p.category === 'Dresses');
+  const topsProducts = productsList.filter((p) => p.category === 'Tops');
+  const setsBottomsProducts = productsList.filter(
+    (p) => p.category === 'Sets' || p.category === 'Bottoms' || p.category === 'Pants'
+  );
+  const modestProducts = productsList.filter(
+    (p) => p.isModestEdit || p.category === 'Modest Edit' || (p.tags && p.tags.includes('Modest'))
+  );
+  const wishlistedProducts = productsList.filter((p) => wishlistIds.includes(p.id));
   const wishlistCount = wishlistedProducts.length;
-  const recommendedForCart = PRODUCTS.filter((p) => !cartItems.some((c) => c.product.id === p.id)).slice(0, 3);
+  const recommendedForCart = productsList.filter((p) => !cartItems.some((c) => c.product.id === p.id)).slice(0, 3);
 
   return (
     <div className="min-h-screen bg-[#F7F4EF] text-[#1D1D1B] flex flex-col font-sans selection:bg-[#BA945A]/20 selection:text-[#1D1D1B]">
@@ -579,39 +583,69 @@ export default function App() {
               onSelectCategory={handleSelectCategory}
             />
 
-            {/* 04 — Editorial Marquee Banner */}
-            <EditorialMarquee />
+            {/* 04 — DRESSES: Single-Row Carousel with MORE button */}
+            <CategoryProductCarousel
+              id="category-dresses"
+              title="DRESSES"
+              subtitle="OCCASION & EVENING EDIT"
+              products={dressesProducts}
+              currency={currency}
+              wishlistIds={wishlistIds}
+              onToggleWishlist={handleToggleWishlist}
+              onQuickAdd={handleQuickAdd}
+              onProductClick={handleSelectProduct}
+              onViewAll={() => handleSelectCategory('Dresses')}
+              moreText="MORE"
+              onOpenTryOn={handleOpenTryOn}
+            />
 
-            {/* 05 — Best Sellers / Core Essentials */}
-            <section className="py-16 sm:py-24 bg-[#EFECE6]/50 border-y border-[#EAE5DE]">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 pb-4 border-b border-[#D4CCC2]">
-                  <div>
-                    <span className="text-[10px] sm:text-[11px] tracking-[0.3em] uppercase text-[#7C746B] font-medium block mb-1">
-                      LORÉA SIGNATURES
-                    </span>
-                    <h2 className="font-serif text-3xl sm:text-4xl text-[#1D1D1B] tracking-tight">
-                      Pieces Made to Stay
-                    </h2>
-                  </div>
-                  <button
-                    onClick={() => handleNavigate('store')}
-                    className="text-xs uppercase tracking-[0.2em] font-medium text-[#1D1D1B] hover:text-[#BA945A] transition-colors mt-3 sm:mt-0 underline underline-offset-4 cursor-pointer"
-                  >
-                    Shop the Essentials →
-                  </button>
-                </div>
-                <ProductGrid
-                  noWrapper
-                  products={bestSellers}
-                  currency={currency}
-                  wishlistIds={wishlistIds}
-                  onToggleWishlist={handleToggleWishlist}
-                  onQuickAdd={handleQuickAdd}
-                  onProductClick={handleSelectProduct}
-                />
-              </div>
-            </section>
+            {/* 05 — TOPS & BLOUSES: Single-Row Carousel with MORE button */}
+            <CategoryProductCarousel
+              id="category-tops"
+              title="TOPS & BLOUSES"
+              subtitle="ATELIER SILKS & CRISP POPLIN"
+              products={topsProducts}
+              currency={currency}
+              wishlistIds={wishlistIds}
+              onToggleWishlist={handleToggleWishlist}
+              onQuickAdd={handleQuickAdd}
+              onProductClick={handleSelectProduct}
+              onViewAll={() => handleSelectCategory('Tops')}
+              moreText="MORE"
+              onOpenTryOn={handleOpenTryOn}
+            />
+
+            {/* 06 — SETS & SUITING: Single-Row Carousel with MORE button */}
+            <CategoryProductCarousel
+              id="category-sets"
+              title="SETS & SUITING"
+              subtitle="TAILORED TROUSERS & COORDINATES"
+              products={setsBottomsProducts}
+              currency={currency}
+              wishlistIds={wishlistIds}
+              onToggleWishlist={handleToggleWishlist}
+              onQuickAdd={handleQuickAdd}
+              onProductClick={handleSelectProduct}
+              onViewAll={() => handleSelectCategory('Sets')}
+              moreText="MORE"
+              onOpenTryOn={handleOpenTryOn}
+            />
+
+            {/* 07 — MODEST LUXURY: Single-Row Carousel with MORE button */}
+            <CategoryProductCarousel
+              id="category-modest"
+              title="MODEST LUXURY"
+              subtitle="TIMELESS ABAYAS & FLUID SILHOUETTES"
+              products={modestProducts}
+              currency={currency}
+              wishlistIds={wishlistIds}
+              onToggleWishlist={handleToggleWishlist}
+              onQuickAdd={handleQuickAdd}
+              onProductClick={handleSelectProduct}
+              onViewAll={() => handleSelectCategory('Modest Edit')}
+              moreText="MORE"
+              onOpenTryOn={handleOpenTryOn}
+            />
 
             {/* 07 — Brand Heritage Story */}
             <BrandStory />
