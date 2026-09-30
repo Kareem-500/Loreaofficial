@@ -15,6 +15,8 @@ export interface BrandStoryProps {
   onExploreCollection?: () => void;
   onProductClick?: (product: Product) => void;
   currency?: Currency;
+  onNavigateStory?: () => void;
+  isHomePage?: boolean;
 }
 
 // 4 Principles with interactive preview imagery
@@ -53,11 +55,170 @@ const PRINCIPLES = [
   }
 ];
 
+interface StoryContinuationSectionProps {
+  onDiscoverStory: () => void;
+  prefersReducedMotion: boolean;
+}
+
+const StoryContinuationSection: React.FC<StoryContinuationSectionProps> = ({
+  onDiscoverStory,
+  prefersReducedMotion
+}) => {
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section
+      ref={sectionRef}
+      id="story-continuation"
+      className="py-20 sm:py-28 lg:py-36 bg-[#FAF9F6] border-b border-[#EAE5DE] relative overflow-hidden select-none"
+      aria-label="The Story Continuation"
+    >
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+          
+          {/* Asymmetrical Left Typography Column (5 cols) */}
+          <div className="lg:col-span-5 order-2 lg:order-1 flex flex-col justify-center">
+            {/* Small Editorial Eyebrow */}
+            <div
+              className={`transition-all duration-700 ease-out ${
+                isVisible || prefersReducedMotion
+                  ? 'opacity-100 translate-y-0'
+                  : 'opacity-0 translate-y-3'
+              }`}
+            >
+              <div className="flex items-center space-x-3 mb-4 sm:mb-6">
+                <span className="w-8 h-px bg-[#BA945A]" aria-hidden="true" />
+                <span className="font-sans text-[11px] sm:text-xs tracking-[0.32em] uppercase text-[#BA945A] font-medium">
+                  THE STORY
+                </span>
+              </div>
+            </div>
+
+            {/* Refined Headline */}
+            <h2
+              className={`font-serif text-3xl sm:text-4xl lg:text-[44px] xl:text-[48px] font-light text-[#1D1D1B] leading-[1.14] tracking-[-0.01em] mb-6 transition-all duration-700 delay-150 ease-out ${
+                isVisible || prefersReducedMotion
+                  ? 'opacity-100 translate-y-0'
+                  : 'opacity-0 translate-y-4'
+              }`}
+            >
+              More Than What You Wear.
+            </h2>
+
+            {/* Concise Story Paragraph */}
+            <p
+              className={`font-sans text-[15px] sm:text-[16px] lg:text-[17px] text-[#55504A] font-light leading-[1.8] max-w-xl mb-6 transition-all duration-700 delay-300 ease-out ${
+                isVisible || prefersReducedMotion
+                  ? 'opacity-100 translate-y-0'
+                  : 'opacity-0 translate-y-4'
+              }`}
+            >
+              LORÉA was created around a simple idea — that elegance should feel effortless. A modern expression of femininity, shaped by thoughtful details, refined silhouettes, and pieces designed to become part of your own story.
+            </p>
+
+            {/* Quiet Editorial Detail */}
+            <div
+              className={`pt-6 border-t border-[#EAE5DE] mb-8 transition-all duration-700 delay-450 ease-out ${
+                isVisible || prefersReducedMotion
+                  ? 'opacity-100 translate-y-0'
+                  : 'opacity-0 translate-y-4'
+              }`}
+            >
+              <blockquote className="font-serif italic text-base sm:text-lg text-[#1D1D1B]/80 font-light">
+                “Designed around her presence, her movement, and her individuality.”
+              </blockquote>
+            </div>
+
+            {/* Subtle Editorial CTA Text Link */}
+            <div
+              className={`transition-all duration-700 delay-600 ease-out ${
+                isVisible || prefersReducedMotion
+                  ? 'opacity-100 translate-y-0'
+                  : 'opacity-0 translate-y-3'
+              }`}
+            >
+              <button
+                type="button"
+                onClick={onDiscoverStory}
+                className="group inline-flex items-center space-x-3 text-xs sm:text-[13px] tracking-[0.28em] uppercase text-[#1D1D1B] hover:text-[#BA945A] transition-colors duration-300 font-medium cursor-pointer border-b border-[#1D1D1B]/30 hover:border-[#BA945A] pb-1.5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#BA945A]"
+                aria-label="Discover our story"
+              >
+                <span>DISCOVER OUR STORY</span>
+                <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1.5 stroke-[1.5]" />
+              </button>
+            </div>
+          </div>
+
+          {/* Asymmetrical Right Visual Area (7 cols) */}
+          <div className="lg:col-span-7 order-1 lg:order-2">
+            <div
+              className={`relative max-w-[620px] mx-auto lg:ml-auto transition-all duration-1000 delay-200 ease-out ${
+                isVisible || prefersReducedMotion
+                  ? 'opacity-100 scale-100 translate-y-0'
+                  : 'opacity-0 scale-[0.98] translate-y-6'
+              }`}
+            >
+              {/* Background Architectural Offset Border */}
+              <div
+                className="hidden sm:block absolute -inset-2 sm:-inset-3 bg-[#EAE5DE]/60 pointer-events-none transform translate-x-2 translate-y-2 sm:translate-x-3 sm:translate-y-3"
+                aria-hidden="true"
+              />
+
+              {/* Editorial Fashion Photography of LORÉA Woman */}
+              <div className="relative aspect-4/5 sm:aspect-16/11 lg:aspect-4/3 w-full overflow-hidden bg-[#EAE5DE] shadow-sm border border-[#EAE5DE] group">
+                <img
+                  src={storyWomanImg}
+                  alt="LORÉA woman moving with effortless confidence in contemporary silhouette"
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-cover object-center transition-transform duration-1000 ease-out group-hover:scale-103"
+                />
+
+                {/* Subtle Cinematic Vignette */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+
+                {/* Subtle Floating Editorial Caption */}
+                <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 bg-white/95 backdrop-blur-xs px-3.5 py-1.5 border border-[#EAE5DE] shadow-xs z-10">
+                  <span className="font-mono text-[9px] sm:text-[10px] tracking-[0.26em] uppercase text-[#1D1D1B] font-medium">
+                    CHAPTER I · THE WOMAN & THE SILHOUETTE
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+};
+
 export const BrandStory: React.FC<BrandStoryProps> = ({
   onNavigateStore,
   onExploreCollection,
   onProductClick,
-  currency = 'EGP'
+  currency = 'EGP',
+  onNavigateStory,
+  isHomePage = false
 }) => {
   const [activePrinciple, setActivePrinciple] = useState(0);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -87,6 +248,16 @@ export const BrandStory: React.FC<BrandStoryProps> = ({
     }
   };
 
+  const handleDiscoverStory = () => {
+    if (onNavigateStory) {
+      onNavigateStory();
+    } else if (onNavigateStore) {
+      onNavigateStore();
+    } else if (onExploreCollection) {
+      onExploreCollection();
+    }
+  };
+
   // 3 Curated pieces for "FROM THE STORY"
   const curatedStoryProducts = PRODUCTS.filter(
     (p) => p.id === 'lorea-01' || p.id === 'lorea-02' || p.id === 'lorea-dress-emerald'
@@ -98,6 +269,61 @@ export const BrandStory: React.FC<BrandStoryProps> = ({
     if (currency === 'AED') return `AED ${Math.round(usd * 3.67)}`;
     return `LE ${egp.toLocaleString()}`;
   };
+
+  if (isHomePage) {
+    return (
+      <article className="bg-[#FAF8F5] text-[#1D1D1B] overflow-hidden select-none selection:bg-[#BA945A]/20">
+        {/* ========================================================
+            1. LORÉA VISUAL MANIFESTO: Dramatic Full-Width Scene
+           ======================================================== */}
+        <section className="relative min-h-[75vh] flex items-center justify-center py-24 sm:py-32 px-4 sm:px-6 overflow-hidden">
+          {/* Full-width Background Image */}
+          <div className="absolute inset-0 z-0">
+            <img
+              src={storyManifestoImg}
+              alt="LORÉA Visual Manifesto"
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover object-center filter brightness-[0.72] contrast-[1.05]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
+          </div>
+
+          {/* Centered Typographic Overlay */}
+          <div className="relative z-10 max-w-4xl mx-auto text-center text-white px-4">
+            <span className="font-serif text-3xl sm:text-4xl tracking-[0.34em] uppercase text-[#F7F4EF] font-light block mb-6 drop-shadow-sm">
+              LORÉA
+            </span>
+
+            <h2 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-light leading-[1.3] mb-8 text-[#FAF9F6] max-w-3xl mx-auto drop-shadow-sm">
+              “Modern Egyptian fashion,
+              <br className="hidden sm:inline" />
+              <span className="italic font-normal"> made for the woman who defines her own way.”</span>
+            </h2>
+
+            <div className="mt-8 sm:mt-10">
+              <button
+                type="button"
+                onClick={handleDiscoverStory}
+                className="group inline-flex items-center space-x-3 px-10 sm:px-14 py-4 bg-white text-[#1D1D1B] hover:bg-[#BA945A] hover:text-white transition-all duration-300 font-sans text-xs tracking-[0.28em] uppercase font-medium cursor-pointer rounded-none active:scale-[0.99] shadow-lg"
+              >
+                <span>DISCOVER LORÉA</span>
+                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================
+            2. THE STORY CONTINUATION: More Than What You Wear
+           ======================================================== */}
+        <StoryContinuationSection
+          onDiscoverStory={handleDiscoverStory}
+          prefersReducedMotion={prefersReducedMotion}
+        />
+      </article>
+    );
+  }
 
   return (
     <article className="bg-[#FAF8F5] text-[#1D1D1B] overflow-hidden select-none selection:bg-[#BA945A]/20">
@@ -147,7 +373,7 @@ export const BrandStory: React.FC<BrandStoryProps> = ({
             {/* Secondary Floating Accent Card */}
             <div className="lg:col-span-4 bg-white p-6 sm:p-8 border border-[#EAE5DE] shadow-xs lg:-ml-12 lg:mb-8 relative z-20">
               <span className="font-sans text-[10px] tracking-[0.28em] uppercase text-[#7C746B] block mb-2 font-medium">
-                ATELIER ESSENCE
+                BRAND ESSENCE
               </span>
               <p className="font-serif text-lg sm:text-xl text-[#1D1D1B] font-light leading-relaxed mb-3">
                 “Quiet luxury rooted in Egyptian heritage, reimagined for the modern global silhouette.”
@@ -574,6 +800,14 @@ export const BrandStory: React.FC<BrandStoryProps> = ({
           </div>
         </div>
       </section>
+
+      {/* ========================================================
+          7B. THE STORY CONTINUATION: More Than What You Wear
+         ======================================================== */}
+      <StoryContinuationSection
+        onDiscoverStory={handleDiscoverStory}
+        prefersReducedMotion={prefersReducedMotion}
+      />
 
       {/* ========================================================
           8. FROM THE STORY: Exactly 3 Curated Iconic Silhouettes

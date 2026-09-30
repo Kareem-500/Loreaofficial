@@ -664,6 +664,8 @@ export default function App() {
               onExploreCollection={() => handleNavigate('collections')}
               onProductClick={handleSelectProduct}
               currency={currency}
+              onNavigateStory={() => handleNavigate('about')}
+              isHomePage={true}
             />
 
             {/* 08 — Thematic Collection Spotlight */}
@@ -756,6 +758,7 @@ export default function App() {
             onExploreCollection={() => handleNavigate('collections')}
             onProductClick={handleSelectProduct}
             currency={currency}
+            onNavigateStory={() => handleNavigate('store')}
           />
         )}
 
