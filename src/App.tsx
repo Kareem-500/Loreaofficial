@@ -567,7 +567,7 @@ export default function App() {
             {/* 01 — Hero Visual */}
             <Hero
               onShopClick={() => {
-                const el = document.getElementById('shop-all');
+                const el = document.getElementById('women-fashion') || document.getElementById('shop-all');
                 if (el) {
                   el.scrollIntoView({ behavior: 'smooth' });
                 } else {
@@ -577,7 +577,12 @@ export default function App() {
               onDiscoverClick={() => handleNavigate('about')}
             />
 
-            {/* 02 — SHOP ALL: Single-Row Trending Carousel with MORE button */}
+            {/* 02 — WOMEN FASHION: 6 Category Cards directly after Hero */}
+            <WomenFashionCategories
+              onSelectCategory={handleSelectCategory}
+            />
+
+            {/* 03 — SHOP ALL: Single-Row Trending Carousel with MORE button */}
             <ShopAllTrendingCarousel
               products={productsList}
               currency={currency}
@@ -587,11 +592,6 @@ export default function App() {
               onProductClick={handleSelectProduct}
               onViewAll={() => handleNavigate('store')}
               onOpenTryOn={handleOpenTryOn}
-            />
-
-            {/* 03 — WOMEN FASHION: 6 Category Cards matching reference */}
-            <WomenFashionCategories
-              onSelectCategory={handleSelectCategory}
             />
 
             {/* 04 — DRESSES: Single-Row Carousel with MORE button */}

@@ -53,10 +53,10 @@ export const WomenFashionCategories: React.FC<WomenFashionCategoriesProps> = ({
   onSelectCategory
 }) => {
   return (
-    <section className="pt-4 sm:pt-6 pb-16 sm:pb-20 bg-white select-none">
+    <section id="women-fashion" className="pt-12 sm:pt-16 lg:pt-20 pb-12 sm:pb-16 lg:pb-20 bg-white select-none">
       <div className="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header: — WOMEN FASHION — matching reference */}
-        <div className="flex items-center justify-center my-8 sm:my-12 max-w-3xl mx-auto px-2">
+        <div className="flex items-center justify-center mb-8 sm:mb-12 max-w-3xl mx-auto px-2">
           <span className="flex-1 h-px bg-[#D4CCC2]" aria-hidden="true" />
           <h2 className="font-serif text-2xl sm:text-3xl lg:text-[34px] text-[#1D1D1B] tracking-[0.24em] uppercase font-light px-5 sm:px-8 text-center whitespace-nowrap">
             WOMEN FASHION
