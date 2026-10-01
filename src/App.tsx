@@ -517,12 +517,23 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSelectProduct = (product: Product) => {
+  // Contextual Interactive Product Quick View (Preserves browsing scroll position!)
+  const handleOpenProductPreview = (product: Product) => {
+    setSelectedProductForModal(product);
+  };
+
+  // Dedicated Full Page navigation when user explicitly chooses:
+  const handleNavigateToFullProduct = (product: Product) => {
     const url = buildProductUrl(product);
     window.history.pushState({}, '', url);
     setCurrentProduct(product);
     setCurrentView('product');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Alias for backward compatibility if called directly
+  const handleSelectProduct = (product: Product) => {
+    handleOpenProductPreview(product);
   };
 
   // If Admin View is active, render dedicated Admin Operations Control Panel
@@ -877,10 +888,15 @@ export default function App() {
         }}
         recommendedProducts={recommendedForCart}
         onAddRecommended={(prod) => {
-          const color = prod.colors?.[0];
-          const size = prod.sizes?.[0];
-          if (color && size) handleAddToCart(prod, color, size, 1);
+          const color = prod.colors?.[0] || { name: 'Standard', hex: '#1D1D1B' };
+          const size = (prod.sizes?.[0] as 'XS' | 'S' | 'M' | 'L' | 'XL') || 'S';
+          handleAddToCart(prod, color, size, 1);
         }}
+        onSelectProduct={(prod) => {
+          setIsCartOpen(false);
+          handleOpenProductPreview(prod);
+        }}
+        onContinueShopping={() => setIsCartOpen(false)}
       />
 
       {/* 2. Wishlist Drawer */}
@@ -893,9 +909,13 @@ export default function App() {
         onClearWishlist={handleClearWishlist}
         onSelectProduct={(prod) => {
           setIsWishlistOpen(false);
-          handleSelectProduct(prod);
+          handleOpenProductPreview(prod);
         }}
         onMoveToCart={handleMoveWishlistToCart}
+        onDiscoverCollection={() => {
+          setIsWishlistOpen(false);
+          handleNavigate('store');
+        }}
       />
 
       {/* 3. Predictive Search Overlay */}
@@ -907,7 +927,7 @@ export default function App() {
         currency={currency}
         onSelectProduct={(prod) => {
           setIsSearchOpen(false);
-          handleSelectProduct(prod);
+          handleOpenProductPreview(prod);
         }}
         onSelectArticle={(art) => {
           setIsSearchOpen(false);
@@ -919,7 +939,7 @@ export default function App() {
         }}
       />
 
-      {/* 4. Product Detail Page Modal (fallback quick view if needed) */}
+      {/* 4. Product Quick View Interactive Container */}
       <ProductDetailModal
         product={selectedProductForModal}
         currency={currency}
@@ -929,6 +949,7 @@ export default function App() {
         onAddToCart={handleAddToCart}
         onOpenSizeGuide={() => setIsSizeGuideOpen(true)}
         onOpenTryOn={handleOpenTryOn}
+        onViewFullDetails={handleNavigateToFullProduct}
       />
 
       {/* 5. LORÉA AI Style Assistant */}

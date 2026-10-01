@@ -4,6 +4,7 @@ import { CartItem, Currency } from '../types';
 import { formatPrice } from '../utils/currency';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
+import { useOverlayAccessibility } from '../hooks/useOverlayAccessibility';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -20,6 +21,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   currency = 'EGP' as Currency,
   onClearCart
 }) => {
+  useOverlayAccessibility({
+    isOpen,
+    onClose
+  });
   const { user, isAuthenticated } = useAuth();
   const [step, setStep] = useState<'details' | 'success'>('details');
   const [formData, setFormData] = useState({
@@ -148,8 +153,24 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/65 backdrop-blur-xs flex justify-center items-start p-2 sm:p-4 md:p-6 lg:p-10 animate-fade-in">
-      <div className="relative w-full max-w-4xl bg-[#F7F4EF] shadow-2xl border border-[#EAE5DE] my-auto overflow-hidden">
+    <div
+      className="fixed inset-0 z-50 overflow-y-auto flex justify-center items-start p-2 sm:p-4 md:p-6 lg:p-10"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Secure Checkout"
+    >
+      {/* 1. Backdrop */}
+      <div
+        className="fixed inset-0 bg-black/65 backdrop-blur-xs transition-opacity duration-300"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* 2. Modal Card */}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-4xl bg-[#FAF8F5] shadow-2xl border border-[#EAE5DE] my-auto overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200"
+      >
         {/* Header */}
         <div className="p-6 border-b border-[#EAE5DE] flex items-center justify-between bg-[#FAF8F5]">
           <div className="flex items-center space-x-3">

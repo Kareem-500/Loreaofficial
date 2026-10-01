@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
-import { Search, X, ArrowRight } from 'lucide-react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { Search, X, ArrowRight, CornerDownLeft } from 'lucide-react';
 import { Product, Article, Currency } from '../types';
 import { formatPrice } from '../utils/currency';
+import { useOverlayAccessibility } from '../hooks/useOverlayAccessibility';
 
 interface SearchOverlayProps {
   isOpen: boolean;
@@ -25,23 +26,41 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({
   onSelectCategory
 }) => {
   const [query, setQuery] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // ESC and body scroll lock
+  useOverlayAccessibility({
+    isOpen,
+    onClose
+  });
+
+  // Autofocus input when opened
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    } else {
+      setQuery('');
+    }
+  }, [isOpen]);
 
   const popularSearches = [
     'Linen Column Dress',
-    'Giza 45 Cotton Shirt',
+    'Tailored Suiting',
     'Modest Edit',
     'Silk Bias Skirt',
-    'Sand Trench Coat',
-    'كتان',
-    'قطن مصري'
+    'Tops & Blouses',
+    'Evening Gown'
   ];
 
   const suggestedCategories = [
     'Dresses',
     'Tops',
+    'Bottoms',
     'Sets',
-    'Outerwear',
-    'Modest Edit'
+    'Modest Edit',
+    'Scarves'
   ];
 
   // Predictive search query filter
@@ -79,159 +98,207 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#F7F4EF] animate-fade-in">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        {/* Header with Search Input & Close */}
-        <div className="flex items-center justify-between border-b border-[#1D1D1B] pb-4 mb-10">
-          <div className="flex items-center flex-1 mr-4">
-            <Search className="w-6 h-6 text-[#1D1D1B] stroke-[1.5] mr-4" />
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by silhouette, Giza cotton, linen, SKU, or في العربية..."
-              autoFocus
-              className="w-full bg-transparent font-serif text-xl sm:text-3xl lg:text-4xl text-[#1D1D1B] placeholder-[#A0988E] focus:outline-hidden"
-            />
-          </div>
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Search Catalog"
+    >
+      {/* 1. Backdrop (Click outside closes search) */}
+      <div
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* 2. Top-down Elegant Search Modal / Container */}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-4xl bg-[#FAF8F5] shadow-2xl border-b border-x border-[#EAE5DE] max-h-[90vh] flex flex-col z-10 animate-in slide-in-from-top-6 duration-200"
+      >
+        {/* Search Input Bar */}
+        <div className="p-4 sm:p-6 border-b border-[#EAE5DE] bg-white flex items-center gap-3">
+          <Search className="w-5 h-5 sm:w-6 sm:h-6 text-[#1D1D1B] stroke-[1.4] shrink-0" />
+          <input
+            ref={inputRef}
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search by silhouette, style, category, or occasion..."
+            className="flex-1 bg-transparent font-serif text-xl sm:text-2xl text-[#1D1D1B] placeholder-[#9E968D] focus:outline-hidden"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              className="p-1 text-[#7C746B] hover:text-[#1D1D1B] transition-colors cursor-pointer"
+              aria-label="Clear query"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
           <button
+            type="button"
             onClick={onClose}
-            className="p-2 text-[#1D1D1B] hover:text-[#B88F88] transition-colors"
-            aria-label="Close search"
+            className="w-9 h-9 flex items-center justify-center p-1.5 text-[#1D1D1B] hover:text-[#BA945A] hover:bg-[#FAF8F5] rounded-xs transition-colors cursor-pointer ml-1"
+            aria-label="Close search (ESC)"
+            title="Close (ESC)"
           >
-            <X className="w-6 h-6 stroke-[1.5]" />
+            <X className="w-5 h-5 stroke-[1.5]" />
           </button>
         </div>
 
-        {/* Predictive Results or Default Discovery state */}
-        {query.trim().length === 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 sm:gap-16">
-            {/* Popular Searches */}
-            <div>
-              <p className="text-[11px] tracking-[0.24em] uppercase text-[#7C746B] font-medium mb-4">
-                POPULAR SEARCHES
+        {/* Scrollable Results / Suggestions Area */}
+        <div className="flex-1 overflow-y-auto p-5 sm:p-8">
+          {!query.trim() ? (
+            /* Suggestions & Quick Links */
+            <div className="space-y-8">
+              {/* Popular Searches */}
+              <div>
+                <span className="text-[10px] tracking-[0.24em] uppercase text-[#7C746B] font-mono block mb-3">
+                  POPULAR SEARCHES
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {popularSearches.map((term) => (
+                    <button
+                      key={term}
+                      type="button"
+                      onClick={() => setQuery(term)}
+                      className="px-3.5 py-1.5 bg-white border border-[#D4CCC2] hover:border-[#1D1D1B] text-xs text-[#1D1D1B] transition-colors cursor-pointer rounded-xs"
+                    >
+                      {term}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Browse Categories */}
+              <div>
+                <span className="text-[10px] tracking-[0.24em] uppercase text-[#7C746B] font-mono block mb-3">
+                  EXPLORE CATEGORIES
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {suggestedCategories.map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => {
+                        onClose();
+                        onSelectCategory(cat);
+                      }}
+                      className="p-3 bg-white border border-[#EAE5DE] hover:border-[#BA945A] text-left text-xs uppercase tracking-wider text-[#1D1D1B] flex items-center justify-between transition-colors group cursor-pointer"
+                    >
+                      <span>{cat}</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-[#7C746B] group-hover:text-[#BA945A] group-hover:translate-x-1 transition-all" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : searchResults.products.length === 0 && searchResults.articles.length === 0 ? (
+            /* No Results State */
+            <div className="text-center py-12">
+              <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-[#7C746B] block mb-2">
+                0 RESULTS
+              </span>
+              <h4 className="font-serif text-2xl text-[#1D1D1B] font-light mb-2">
+                No matching silhouettes found
+              </h4>
+              <p className="text-xs text-[#7C746B] font-light max-w-sm mx-auto mb-6">
+                We couldn't find anything matching "{query}". Try checking your spelling or explore our popular categories.
               </p>
-              <div className="flex flex-wrap gap-2">
-                {popularSearches.map((term) => (
+              <div className="flex flex-wrap justify-center gap-2">
+                {suggestedCategories.slice(0, 4).map((cat) => (
                   <button
-                    key={term}
-                    onClick={() => setQuery(term)}
-                    className="px-3.5 py-2 bg-[#EFECE6] hover:bg-[#EAE5DE] text-[#1D1D1B] text-xs font-light transition-colors"
+                    key={cat}
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onSelectCategory(cat);
+                    }}
+                    className="px-4 py-2 bg-white border border-[#D4CCC2] hover:border-[#1D1D1B] text-xs uppercase tracking-wider text-[#1D1D1B] transition-colors cursor-pointer"
                   >
-                    {term}
+                    {cat}
                   </button>
                 ))}
               </div>
             </div>
+          ) : (
+            /* Matching Products & Articles */
+            <div className="space-y-6">
+              {searchResults.products.length > 0 && (
+                <div>
+                  <span className="text-[10px] tracking-[0.24em] uppercase text-[#7C746B] font-mono block mb-3">
+                    MATCHING PIECES ({searchResults.products.length})
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {searchResults.products.map((product) => {
+                      const img = product.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop';
 
-            {/* Suggested Categories */}
-            <div>
-              <p className="text-[11px] tracking-[0.24em] uppercase text-[#7C746B] font-medium mb-4">
-                SUGGESTED SILHOUETTES
-              </p>
-              <ul className="space-y-2 text-sm text-[#1D1D1B]">
-                {suggestedCategories.map((cat) => (
-                  <li key={cat}>
-                    <button
-                      onClick={() => {
-                        onSelectCategory(cat);
-                        onClose();
-                      }}
-                      className="hover:text-[#B88F88] hover:translate-x-1 transition-all inline-flex items-center space-x-2"
-                    >
-                      <span>{cat}</span>
-                      <ArrowRight className="w-3.5 h-3.5 opacity-50" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        ) : (
-          <div>
-            {/* Matching Products */}
-            <div className="mb-12">
-              <div className="flex items-center justify-between mb-6 pb-2 border-b border-[#EAE5DE]">
-                <h3 className="text-xs uppercase tracking-[0.24em] text-[#7C746B] font-medium">
-                  MATCHING PRODUCTS ({searchResults.products.length})
-                </h3>
-              </div>
+                      return (
+                        <div
+                          key={product.id}
+                          onClick={() => {
+                            onClose();
+                            onSelectProduct(product);
+                          }}
+                          className="flex items-center space-x-3 p-2.5 bg-white border border-[#EAE5DE] hover:border-[#BA945A] transition-all cursor-pointer group"
+                        >
+                          <img
+                            src={img}
+                            alt={product.name}
+                            className="w-14 h-18 object-cover bg-[#EAE5DE] shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <span className="font-mono text-[9px] uppercase tracking-wider text-[#7C746B] block">
+                              {product.category}
+                            </span>
+                            <h5 className="font-serif text-sm text-[#1D1D1B] group-hover:text-[#BA945A] transition-colors line-clamp-1">
+                              {product.name}
+                            </h5>
+                            <span className="font-serif text-xs text-[#1D1D1B] block mt-0.5">
+                              {formatPrice(product.priceEgp, currency)}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
-              {searchResults.products.length === 0 ? (
-                <p className="text-sm text-[#7C746B] font-light py-4">
-                  No silhouettes found matching &quot;{query}&quot;. Try searching for &quot;Linen&quot;, &quot;Shirt&quot;, &quot;Dress&quot;, or &quot;Giza Cotton&quot;.
-                </p>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-                  {searchResults.products.map((p) => (
-                    <div
-                      key={p.id}
-                      onClick={() => {
-                        onSelectProduct(p);
-                        onClose();
-                      }}
-                      className="group cursor-pointer"
-                    >
-                      <div className="aspect-3/4 overflow-hidden bg-[#EAE5DE] mb-2.5">
-                        <img
-                          src={p.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop'}
-                          alt={p.name || 'Garment'}
-                          className="w-full h-full object-cover object-center group-hover:scale-104 transition-transform duration-500"
-                        />
+              {searchResults.articles.length > 0 && (
+                <div className="pt-4 border-t border-[#EAE5DE]">
+                  <span className="text-[10px] tracking-[0.24em] uppercase text-[#7C746B] font-mono block mb-3">
+                    EDITORIAL STORIES ({searchResults.articles.length})
+                  </span>
+                  <div className="space-y-2">
+                    {searchResults.articles.map((article) => (
+                      <div
+                        key={article.id}
+                        onClick={() => {
+                          onClose();
+                          onSelectArticle(article);
+                        }}
+                        className="p-3 bg-white border border-[#EAE5DE] hover:border-[#BA945A] transition-colors cursor-pointer group flex items-center justify-between"
+                      >
+                        <div>
+                          <span className="font-mono text-[9px] uppercase tracking-wider text-[#BA945A] block mb-0.5">
+                            {article.category}
+                          </span>
+                          <h5 className="font-serif text-sm text-[#1D1D1B] group-hover:text-[#BA945A] transition-colors">
+                            {article.title}
+                          </h5>
+                        </div>
+                        <ArrowRight className="w-4 h-4 text-[#7C746B] group-hover:text-[#BA945A] group-hover:translate-x-1 transition-all shrink-0 ml-3" />
                       </div>
-                      <h4 className="text-xs sm:text-sm text-[#1D1D1B] font-medium group-hover:text-[#B88F88] transition-colors line-clamp-1">
-                        {p.name}
-                      </h4>
-                      <p className="text-[11px] text-[#7C746B] font-light mt-0.5">
-                        {p.category} · {formatPrice(p.priceEgp, currency)}
-                      </p>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
-
-            {/* Matching Journal Articles */}
-            {searchResults.articles.length > 0 && (
-              <div>
-                <div className="flex items-center justify-between mb-4 pb-2 border-b border-[#EAE5DE]">
-                  <h3 className="text-xs uppercase tracking-[0.24em] text-[#7C746B] font-medium">
-                    JOURNAL ARTICLES & STORIES ({searchResults.articles.length})
-                  </h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {searchResults.articles.map((a) => (
-                    <div
-                      key={a.id}
-                      onClick={() => {
-                        onSelectArticle(a);
-                        onClose();
-                      }}
-                      className="p-4 bg-[#EFECE6]/60 border border-[#EAE5DE] flex gap-4 cursor-pointer hover:bg-[#EAE5DE]/80 transition-colors"
-                    >
-                      <img
-                        src={a.image}
-                        alt={a.title}
-                        className="w-20 h-20 object-cover bg-[#D4CCC2] shrink-0"
-                      />
-                      <div>
-                        <span className="text-[9px] uppercase tracking-widest text-[#B88F88] font-medium">
-                          {a.category}
-                        </span>
-                        <h4 className="font-serif text-sm font-normal text-[#1D1D1B] line-clamp-1 mt-0.5">
-                          {a.title}
-                        </h4>
-                        <p className="text-xs text-[#7C746B] line-clamp-2 mt-1 font-light">
-                          {a.excerpt}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

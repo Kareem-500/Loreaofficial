@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Ruler } from 'lucide-react';
+import { useOverlayAccessibility } from '../hooks/useOverlayAccessibility';
 
 interface SizeGuideModalProps {
   isOpen: boolean;
@@ -8,6 +9,11 @@ interface SizeGuideModalProps {
 
 export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ isOpen, onClose }) => {
   const [unit, setUnit] = useState<'cm' | 'in'>('cm');
+
+  useOverlayAccessibility({
+    isOpen,
+    onClose
+  });
 
   if (!isOpen) return null;
 
@@ -20,8 +26,24 @@ export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ isOpen, onClose 
   ];
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="relative w-full max-w-2xl bg-[#F7F4EF] border border-[#EAE5DE] shadow-2xl p-6 sm:p-8">
+    <div
+      className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Size and Silhouette Guide"
+    >
+      {/* 1. Backdrop */}
+      <div
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* 2. Modal Container */}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-2xl bg-[#FAF8F5] border border-[#EAE5DE] shadow-2xl p-6 sm:p-8 z-10 animate-in fade-in zoom-in-95 duration-200"
+      >
         <div className="flex items-center justify-between pb-4 border-b border-[#EAE5DE] mb-6">
           <div className="flex items-center space-x-2">
             <Ruler className="w-5 h-5 text-[#1D1D1B]" />
@@ -29,26 +51,33 @@ export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ isOpen, onClose 
               Size & Silhouette Guide
             </h3>
           </div>
-          <button onClick={onClose} aria-label="Close Size Guide">
-            <X className="w-5 h-5 text-[#1D1D1B] hover:text-[#B88F88]" />
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close Size Guide (ESC)"
+            className="w-9 h-9 flex items-center justify-center p-1.5 text-[#1D1D1B] hover:text-[#BA945A] hover:bg-white rounded-xs transition-colors cursor-pointer"
+          >
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Unit Toggle */}
-        <div className="flex justify-between items-center mb-6">
-          <p className="text-xs text-[#7C746B] font-light">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-6">
+          <p className="text-xs text-[#7C746B] font-light max-w-md">
             Our silhouettes are designed with relaxed, architectural drape. For a closer fit, consider sizing down.
           </p>
-          <div className="flex border border-[#D4CCC2] text-xs">
+          <div className="flex border border-[#D4CCC2] text-xs self-start sm:self-auto">
             <button
+              type="button"
               onClick={() => setUnit('cm')}
-              className={`px-3 py-1 font-medium ${unit === 'cm' ? 'bg-[#1D1D1B] text-white' : 'text-[#1D1D1B]'}`}
+              className={`px-3 py-1 font-medium cursor-pointer ${unit === 'cm' ? 'bg-[#1D1D1B] text-white' : 'text-[#1D1D1B] bg-white'}`}
             >
               CM
             </button>
             <button
+              type="button"
               onClick={() => setUnit('in')}
-              className={`px-3 py-1 font-medium ${unit === 'in' ? 'bg-[#1D1D1B] text-white' : 'text-[#1D1D1B]'}`}
+              className={`px-3 py-1 font-medium cursor-pointer ${unit === 'in' ? 'bg-[#1D1D1B] text-white' : 'text-[#1D1D1B] bg-white'}`}
             >
               IN
             </button>
@@ -56,34 +85,38 @@ export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ isOpen, onClose 
         </div>
 
         {/* Measurements Table */}
-        <div className="overflow-x-auto mb-8 border border-[#EAE5DE]">
+        <div className="overflow-x-auto mb-6 border border-[#EAE5DE] bg-white">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#EFECE6] border-b border-[#EAE5DE] text-[#7C746B] uppercase tracking-wider text-[10px]">
+            <thead className="bg-[#F0EDE8] border-b border-[#EAE5DE] font-mono text-[10px] tracking-wider uppercase text-[#7C746B]">
               <tr>
-                <th className="p-3">Size</th>
-                <th className="p-3">Bust ({unit})</th>
-                <th className="p-3">Waist ({unit})</th>
-                <th className="p-3">Hips ({unit})</th>
+                <th className="py-2.5 px-4 font-semibold">Size</th>
+                <th className="py-2.5 px-4 font-semibold">Bust ({unit})</th>
+                <th className="py-2.5 px-4 font-semibold">Waist ({unit})</th>
+                <th className="py-2.5 px-4 font-semibold">Hips ({unit})</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#EAE5DE] text-[#1D1D1B]">
+            <tbody className="divide-y divide-[#EAE5DE]">
               {measurements.map((m) => (
-                <tr key={m.size} className="hover:bg-[#FAF8F5]">
-                  <td className="p-3 font-mono font-medium">{m.size}</td>
-                  <td className="p-3">{unit === 'cm' ? m.bustCm : m.bustIn}</td>
-                  <td className="p-3">{unit === 'cm' ? m.waistCm : m.waistIn}</td>
-                  <td className="p-3">{unit === 'cm' ? m.hipsCm : m.hipsIn}</td>
+                <tr key={m.size} className="hover:bg-[#FAF8F5] transition-colors">
+                  <td className="py-2.5 px-4 font-mono font-bold text-[#1D1D1B]">{m.size}</td>
+                  <td className="py-2.5 px-4 text-[#55504A]">
+                    {unit === 'cm' ? m.bustCm : m.bustIn}
+                  </td>
+                  <td className="py-2.5 px-4 text-[#55504A]">
+                    {unit === 'cm' ? m.waistCm : m.waistIn}
+                  </td>
+                  <td className="py-2.5 px-4 text-[#55504A]">
+                    {unit === 'cm' ? m.hipsCm : m.hipsIn}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        {/* Measurement Advice */}
-        <div className="p-4 bg-[#FAF8F5] border border-[#EAE5DE] text-xs text-[#7C746B] space-y-1">
-          <p className="font-medium text-[#1D1D1B]">Atelier Fitting Assistance:</p>
-          <p>Need personalized guidance? Our Cairo concierge is available on WhatsApp daily from 10 AM to 10 PM CLT to provide exact tape measurements.</p>
-        </div>
+        <p className="text-[11px] text-[#7C746B] font-light">
+          Need personalized sizing assistance? Our client concierge is available via live assistance or WhatsApp.
+        </p>
       </div>
     </div>
   );
