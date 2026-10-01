@@ -71,7 +71,7 @@ export interface Article {
   id: string;
   title: string;
   titleAr: string;
-  category: 'STYLE' | 'FABRICS' | 'LORÉA STORIES' | 'HOW TO WEAR' | 'CRAFT';
+  category: 'STYLE' | 'LORÉA STORIES' | 'HOW TO WEAR' | 'CRAFT' | 'STYLING EDIT' | 'MODEST LUXURY' | 'CAPSULE EDIT' | 'EVENING EDIT' | 'RESORT EDIT' | 'STYLE DISCIPLINE' | string;
   readTime: string;
   excerpt: string;
   image: string;
