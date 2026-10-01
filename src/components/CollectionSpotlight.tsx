@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useMemo, useCallback } from 'react';
-import { ArrowRight, ChevronLeft, ChevronRight, Eye, Pause } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import { Product, Currency } from '../types';
 import { formatPrice } from '../utils/currency';
 
@@ -29,6 +29,7 @@ export const CollectionSpotlight: React.FC<CollectionSpotlightProps> = ({
 }) => {
   const sectionRef = useRef<HTMLElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [hoveredCardKey, setHoveredCardKey] = useState<string | null>(null);
@@ -41,6 +42,15 @@ export const CollectionSpotlight: React.FC<CollectionSpotlightProps> = ({
     const listener = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
     mediaQuery.addEventListener('change', listener);
     return () => mediaQuery.removeEventListener('change', listener);
+  }, []);
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      if (pauseTimeoutRef.current) {
+        clearTimeout(pauseTimeoutRef.current);
+      }
+    };
   }, []);
 
   // Viewport intersection trigger
@@ -176,13 +186,13 @@ export const CollectionSpotlight: React.FC<CollectionSpotlightProps> = ({
     return [...curatedItems, ...curatedItems];
   }, [curatedItems]);
 
-  // Faster, dynamic auto-glide animation using requestAnimationFrame
+  // Dynamic faster auto-glide animation using requestAnimationFrame
   useEffect(() => {
     if (prefersReducedMotion || !isVisible) return;
 
     let animationFrameId: number;
-    // Increased speed: 1.4px per frame (~85px/sec) for lively, graceful motion
-    const speed = 1.4;
+    // Increased speed to 2.4px per frame (~145px/sec) for lively, clearly moving momentum
+    const speed = 2.4;
 
     const autoGlide = () => {
       if (!isPaused && scrollContainerRef.current) {
@@ -191,7 +201,7 @@ export const CollectionSpotlight: React.FC<CollectionSpotlightProps> = ({
 
         // Reset scroll position seamlessly when reaching half of the duplicated list
         const halfWidth = container.scrollWidth / 2;
-        if (container.scrollLeft >= halfWidth) {
+        if (halfWidth > 0 && container.scrollLeft >= halfWidth) {
           container.scrollLeft -= halfWidth;
         }
       }
@@ -202,17 +212,52 @@ export const CollectionSpotlight: React.FC<CollectionSpotlightProps> = ({
     return () => cancelAnimationFrame(animationFrameId);
   }, [isPaused, isVisible, prefersReducedMotion]);
 
-  // Manual arrow navigation
+  // Helper to resume auto-scroll after user interaction
+  const resumeAfterDelay = useCallback((delayMs = 3500) => {
+    if (pauseTimeoutRef.current) {
+      clearTimeout(pauseTimeoutRef.current);
+    }
+    pauseTimeoutRef.current = setTimeout(() => {
+      setIsPaused(false);
+    }, delayMs);
+  }, []);
+
+  // Manual arrow navigation with wrap-around support and smooth animation
   const handleManualScroll = useCallback((direction: 'left' | 'right') => {
-    if (scrollContainerRef.current) {
-      const container = scrollContainerRef.current;
-      const scrollAmount = container.clientWidth * 0.7;
+    if (!scrollContainerRef.current) return;
+    const container = scrollContainerRef.current;
+
+    // Immediately pause auto-glide so it doesn't fight the smooth scroll
+    setIsPaused(true);
+
+    const halfWidth = container.scrollWidth / 2;
+    // Step by approximately one card width + gap
+    const cardEl = container.querySelector('article');
+    const step = cardEl ? cardEl.getBoundingClientRect().width + 32 : 360;
+
+    if (direction === 'left') {
+      if (container.scrollLeft <= 20) {
+        // Wrap to the duplicate section seamlessly before scrolling left
+        container.scrollLeft += halfWidth;
+      }
       container.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        left: -step,
+        behavior: 'smooth'
+      });
+    } else {
+      if (container.scrollLeft >= halfWidth) {
+        // Wrap back before scrolling right
+        container.scrollLeft -= halfWidth;
+      }
+      container.scrollBy({
+        left: step,
         behavior: 'smooth'
       });
     }
-  }, []);
+
+    // Automatically resume gliding after user stops clicking
+    resumeAfterDelay(3500);
+  }, [resumeAfterDelay]);
 
   if (!curatedItems.length) {
     return null;
@@ -226,67 +271,14 @@ export const CollectionSpotlight: React.FC<CollectionSpotlightProps> = ({
       aria-label="Best Sellers Showcase"
     >
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12">
-        {/* Minimalist, Elegant Header: BEST SELLERS */}
-        <div className="flex items-center justify-between mb-8 sm:mb-12 pb-4 border-b border-[#EAE5DE]/80">
-          <div className="flex items-center space-x-3">
-            <span className="w-6 sm:w-8 h-px bg-[#BA945A]" aria-hidden="true" />
-            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-light text-[#1D1D1B] tracking-[0.14em] uppercase">
+        {/* Minimalist Centered Header: BEST SELLERS */}
+        <div className="text-center mb-8 sm:mb-12">
+          <div className="inline-flex items-center justify-center space-x-3 sm:space-x-4">
+            <span className="w-8 sm:w-12 h-px bg-[#BA945A]" aria-hidden="true" />
+            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-light text-[#1D1D1B] tracking-[0.16em] uppercase">
               BEST SELLERS
             </h2>
-          </div>
-
-          {/* Controls & Shop Link */}
-          <div className="flex items-center space-x-4 sm:space-x-6">
-            {/* Status indicator pill */}
-            <div
-              className={`hidden sm:flex items-center space-x-2 px-3 py-1.5 border text-[10px] tracking-[0.2em] uppercase font-mono transition-colors duration-300 ${
-                isPaused
-                  ? 'border-[#BA945A] bg-[#BA945A]/10 text-[#BA945A]'
-                  : 'border-[#EAE5DE] bg-white text-[#7C746B]'
-              }`}
-            >
-              {isPaused ? (
-                <>
-                  <Pause className="w-2.5 h-2.5 text-[#BA945A]" />
-                  <span>FOCUSED</span>
-                </>
-              ) : (
-                <>
-                  <span className="w-2 h-2 rounded-full bg-[#BA945A] animate-pulse" />
-                  <span>AUTO RUNWAY</span>
-                </>
-              )}
-            </div>
-
-            {/* Manual Chevrons */}
-            <div className="flex items-center space-x-1.5">
-              <button
-                type="button"
-                onClick={() => handleManualScroll('left')}
-                className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center border border-[#EAE5DE] bg-white text-[#1D1D1B] hover:border-[#BA945A] hover:text-[#BA945A] transition-colors duration-200 cursor-pointer shadow-xs active:scale-95"
-                aria-label="Previous"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => handleManualScroll('right')}
-                className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center border border-[#EAE5DE] bg-white text-[#1D1D1B] hover:border-[#BA945A] hover:text-[#BA945A] transition-colors duration-200 cursor-pointer shadow-xs active:scale-95"
-                aria-label="Next"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Shop All Link */}
-            <button
-              type="button"
-              onClick={onExploreCollection}
-              className="group inline-flex items-center space-x-2 text-xs tracking-[0.22em] uppercase font-medium text-[#1D1D1B] hover:text-[#BA945A] transition-colors duration-300 pb-0.5 border-b border-[#1D1D1B]/30 hover:border-[#BA945A] cursor-pointer"
-            >
-              <span>SHOP ALL</span>
-              <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
-            </button>
+            <span className="w-8 sm:w-12 h-px bg-[#BA945A]" aria-hidden="true" />
           </div>
         </div>
       </div>
@@ -303,13 +295,12 @@ export const CollectionSpotlight: React.FC<CollectionSpotlightProps> = ({
         }}
         onTouchStart={() => setIsPaused(true)}
         onTouchEnd={() => {
-          // Resume auto-glide 1.5 seconds after touch interaction ends
-          setTimeout(() => setIsPaused(false), 1500);
+          resumeAfterDelay(2000);
         }}
       >
         <div
           ref={scrollContainerRef}
-          className="flex space-x-6 sm:space-x-8 lg:space-x-10 overflow-x-auto no-scrollbar scroll-smooth py-4 cursor-grab active:cursor-grabbing"
+          className="flex space-x-6 sm:space-x-8 lg:space-x-10 overflow-x-auto no-scrollbar py-4 cursor-grab active:cursor-grabbing"
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none'
@@ -441,6 +432,51 @@ export const CollectionSpotlight: React.FC<CollectionSpotlightProps> = ({
               </article>
             );
           })}
+        </div>
+      </div>
+
+      {/* ========================================================
+          Centered Controls & BEST SELLERS Link Displayed Down Below
+         ======================================================== */}
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12">
+        <div className="flex items-center justify-center space-x-4 sm:space-x-6 mt-8 sm:mt-12">
+          {/* Previous Chevron Button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleManualScroll('left');
+            }}
+            className="w-11 h-11 flex items-center justify-center border border-[#1D1D1B] bg-white text-[#1D1D1B] hover:bg-[#1D1D1B] hover:text-white transition-all duration-200 cursor-pointer shadow-xs active:scale-90 select-none"
+            aria-label="Previous best sellers"
+          >
+            <ChevronLeft className="w-5 h-5 pointer-events-none" />
+          </button>
+
+          {/* BEST SELLERS Link Button linking to all best sellers */}
+          <button
+            type="button"
+            onClick={onExploreCollection}
+            className="group inline-flex items-center space-x-2.5 px-8 py-3 border border-[#1D1D1B] bg-[#1D1D1B] text-white hover:bg-[#BA945A] hover:border-[#BA945A] text-xs tracking-[0.22em] uppercase font-medium transition-all duration-300 cursor-pointer shadow-xs active:scale-[0.98]"
+          >
+            <span>BEST SELLERS</span>
+            <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </button>
+
+          {/* Next Chevron Button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleManualScroll('right');
+            }}
+            className="w-11 h-11 flex items-center justify-center border border-[#1D1D1B] bg-white text-[#1D1D1B] hover:bg-[#1D1D1B] hover:text-white transition-all duration-200 cursor-pointer shadow-xs active:scale-90 select-none"
+            aria-label="Next best sellers"
+          >
+            <ChevronRight className="w-5 h-5 pointer-events-none" />
+          </button>
         </div>
       </div>
     </section>

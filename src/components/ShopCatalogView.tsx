@@ -24,6 +24,7 @@ interface ShopCatalogViewProps {
   initialCategory?: string;
   initialSubcategory?: string;
   isNewInOnly?: boolean;
+  isBestSellerOnly?: boolean;
   currency?: Currency;
   wishlistIds?: string[];
   onToggleWishlist: (product: Product) => void;
@@ -75,6 +76,7 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
   initialCategory = 'All',
   initialSubcategory = 'All',
   isNewInOnly = false,
+  isBestSellerOnly = false,
   currency = 'EGP' as Currency,
   wishlistIds = [],
   onToggleWishlist,
@@ -141,6 +143,11 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
 
         // 1. New In filter
         if (isNewInOnly && !p.isNew && p.badge !== 'NEW') {
+          return false;
+        }
+
+        // 1b. Best Seller filter
+        if (isBestSellerOnly && p.badge !== 'BEST SELLER' && p.collection !== 'Best Sellers' && !p.isTrending) {
           return false;
         }
 
@@ -249,7 +256,7 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
           <Breadcrumbs
             items={[
               { label: 'Home', onClick: onNavigateHome },
-              { label: isNewInOnly ? 'New In' : 'Shop', onClick: isNewInOnly ? undefined : () => setSelectedCategory('All') },
+              { label: isBestSellerOnly ? 'Best Sellers' : isNewInOnly ? 'New In' : 'Shop', onClick: (isNewInOnly || isBestSellerOnly) ? undefined : () => setSelectedCategory('All') },
               ...(selectedCategory !== 'All' ? [{ label: selectedCategory }] : []),
               ...(selectedSubcategory !== 'All' ? [{ label: selectedSubcategory }] : [])
             ]}
@@ -292,10 +299,10 @@ export const ShopCatalogView: React.FC<ShopCatalogViewProps> = ({
         {/* Page Title Header */}
         <div className="text-center max-w-xl mx-auto mb-8 sm:mb-10">
           <span className="text-[10px] sm:text-[11px] tracking-[0.32em] uppercase text-[#BA945A] font-medium block mb-2 font-mono">
-            {isNewInOnly ? 'SUMMER 2026 DROP' : 'WOMEN’S FASHION COLLECTION'}
+            {isBestSellerOnly ? 'MOST LOVED SILHOUETTES' : isNewInOnly ? 'SUMMER 2026 DROP' : 'WOMEN’S FASHION COLLECTION'}
           </span>
           <h1 className="font-serif text-3xl sm:text-5xl font-light tracking-[0.2em] uppercase text-[#1D1D1B]">
-            {isNewInOnly ? 'New Arrivals' : selectedCategory === 'All' ? 'SHOP ALL' : selectedCategory.toUpperCase()}
+            {isBestSellerOnly ? 'BEST SELLERS' : isNewInOnly ? 'New Arrivals' : selectedCategory === 'All' ? 'SHOP ALL' : selectedCategory.toUpperCase()}
           </h1>
           <p className="mt-2.5 text-xs sm:text-sm text-[#7C746B] font-light">
             {filteredProducts.length} silhouettes crafted with Egyptian long-staple cotton, French linen, and mulberry silk.

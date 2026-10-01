@@ -261,6 +261,13 @@ export default function App() {
       setActiveSubcategoryFilter(parsed.subcategoryParam || 'All');
     }
 
+    if (parsed.view === 'store' && (window.location.search.includes('collection=best-sellers') || parsed.categoryParam?.toLowerCase() === 'best-sellers')) {
+      setActiveCategoryFilter('All');
+      setActiveSubcategoryFilter('All');
+      setCurrentView('best-sellers');
+      return;
+    }
+
     if (parsed.view === 'store' && parsed.categoryParam?.toLowerCase() === 'sale') {
       setActiveCategoryFilter('All');
       setActiveSubcategoryFilter('All');
@@ -460,6 +467,8 @@ export default function App() {
       targetPath = ROUTES.FAQ;
     } else if (view === 'admin') {
       targetPath = ROUTES.ADMIN;
+    } else if (view === 'best-sellers') {
+      targetPath = `${ROUTES.STORE}?collection=best-sellers`;
     } else if (view === 'sale') {
       targetPath = `${ROUTES.STORE}?category=sale`;
     } else if (view === 'cart') {
@@ -673,7 +682,7 @@ export default function App() {
               products={PRODUCTS}
               currency={currency}
               onProductClick={handleSelectProduct}
-              onExploreCollection={() => handleNavigate('collections')}
+              onExploreCollection={() => handleNavigate('best-sellers')}
             />
 
             {/* 09 — Style / Journal Editorial Articles */}
@@ -690,13 +699,20 @@ export default function App() {
           </>
         )}
 
-        {/* STORE / CATALOG VIEW (/store, /store/new-in, /store?category=...) */}
-        {(currentView === 'store' || currentView === 'new-in' || currentView === 'sale') && (
+        {/* STORE / CATALOG VIEW (/store, /store/new-in, /store?category=..., /store?collection=best-sellers) */}
+        {(currentView === 'store' || currentView === 'new-in' || currentView === 'sale' || currentView === 'best-sellers') && (
           <ShopCatalogView
-            products={currentView === 'sale' ? PRODUCTS.filter((p) => p.originalPriceEgp || p.badge === 'SALE') : PRODUCTS}
+            products={
+              currentView === 'sale'
+                ? PRODUCTS.filter((p) => p.originalPriceEgp || p.badge === 'SALE')
+                : currentView === 'best-sellers'
+                ? PRODUCTS.filter((p) => p.badge === 'BEST SELLER' || p.collection === 'Best Sellers' || p.isTrending)
+                : PRODUCTS
+            }
             initialCategory={activeCategoryFilter}
             initialSubcategory={activeSubcategoryFilter}
             isNewInOnly={currentView === 'new-in'}
+            isBestSellerOnly={currentView === 'best-sellers'}
             currency={currency}
             wishlistIds={wishlistIds}
             onToggleWishlist={handleToggleWishlist}
