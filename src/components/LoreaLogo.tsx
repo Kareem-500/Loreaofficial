@@ -37,17 +37,17 @@ export const LoreaLogo: React.FC<LoreaLogoProps> = ({
 
   // Responsive sizing classes maintaining 500.7:214.9 (approx 2.33:1) aspect ratio with elegant breathing space
   const getResponsiveClass = () => {
-    if (size === 'sm') return 'w-[95px] sm:w-[110px] max-h-[32px] sm:max-h-[36px]';
-    if (size === 'md') return 'w-[125px] sm:w-[145px] max-h-[42px] sm:max-h-[48px]';
-    if (size === 'lg') return 'w-[155px] sm:w-[175px] max-h-[50px] sm:max-h-[58px]';
-    if (size === 'xl') return 'w-[185px] sm:w-[215px] max-h-[60px] sm:max-h-[68px]';
+    if (size === 'sm') return 'w-[100px] sm:w-[118px] max-h-[36px] sm:max-h-[42px]';
+    if (size === 'md') return 'w-[136px] sm:w-[160px] max-h-[48px] sm:max-h-[58px]';
+    if (size === 'lg') return 'w-[165px] sm:w-[190px] max-h-[56px] sm:max-h-[66px]';
+    if (size === 'xl') return 'w-[195px] sm:w-[230px] max-h-[66px] sm:max-h-[78px]';
 
     if (isMark) return 'w-8 h-8 sm:w-9 sm:h-9';
-    if (isCompact) return 'w-[100px] sm:w-[115px] max-h-[34px] sm:max-h-[38px]';
-    if (variant === 'footer' || size === 'footer') return 'w-[150px] sm:w-[175px] lg:w-[200px]';
+    if (isCompact) return 'w-[105px] sm:w-[120px] max-h-[36px] sm:max-h-[42px]';
+    if (variant === 'footer' || size === 'footer') return 'w-[160px] sm:w-[185px] lg:w-[210px]';
 
     // Standard header responsive sizing - prominent, clear, luxury proportions
-    return 'w-[92px] min-[360px]:w-[104px] min-[390px]:w-[115px] min-[430px]:w-[126px] sm:w-[140px] md:w-[155px] lg:w-[172px] xl:w-[185px] max-h-[36px] min-[360px]:max-h-[40px] min-[390px]:max-h-[44px] min-[430px]:max-h-[47px] sm:max-h-[50px] md:max-h-[53px] lg:max-h-[56px] xl:max-h-[58px]';
+    return 'w-[98px] min-[360px]:w-[110px] min-[390px]:w-[122px] min-[430px]:w-[134px] sm:w-[148px] md:w-[162px] lg:w-[178px] xl:w-[190px] max-h-[38px] min-[360px]:max-h-[42px] min-[390px]:max-h-[46px] min-[430px]:max-h-[50px] sm:max-h-[54px] md:max-h-[56px] lg:max-h-[60px] xl:max-h-[64px]';
   };
 
   // Standalone Brand Mark (Iconic Silhouette inside 'O' with Golden Leaf)
@@ -81,8 +81,8 @@ export const LoreaLogo: React.FC<LoreaLogoProps> = ({
     );
   }
 
-  // If useImage is true, use the SVG asset file (light or dark mode)
-  if (useImage) {
+  // If useImage is true, use the SVG asset file (light or dark mode). If gold, use inline vector for gold fill.
+  if (useImage && !isGold) {
     const logoSrc = isDark ? darkLogo : lightLogo;
     return (
       <div
