@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { LogoLink } from './header/LogoLink';
 import { Instagram, Facebook, ArrowUp, MessageCircle, Music2 } from 'lucide-react';
 import { ROUTES, appPath, buildCategoryUrl } from '../config/routes';
@@ -18,6 +18,27 @@ export const Footer: React.FC<FooterProps> = ({
   onOpenWishlist,
   onOpenCart
 }) => {
+  const footerRef = useRef<HTMLElement>(null);
+  const [isInView, setIsInView] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.05, rootMargin: '0px 0px -20px 0px' }
+    );
+
+    if (footerRef.current) {
+      observer.observe(footerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -32,8 +53,12 @@ export const Footer: React.FC<FooterProps> = ({
   };
 
   return (
-    <footer className="bg-[#151413] text-[#F7F4EF] pt-16 sm:pt-20 pb-12 border-t border-[#262422]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <footer
+      ref={footerRef}
+      className="bg-[#151413] text-[#F7F4EF] pt-16 sm:pt-20 pb-12 border-t border-[#262422] transition-opacity duration-1000 ease-out"
+      style={{ opacity: isInView ? 1 : 0.4 }}
+    >
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12">
         {/* Top Section with 5 Columns: Brand, Shop, Customer Care, LOREA, Account */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 sm:gap-10 pb-14 border-b border-[#2A2826]">
           {/* Column 1 & 2: Brand Statement */}

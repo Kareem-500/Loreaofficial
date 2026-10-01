@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Heart, Plus, Sparkles } from 'lucide-react';
 import { Product, Currency } from '../types';
 import { formatPrice } from '../utils/currency';
+import { ProgressiveFashionImage } from './ui/ProgressiveFashionImage';
 
 interface ProductCardProps {
   product: Product;
@@ -77,11 +78,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     >
       {/* 1. Image Container — Perfectly uniform 3:4 portrait aspect ratio */}
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F6F6F6] mb-3.5 sm:mb-4">
-        <img
+        <ProgressiveFashionImage
           src={currentImage}
           alt={product.name}
-          loading="lazy"
-          className="w-full h-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+          aspectRatioClass="aspect-[3/4]"
+          hoverZoom={true}
         />
 
         {/* Small black "Trending" badge in upper-right corner matching reference */}

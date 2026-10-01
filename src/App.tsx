@@ -29,6 +29,7 @@ import { AccountModal } from './components/AccountModal';
 import { LoreaAIStyleAssistant } from './components/LoreaAIStyleAssistant';
 import { CustomerAccountView } from './components/account/CustomerAccountView';
 import { AdminDashboardView } from './components/admin/AdminDashboardView';
+import { ScrollProgress } from './components/ui/ScrollProgress';
 import { useAuth } from './context/AuthContext';
 import { api, isApiConfigured } from './services/api';
 import { isSupabaseConfigured } from './lib/supabase';
@@ -544,6 +545,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#F7F4EF] text-[#1D1D1B] flex flex-col font-sans selection:bg-[#BA945A]/20 selection:text-[#1D1D1B] overflow-x-hidden">
+      {/* 0. Minimal Gold Luxury Scroll Progress Bar */}
+      <ScrollProgress />
+
       {/* 1. Global Header with sticky transform, Logo -> /, and Category Subnav */}
       <Header
         isScrolled={isScrolled}
