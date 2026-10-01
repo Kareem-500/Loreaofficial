@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { motion } from 'motion/react';
 import { ArrowDown, Play, Pause } from 'lucide-react';
 import { appPath } from '../config/routes';
+import heroPosterImg from '../assets/images/hero_campaign_scene1_1790082372543.jpg';
 
 interface HeroProps {
   onShopClick: () => void;
@@ -28,13 +29,15 @@ export const Hero: React.FC<HeroProps> = ({ onShopClick }) => {
       id="hero-section"
       className="relative w-full h-[100svh] min-h-[600px] overflow-hidden flex items-center justify-center bg-[#0C0B0A] text-[#FAF8F5] select-none"
     >
-      {/* 1. Full-screen Video Background with darkened tone and smooth scale */}
+      {/* 1. Full-screen Video Background with instant Poster Fallback for zero latency */}
       <video
         ref={videoRef}
         autoPlay
         muted
         loop
         playsInline
+        preload="metadata"
+        poster={heroPosterImg}
         aria-hidden="true"
         className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none brightness-[0.70] contrast-[1.08] filter"
       >
@@ -52,7 +55,7 @@ export const Hero: React.FC<HeroProps> = ({ onShopClick }) => {
       <button
         onClick={toggleVideo}
         aria-label={isPlaying ? 'Pause background video' : 'Play background video'}
-        className="absolute bottom-6 right-6 z-20 w-8 h-8 rounded-full border border-white/20 bg-black/40 backdrop-blur-md flex items-center justify-center text-white/70 hover:text-white hover:border-white/60 transition-all cursor-pointer"
+        className="absolute bottom-6 right-6 z-20 w-9 h-9 rounded-full border border-white/20 bg-black/40 backdrop-blur-md flex items-center justify-center text-white/70 hover:text-white hover:border-white/60 transition-all cursor-pointer active:scale-95 shadow-sm"
       >
         {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 ml-0.5" />}
       </button>
@@ -80,7 +83,7 @@ export const Hero: React.FC<HeroProps> = ({ onShopClick }) => {
           <button
             id="hero-explore-collection-btn"
             onClick={onShopClick}
-            className="px-9 sm:px-11 py-3.5 sm:py-4 bg-[#FAF8F5] text-[#151413] hover:bg-white text-xs sm:text-[13px] tracking-[0.22em] sm:tracking-[0.25em] uppercase font-medium transition-all duration-300 transform active:scale-98 shadow-xl rounded-none cursor-pointer"
+            className="px-9 sm:px-11 py-3.5 sm:py-4 bg-[#FAF8F5] text-[#151413] hover:bg-white text-xs sm:text-[13px] tracking-[0.22em] sm:tracking-[0.25em] uppercase font-medium transition-all duration-300 transform active:scale-95 shadow-xl rounded-none cursor-pointer"
           >
             SHOP WOMEN'S NEW IN
           </button>

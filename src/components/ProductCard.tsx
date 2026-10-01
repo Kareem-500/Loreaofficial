@@ -100,7 +100,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           className={`absolute top-2.5 left-2.5 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer ${
             isWishlisted
               ? 'bg-[#1D1D1B] text-white shadow-sm opacity-100'
-              : 'bg-white/80 hover:bg-white text-[#1D1D1B] opacity-0 group-hover:opacity-100 hover:scale-105'
+              : 'bg-white/90 hover:bg-white text-[#1D1D1B] opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:scale-105 shadow-xs'
           }`}
           aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
         >

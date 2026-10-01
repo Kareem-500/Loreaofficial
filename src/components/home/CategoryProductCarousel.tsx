@@ -63,7 +63,7 @@ export const CategoryProductCarousel: React.FC<CategoryProductCarouselProps> = (
 
   return (
     <section id={id} className="pt-10 sm:pt-14 pb-12 sm:pb-16 bg-white select-none">
-      <div className="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12">
         {/* Section Header: Title and Subtitle with elegant flanking divider lines */}
         <div className="text-center mb-8 sm:mb-12">
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-[42px] text-[#1D1D1B] tracking-[0.22em] uppercase font-light">

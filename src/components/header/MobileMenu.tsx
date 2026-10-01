@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { X, Heart, Globe, User, ShieldCheck, ChevronDown, BookOpen, MessageCircle, Mail, Sparkles } from 'lucide-react';
+import { X, Heart, Globe, User, ShieldCheck, ChevronDown, ChevronRight, BookOpen, MessageCircle, Sparkles, HelpCircle, Truck, RotateCcw } from 'lucide-react';
 import { LogoLink } from './LogoLink';
 import { Currency } from '../../types';
-import { COLLECTION_CATEGORIES } from '../../data/collectionCategories';
 
 export interface MobileMenuProps {
   isOpen: boolean;
@@ -39,47 +38,64 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
   userRole,
   userName
 }) => {
-  const [isCollectionExpanded, setIsCollectionExpanded] = useState(false);
-  const [isStoryExpanded, setIsStoryExpanded] = useState(false);
+  const [isCollectionExpanded, setIsCollectionExpanded] = useState(true);
+  const [isCustomerCareExpanded, setIsCustomerCareExpanded] = useState(false);
 
-  // Handle ESC key to close
+  // Close on ESC key press on all devices
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
         onClose();
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Prevent background scroll when open
+  // Lock body scroll when open and restore cleanly
   useEffect(() => {
     if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
     }
-    return () => {
-      document.body.style.overflow = '';
-    };
   }, [isOpen]);
 
   if (!isOpen) return null;
 
+  // Curated collection items matching exact user request: Scarves, Modest, Dresses, Tops, Bottoms, Sets
+  const collectionSubCategories = [
+    { label: 'Dresses', target: 'Dresses' },
+    { label: 'Tops & Shirts', target: 'Tops' },
+    { label: 'Bottoms & Trousers', target: 'Bottoms' },
+    { label: 'Sets & Coordinates', target: 'Sets' },
+    { label: 'Scarves & Hijabs', target: 'Scarves' },
+    { label: 'Modest Edit', target: 'Modest Edit' }
+  ];
+
   return (
-    <div className="fixed inset-0 z-50 flex md:hidden" role="dialog" aria-modal="true" aria-label="Mobile Navigation Menu">
-      {/* Backdrop */}
+    <div
+      className="fixed inset-0 z-50 flex transition-opacity"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Navigation Menu"
+    >
+      {/* 1. Backdrop Overlay (click outside to close) */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity duration-300"
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Drawer Panel */}
-      <div className="relative w-full max-w-xs sm:max-w-sm bg-[#F7F4EF] h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-left duration-300">
-        {/* Header with LORÉA LogoLink & Close Button */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#EAE5DE]">
+      {/* 2. Slide-out Drawer (available on Mobile, Tablet, Laptop, and Desktop) */}
+      <div className="relative w-full max-w-[340px] sm:max-w-[380px] md:max-w-[420px] bg-[#FAF8F5] h-full shadow-2xl flex flex-col z-10 transform transition-transform duration-300 ease-out border-r border-[#EAE5DE]">
+        
+        {/* Drawer Header: Logo & Close Button */}
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 sm:py-5 border-b border-[#EAE5DE] bg-white">
           <LogoLink
             onNavigate={(view) => {
               onNavigate(view);
@@ -90,160 +106,180 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
           />
           <button
             onClick={onClose}
-            className="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 text-[#1D1D1B] hover:text-[#BA945A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BA945A] rounded-xs cursor-pointer"
+            className="w-10 h-10 flex items-center justify-center p-2 text-[#1D1D1B] hover:text-[#BA945A] hover:bg-[#FAF8F5] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#BA945A] rounded-xs transition-all cursor-pointer active:scale-95"
             aria-label="Close Navigation Menu"
+            title="Close Menu (ESC)"
           >
             <X className="w-5 h-5 stroke-[1.5]" />
           </button>
         </div>
 
         {/* Scrollable Navigation Body */}
-        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
-          {/* Main Navigation Sections - Strictly Vertical Single-Column Layout */}
-          <nav aria-label="Mobile Menu Navigation" className="flex flex-col space-y-1">
-            <p className="text-[10px] tracking-[0.24em] uppercase text-[#7C746B] font-medium mb-1">Navigation</p>
-            
-            {/* 1. SHOP */}
+        <div className="flex-1 overflow-y-auto px-5 sm:px-6 py-6 space-y-6 scrollbar-none">
+          
+          {/* Main Navigation Links */}
+          <nav aria-label="Main Menu" className="flex flex-col space-y-1">
+            <span className="text-[10px] tracking-[0.24em] uppercase text-[#7C746B] font-mono mb-2 block">
+              CATALOG & EDITORIAL
+            </span>
+
+            {/* 1. HOME */}
+            <button
+              onClick={() => {
+                onNavigate('home');
+                onClose();
+              }}
+              className="flex items-center justify-between w-full text-left font-serif text-xl sm:text-2xl font-light tracking-wide text-[#1D1D1B] hover:text-[#BA945A] transition-colors py-2 cursor-pointer group"
+            >
+              <span>HOME</span>
+              <ChevronRight className="w-4 h-4 text-[#D4CCC2] transition-transform group-hover:translate-x-1 group-hover:text-[#BA945A]" />
+            </button>
+
+            {/* 2. SHOP */}
             <button
               onClick={() => {
                 onNavigate('store');
                 onClose();
               }}
-              className="flex items-center w-full text-left font-serif text-lg tracking-wide text-[#1D1D1B] hover:text-[#BA945A] transition-colors cursor-pointer min-h-[44px] py-1"
+              className="flex items-center justify-between w-full text-left font-serif text-xl sm:text-2xl font-light tracking-wide text-[#1D1D1B] hover:text-[#BA945A] transition-colors py-2 cursor-pointer group"
             >
-              SHOP
+              <span>SHOP</span>
+              <ChevronRight className="w-4 h-4 text-[#D4CCC2] transition-transform group-hover:translate-x-1 group-hover:text-[#BA945A]" />
             </button>
 
-            {/* 2. NEW IN */}
+            {/* 3. NEW IN */}
             <button
               onClick={() => {
                 onNavigate('new-in');
                 onClose();
               }}
-              className="flex items-center w-full text-left font-serif text-lg tracking-wide text-[#1D1D1B] hover:text-[#BA945A] transition-colors cursor-pointer min-h-[44px] py-1"
+              className="flex items-center justify-between w-full text-left font-serif text-xl sm:text-2xl font-light tracking-wide text-[#1D1D1B] hover:text-[#BA945A] transition-colors py-2 cursor-pointer group"
             >
-              NEW IN
+              <div className="flex items-center space-x-2.5">
+                <span>NEW IN</span>
+                <span className="text-[9px] font-mono uppercase tracking-widest bg-[#1D1D1B] text-white px-2 py-0.5 font-normal">
+                  Drop
+                </span>
+              </div>
+              <ChevronRight className="w-4 h-4 text-[#D4CCC2] transition-transform group-hover:translate-x-1 group-hover:text-[#BA945A]" />
             </button>
 
-            {/* 3. SALE */}
+            {/* 4. SALE */}
             <button
               onClick={() => {
                 onNavigate('sale');
                 onClose();
               }}
-              className="flex items-center w-full text-left font-serif text-lg tracking-wide text-[#964036] font-medium transition-colors cursor-pointer min-h-[44px] py-1"
+              className="flex items-center justify-between w-full text-left font-serif text-xl sm:text-2xl font-light tracking-wide text-[#964036] hover:text-[#BA945A] transition-colors py-2 cursor-pointer group"
             >
-              SALE
+              <div className="flex items-center space-x-2.5">
+                <span>SALE</span>
+                <span className="text-[9px] font-mono uppercase tracking-widest bg-[#964036]/15 text-[#964036] px-2 py-0.5 font-medium">
+                  Seasonal
+                </span>
+              </div>
+              <ChevronRight className="w-4 h-4 text-[#D4CCC2] transition-transform group-hover:translate-x-1 group-hover:text-[#BA945A]" />
             </button>
 
-            {/* 4. COLLECTION (Expandable Parent Item) */}
-            <div className="border-t border-b border-[#EAE5DE]/70 py-1 my-1">
-              <button
-                onClick={() => setIsCollectionExpanded(!isCollectionExpanded)}
-                aria-expanded={isCollectionExpanded}
-                className="flex items-center justify-between w-full text-left font-serif text-lg tracking-wide text-[#1D1D1B] hover:text-[#BA945A] transition-colors cursor-pointer min-h-[44px] py-1"
-              >
-                <span>COLLECTION</span>
-                <span className="text-xl font-light text-[#BA945A] w-6 h-6 flex items-center justify-center">
-                  {isCollectionExpanded ? '−' : '+'}
+            {/* 5. BEST SELLERS */}
+            <button
+              onClick={() => {
+                onNavigate('best-sellers');
+                onClose();
+              }}
+              className="flex items-center justify-between w-full text-left font-serif text-xl sm:text-2xl font-light tracking-wide text-[#1D1D1B] hover:text-[#BA945A] transition-colors py-2 cursor-pointer group"
+            >
+              <div className="flex items-center space-x-2.5">
+                <span>BEST SELLERS</span>
+                <span className="text-[9px] font-mono uppercase tracking-widest bg-[#BA945A]/15 text-[#BA945A] px-2 py-0.5 font-medium">
+                  Icons
                 </span>
-              </button>
+              </div>
+              <ChevronRight className="w-4 h-4 text-[#D4CCC2] transition-transform group-hover:translate-x-1 group-hover:text-[#BA945A]" />
+            </button>
 
-              {/* Submenu: Strictly Vertical Single Column Without Images */}
+            {/* 6. COLLECTION (Expandable Menu with subcategories: Scarves, Modest, Dresses, Tops, Bottoms, Sets) */}
+            <div className="border-t border-b border-[#EAE5DE] py-2 my-2">
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => {
+                    onNavigate('collections');
+                    onClose();
+                  }}
+                  className="font-serif text-xl sm:text-2xl font-light tracking-wide text-[#1D1D1B] hover:text-[#BA945A] transition-colors py-1 cursor-pointer"
+                >
+                  COLLECTION
+                </button>
+                <button
+                  onClick={() => setIsCollectionExpanded(!isCollectionExpanded)}
+                  aria-expanded={isCollectionExpanded}
+                  className="w-8 h-8 flex items-center justify-center text-[#7C746B] hover:text-[#BA945A] cursor-pointer"
+                  aria-label="Toggle collection subcategories"
+                >
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isCollectionExpanded ? 'rotate-180 text-[#BA945A]' : ''}`} />
+                </button>
+              </div>
+
+              {/* Subcategories list */}
               {isCollectionExpanded && (
-                <div className="flex flex-col space-y-1 pl-3.5 py-2 border-l border-[#BA945A]/40 my-1 animate-in fade-in slide-in-from-top-1">
-                  {COLLECTION_CATEGORIES.map((category) => (
+                <div className="flex flex-col space-y-1 pl-3 py-2 border-l border-[#BA945A]/40 my-2 animate-in fade-in duration-200">
+                  {collectionSubCategories.map((cat) => (
                     <button
-                      key={category.slug}
+                      key={cat.target}
                       onClick={() => {
-                        onSelectCategory(category.categoryTarget, category.subcategoryTarget);
+                        onSelectCategory(cat.target);
                         onClose();
                       }}
-                      className="flex items-center justify-between py-2 text-xs uppercase tracking-[0.18em] font-medium text-[#4A453F] hover:text-[#BA945A] transition-colors w-full text-left cursor-pointer min-h-[44px] group pr-2"
+                      className="flex items-center justify-between py-2 text-xs uppercase tracking-[0.18em] font-medium text-[#4A453F] hover:text-[#BA945A] transition-colors w-full text-left cursor-pointer group pr-2"
                     >
-                      <span>{category.name}</span>
+                      <span>{cat.label}</span>
+                      <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 text-[#BA945A] transition-opacity" />
                     </button>
                   ))}
-
-                  {/* View All Collections shortcut */}
                   <button
                     onClick={() => {
                       onNavigate('collections');
                       onClose();
                     }}
-                    className="flex items-center justify-between text-[11px] tracking-[0.18em] uppercase text-[#7C746B] hover:text-[#BA945A] transition-colors pt-2 cursor-pointer min-h-[40px] pr-2"
+                    className="flex items-center space-x-1.5 py-2 text-[11px] uppercase tracking-[0.2em] text-[#BA945A] font-semibold transition-colors w-full text-left cursor-pointer pt-2 border-t border-[#EAE5DE]/60 mt-1"
                   >
-                    <span>All Collections</span>
+                    <span>View All Collections</span>
                     <span>→</span>
                   </button>
                 </div>
               )}
             </div>
 
-            {/* 5. STORY US (Expandable Parent Item) */}
-            <div className="border-b border-[#EAE5DE]/70 py-1 my-1">
-              <button
-                onClick={() => setIsStoryExpanded(!isStoryExpanded)}
-                aria-expanded={isStoryExpanded}
-                className="flex items-center justify-between w-full text-left font-serif text-lg tracking-wide text-[#1D1D1B] hover:text-[#BA945A] transition-colors cursor-pointer min-h-[44px] py-1"
-              >
-                <span>STORY US</span>
-                <span className="text-xl font-light text-[#BA945A] w-6 h-6 flex items-center justify-center">
-                  {isStoryExpanded ? '−' : '+'}
-                </span>
-              </button>
-
-              {/* Submenu: Strictly Vertical Single Column */}
-              {isStoryExpanded && (
-                <div className="flex flex-col space-y-1 pl-3.5 py-2 border-l border-[#BA945A]/40 my-1 animate-in fade-in slide-in-from-top-1 text-xs text-[#7C746B]">
-                  <button
-                    onClick={() => {
-                      onNavigate('about');
-                      onClose();
-                    }}
-                    className="flex items-center space-x-2 py-2 hover:text-[#BA945A] transition-colors cursor-pointer w-full text-left min-h-[40px]"
-                  >
-                    <BookOpen className="w-3.5 h-3.5 text-[#BA945A]" />
-                    <span>Our Story</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      onNavigate('contact');
-                      onClose();
-                    }}
-                    className="flex items-center space-x-2 py-2 hover:text-[#BA945A] transition-colors cursor-pointer w-full text-left min-h-[40px]"
-                  >
-                    <MessageCircle className="w-3.5 h-3.5 text-[#BA945A]" />
-                    <span>Contact Us</span>
-                  </button>
-                  <a
-                    href="mailto:concierge@lorea.com"
-                    onClick={onClose}
-                    className="flex items-center space-x-2 py-2 hover:text-[#BA945A] transition-colors cursor-pointer w-full text-left min-h-[40px]"
-                  >
-                    <Mail className="w-3.5 h-3.5 text-[#BA945A]" />
-                    <span>Client Emails</span>
-                  </a>
-                </div>
-              )}
-            </div>
-
-            {/* AI Style Assistant Link */}
+            {/* 7. STORY */}
             <button
               onClick={() => {
-                if (onOpenTryOn) onOpenTryOn();
+                onNavigate('about');
                 onClose();
               }}
-              className="flex items-center space-x-2.5 w-full text-left font-serif text-lg tracking-wide text-[#BA945A] hover:text-[#1D1D1B] min-h-[44px] py-1 cursor-pointer"
+              className="flex items-center justify-between w-full text-left font-serif text-xl sm:text-2xl font-light tracking-wide text-[#1D1D1B] hover:text-[#BA945A] transition-colors py-2 cursor-pointer group"
             >
-              <Sparkles className="w-4 h-4 text-[#BA945A]" />
-              <span className="flex items-center space-x-2">
-                <span>AI Style Assistant</span>
-                <span className="text-[9px] uppercase tracking-widest font-mono bg-[#BA945A]/15 text-[#BA945A] px-2 py-0.5 rounded-xs">
-                  Atelier
-                </span>
-              </span>
+              <span>STORY</span>
+              <ChevronRight className="w-4 h-4 text-[#D4CCC2] transition-transform group-hover:translate-x-1 group-hover:text-[#BA945A]" />
             </button>
+
+            {/* 8. ARTICLES */}
+            <button
+              onClick={() => {
+                onNavigate('journal');
+                onClose();
+              }}
+              className="flex items-center justify-between w-full text-left font-serif text-xl sm:text-2xl font-light tracking-wide text-[#1D1D1B] hover:text-[#BA945A] transition-colors py-2 cursor-pointer group"
+            >
+              <span>ARTICLES</span>
+              <ChevronRight className="w-4 h-4 text-[#D4CCC2] transition-transform group-hover:translate-x-1 group-hover:text-[#BA945A]" />
+            </button>
+          </nav>
+
+          {/* Quick Client Utilities */}
+          <div className="pt-4 border-t border-[#EAE5DE] space-y-3">
+            <span className="text-[10px] tracking-[0.24em] uppercase text-[#7C746B] font-mono block">
+              MY SELECTIONS
+            </span>
 
             {/* Wishlist Link with Count */}
             <button
@@ -251,14 +287,14 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                 onOpenWishlist();
                 onClose();
               }}
-              className="flex items-center justify-between w-full text-left font-serif text-lg tracking-wide text-[#1D1D1B] hover:text-[#BA945A] min-h-[44px] py-1 cursor-pointer"
+              className="flex items-center justify-between w-full text-left py-2 text-xs uppercase tracking-[0.18em] text-[#1D1D1B] hover:text-[#BA945A] cursor-pointer"
             >
               <span className="flex items-center space-x-2.5">
                 <Heart className="w-4 h-4 stroke-[1.5]" />
                 <span>Wishlist</span>
               </span>
               {wishlistCount > 0 && (
-                <span className="bg-[#BA945A] text-white text-[10px] px-2 py-0.5 rounded-full font-sans font-semibold">
+                <span className="bg-[#BA945A] text-white text-[10px] px-2 py-0.5 rounded-full font-mono font-medium">
                   {wishlistCount}
                 </span>
               )}
@@ -270,25 +306,97 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                 onOpenAccount();
                 onClose();
               }}
-              className="flex items-center space-x-2.5 w-full text-left font-serif text-lg tracking-wide text-[#1D1D1B] hover:text-[#BA945A] min-h-[44px] py-1 cursor-pointer"
+              className="flex items-center space-x-2.5 w-full text-left py-2 text-xs uppercase tracking-[0.18em] text-[#1D1D1B] hover:text-[#BA945A] cursor-pointer"
             >
               <User className="w-4 h-4 stroke-[1.5]" />
-              <span>{isAuthenticated ? `My Account (${userName})` : 'Sign In / Register'}</span>
+              <span>{isAuthenticated ? `My Account (${userName || 'User'})` : 'Sign In / Register'}</span>
             </button>
-          </nav>
+
+            {/* AI Style Assistant */}
+            {onOpenTryOn && (
+              <button
+                onClick={() => {
+                  onOpenTryOn();
+                  onClose();
+                }}
+                className="flex items-center space-x-2.5 w-full text-left py-2 text-xs uppercase tracking-[0.18em] text-[#BA945A] hover:text-[#1D1D1B] cursor-pointer font-medium"
+              >
+                <Sparkles className="w-4 h-4 text-[#BA945A]" />
+                <span>AI Style Assistant</span>
+              </button>
+            )}
+          </div>
+
+          {/* Customer Care Accordion */}
+          <div className="pt-4 border-t border-[#EAE5DE]">
+            <button
+              onClick={() => setIsCustomerCareExpanded(!isCustomerCareExpanded)}
+              className="flex items-center justify-between w-full text-left text-xs uppercase tracking-[0.2em] font-medium text-[#1D1D1B] hover:text-[#BA945A] py-1 cursor-pointer"
+            >
+              <span>CUSTOMER CARE</span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isCustomerCareExpanded ? 'rotate-180 text-[#BA945A]' : ''}`} />
+            </button>
+
+            {isCustomerCareExpanded && (
+              <div className="flex flex-col space-y-2 pt-2.5 pl-2 text-xs text-[#7C746B] animate-in fade-in duration-200">
+                <button
+                  onClick={() => {
+                    onNavigate('contact');
+                    onClose();
+                  }}
+                  className="flex items-center space-x-2 py-1 hover:text-[#BA945A] text-left cursor-pointer"
+                >
+                  <MessageCircle className="w-3.5 h-3.5 text-[#BA945A]" />
+                  <span>Contact Us</span>
+                </button>
+                <button
+                  onClick={() => {
+                    onNavigate('shipping');
+                    onClose();
+                  }}
+                  className="flex items-center space-x-2 py-1 hover:text-[#BA945A] text-left cursor-pointer"
+                >
+                  <Truck className="w-3.5 h-3.5 text-[#BA945A]" />
+                  <span>Shipping & Delivery</span>
+                </button>
+                <button
+                  onClick={() => {
+                    onNavigate('returns');
+                    onClose();
+                  }}
+                  className="flex items-center space-x-2 py-1 hover:text-[#BA945A] text-left cursor-pointer"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-[#BA945A]" />
+                  <span>Returns & Exchanges</span>
+                </button>
+                <button
+                  onClick={() => {
+                    onNavigate('faq');
+                    onClose();
+                  }}
+                  className="flex items-center space-x-2 py-1 hover:text-[#BA945A] text-left cursor-pointer"
+                >
+                  <HelpCircle className="w-3.5 h-3.5 text-[#BA945A]" />
+                  <span>FAQ & Sizing</span>
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Currency Switcher */}
-          <div className="pt-5 border-t border-[#EAE5DE]">
-            <p className="text-[10px] tracking-[0.24em] uppercase text-[#7C746B] font-medium mb-2.5">Currency</p>
+          <div className="pt-4 border-t border-[#EAE5DE]">
+            <span className="text-[10px] tracking-[0.24em] uppercase text-[#7C746B] font-mono mb-2.5 block">
+              CURRENCY
+            </span>
             <div className="grid grid-cols-4 gap-2">
               {(['EGP', 'USD', 'EUR', 'AED'] as Currency[]).map((c) => (
                 <button
                   key={c}
                   onClick={() => onCurrencyChange(c)}
-                  className={`py-1.5 text-xs text-center border rounded-xs transition-colors cursor-pointer ${
+                  className={`py-1.5 text-xs text-center border transition-colors cursor-pointer rounded-xs ${
                     currency === c
-                      ? 'border-[#1D1D1B] bg-[#1D1D1B] text-[#F7F4EF] font-medium'
-                      : 'border-[#D4CCC2] text-[#1D1D1B] hover:border-[#1D1D1B]'
+                      ? 'border-[#1D1D1B] bg-[#1D1D1B] text-[#FAF8F5] font-medium'
+                      : 'border-[#D4CCC2] text-[#1D1D1B] hover:border-[#1D1D1B] bg-white'
                   }`}
                 >
                   {c}
@@ -298,7 +406,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
           </div>
 
           {/* Language Switcher */}
-          <div className="pt-4 border-t border-[#EAE5DE] flex items-center justify-between text-xs text-[#7C746B]">
+          <div className="pt-3 flex items-center justify-between text-xs text-[#7C746B]">
             <span className="flex items-center space-x-1.5">
               <Globe className="w-3.5 h-3.5 text-[#BA945A]" />
               <span>Language:</span>
@@ -311,9 +419,9 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
             </button>
           </div>
 
-          {/* Admin shortcut if applicable */}
+          {/* Admin shortcut if user is admin */}
           {(userRole === 'admin' || userRole === 'super_admin') && (
-            <div className="pt-4 border-t border-[#EAE5DE]">
+            <div className="pt-3 border-t border-[#EAE5DE]">
               <button
                 onClick={() => {
                   onNavigate('admin');
@@ -322,16 +430,20 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                 className="flex items-center space-x-2 text-xs font-semibold text-[#BA945A] hover:text-[#1D1D1B] uppercase tracking-wider cursor-pointer"
               >
                 <ShieldCheck className="w-4 h-4" />
-                <span>Open Admin Portal</span>
+                <span>Admin Operations Portal</span>
               </button>
             </div>
           )}
         </div>
 
-        {/* Footer info */}
-        <div className="p-5 bg-[#EFECE6] border-t border-[#EAE5DE] text-xs text-[#7C746B]">
-          <p className="tracking-widest uppercase font-medium text-[10px] text-[#1D1D1B] mb-1">LORÉA ATELIER</p>
-          <p className="text-[11px] font-light">Cairo · Alexandria · Worldwide Express Delivery</p>
+        {/* Drawer Footer */}
+        <div className="p-4 sm:p-5 bg-[#FAF8F5] border-t border-[#EAE5DE] text-xs text-[#7C746B] text-center">
+          <p className="tracking-widest uppercase font-serif font-light text-sm text-[#1D1D1B] mb-0.5">
+            LORÉA
+          </p>
+          <p className="text-[10px] text-[#7C746B] font-light">
+            Luxury Women's Ready-to-Wear · Worldwide Express Delivery
+          </p>
         </div>
       </div>
     </div>

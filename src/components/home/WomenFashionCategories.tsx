@@ -54,7 +54,7 @@ export const WomenFashionCategories: React.FC<WomenFashionCategoriesProps> = ({
 }) => {
   return (
     <section id="women-fashion" className="pt-12 sm:pt-16 lg:pt-20 pb-12 sm:pb-16 lg:pb-20 bg-white select-none">
-      <div className="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12">
         {/* Section Header: — WOMEN FASHION — matching reference */}
         <div className="flex items-center justify-center mb-8 sm:mb-12 max-w-3xl mx-auto px-2">
           <span className="flex-1 h-px bg-[#D4CCC2]" aria-hidden="true" />

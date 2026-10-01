@@ -25,9 +25,9 @@ const PRINCIPLES = [
     number: '01',
     title: 'CRAFT',
     description: 'Thoughtful construction and considered finishing.',
-    detail: 'Every seam, bias cut, and hemline is constructed by master artisans in Cairo, celebrating techniques passed through generations.',
+    detail: 'Every seam, bias cut, and hemline is constructed with precision and care, celebrating techniques passed through generations.',
     image: storyCraftImg,
-    tag: 'Atelier Execution'
+    tag: 'Design Philosophy'
   },
   {
     number: '02',
@@ -484,13 +484,13 @@ export const BrandStory: React.FC<BrandStoryProps> = ({
               <div className="relative aspect-4/3 sm:aspect-16/11 overflow-hidden bg-[#EAE5DE] shadow-sm group">
                 <img
                   src={storyCraftImg}
-                  alt="LORÉA hand-stitching and fabric cutting in Cairo atelier"
+                  alt="LORÉA bespoke tailoring and garment drape"
                   loading="lazy"
                   decoding="async"
                   className="w-full h-full object-cover object-center transition-transform duration-1000 ease-out group-hover:scale-103"
                 />
                 <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-xs px-3.5 py-1.5 text-[10px] tracking-[0.24em] uppercase text-[#1D1D1B] font-mono">
-                  FIG. 02 — THE ATELIER BENCH
+                  FIG. 02 — THE DESIGN SUITE
                 </div>
               </div>
             </div>

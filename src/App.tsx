@@ -543,7 +543,7 @@ export default function App() {
   const recommendedForCart = productsList.filter((p) => !cartItems.some((c) => c.product.id === p.id)).slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-[#F7F4EF] text-[#1D1D1B] flex flex-col font-sans selection:bg-[#BA945A]/20 selection:text-[#1D1D1B]">
+    <div className="min-h-screen bg-[#F7F4EF] text-[#1D1D1B] flex flex-col font-sans selection:bg-[#BA945A]/20 selection:text-[#1D1D1B] overflow-x-hidden">
       {/* 1. Global Header with sticky transform, Logo -> /, and Category Subnav */}
       <Header
         isScrolled={isScrolled}
