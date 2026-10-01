@@ -152,6 +152,18 @@ export function initDatabase() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
+    CREATE TABLE IF NOT EXISTS collections (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      name_ar TEXT NOT NULL,
+      slug TEXT UNIQUE NOT NULL,
+      description TEXT,
+      image TEXT,
+      is_active INTEGER DEFAULT 1,
+      sort_order INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
     CREATE TABLE IF NOT EXISTS products (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
@@ -161,10 +173,12 @@ export function initDatabase() {
       category_id TEXT NOT NULL,
       subcategory TEXT,
       collection TEXT DEFAULT 'New Collection',
+      brand TEXT DEFAULT 'LORÉA',
       price_egp REAL NOT NULL,
       price_usd REAL NOT NULL,
       original_price_egp REAL,
       original_price_usd REAL,
+      cost_price_egp REAL DEFAULT 0,
       badge TEXT,
       fabric TEXT,
       fit TEXT,
@@ -440,9 +454,42 @@ export function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_admin_logs_created ON admin_activity_logs(created_at);
   `);
 
+  // Safe schema migrations for existing database files
+  try {
+    db.exec("ALTER TABLE products ADD COLUMN cost_price_egp REAL DEFAULT 0;");
+  } catch {}
+  try {
+    db.exec("ALTER TABLE products ADD COLUMN brand TEXT DEFAULT 'LORÉA';");
+  } catch {}
+
   // Seed default data if database is fresh
   seedDefaultData();
+  seedDefaultCollections();
   ensureDemoUsers();
+}
+
+function seedDefaultCollections() {
+  try {
+    const colCount = db.prepare('SELECT COUNT(*) as count FROM collections').get() as { count: number };
+    if (colCount.count === 0) {
+      const defaultCols = [
+        { id: 'col_new', name: 'New Collection', nameAr: 'المجموعة الجديدة', slug: 'new-collection', desc: 'Latest architectural silhouettes and seasonal tailoring', sortOrder: 1 },
+        { id: 'col_essentials', name: 'Essentials', nameAr: 'الأساسيات الفاخرة', slug: 'essentials', desc: 'Timeless foundational pieces for refined everyday poise', sortOrder: 2 },
+        { id: 'col_best_sellers', name: 'Best Sellers', nameAr: 'الأكثر طلباً', slug: 'best-sellers', desc: 'Celebrated atelier pieces beloved across Egypt and the Gulf', sortOrder: 3 },
+        { id: 'col_limited', name: 'Limited Edition', nameAr: 'إصدار محدود', slug: 'limited-edition', desc: 'Exclusive runway runs crafted with rare European deadstock fabrics', sortOrder: 4 },
+        { id: 'col_seasonal', name: 'Seasonal Resort', nameAr: 'إصدار المنتجع والمواسم', slug: 'seasonal', desc: 'Breezy luxury linens and fluid silks tailored for sunlit destinations', sortOrder: 5 }
+      ];
+      const insertCol = db.prepare(`
+        INSERT INTO collections (id, name, name_ar, slug, description, sort_order, is_active)
+        VALUES (?, ?, ?, ?, ?, ?, 1)
+      `);
+      for (const c of defaultCols) {
+        insertCol.run(c.id, c.name, c.nameAr, c.slug, c.desc, c.sortOrder);
+      }
+    }
+  } catch (err) {
+    console.warn('Collections seed warning:', err);
+  }
 }
 
 function ensureDemoUsers() {

@@ -429,13 +429,17 @@ export const api = {
         method: 'PUT',
         body: JSON.stringify(data),
       }),
-    getProducts: (params?: { search?: string; category?: string }) => {
+    getProducts: (params?: { search?: string; category?: string; status?: string; collection?: string }) => {
       const q = new URLSearchParams(params as any).toString();
       return request<{ products: any[] }>('/api/admin/products' + (q ? '?' + q : ''));
     },
     getProductDetails: (id: string) => request<{ product: any }>('/api/admin/products/' + id),
     createProduct: (data: any) => request<{ message: string; productId: string }>('/api/admin/products', { method: 'POST', body: JSON.stringify(data) }),
     updateProduct: (id: string, data: any) => request<{ message: string }>('/api/admin/products/' + id, { method: 'PUT', body: JSON.stringify(data) }),
+    deleteProduct: (id: string) => request<{ message: string; action: string; productId: string }>('/api/admin/products/' + id, { method: 'DELETE' }),
+    duplicateProduct: (id: string) => request<{ message: string; productId: string; product: any }>('/api/admin/products/' + id + '/duplicate', { method: 'POST' }),
+    updateProductStatus: (id: string, status: 'active' | 'draft' | 'archived') => request<{ message: string; productId: string; status: string }>('/api/admin/products/' + id + '/status', { method: 'PUT', body: JSON.stringify({ status }) }),
+    bulkProductsAction: (action: string, productIds: string[], payload?: any) => request<{ message: string; affectedCount: number }>('/api/admin/products/bulk', { method: 'POST', body: JSON.stringify({ action, productIds, payload }) }),
     getInventory: () => request<{ inventory: any[]; history: any[] }>('/api/admin/inventory'),
     adjustInventory: (data: { variantId: string; quantityChange: number; reason?: string }) =>
       request<{ message: string; variantId: string; previousStock: number; newStock: number }>('/api/admin/inventory/adjust', {
@@ -444,6 +448,10 @@ export const api = {
       }),
     getCategories: () => request<{ categories: any[] }>('/api/admin/categories'),
     createCategory: (data: any) => request<{ message: string; id: string }>('/api/admin/categories', { method: 'POST', body: JSON.stringify(data) }),
+    getCollections: () => request<{ collections: any[] }>('/api/admin/collections'),
+    createCollection: (data: any) => request<{ message: string; id: string }>('/api/admin/collections', { method: 'POST', body: JSON.stringify(data) }),
+    updateCollection: (id: string, data: any) => request<{ message: string }>('/api/admin/collections/' + id, { method: 'PUT', body: JSON.stringify(data) }),
+    deleteCollection: (id: string) => request<{ message: string }>('/api/admin/collections/' + id, { method: 'DELETE' }),
     getCoupons: () => request<{ coupons: any[] }>('/api/admin/coupons'),
     createCoupon: (data: any) => request<{ message: string; id: string }>('/api/admin/coupons', { method: 'POST', body: JSON.stringify(data) }),
     getReviews: () => request<{ reviews: any[] }>('/api/admin/reviews'),
@@ -452,6 +460,10 @@ export const api = {
     getActivityLogs: () => request<{ logs: any[] }>('/api/admin/activity-logs'),
     getSettings: () => request<{ settings: Record<string, string> }>('/api/admin/settings'),
     updateSettings: (settings: Record<string, string>) => request<{ message: string }>('/api/admin/settings', { method: 'PUT', body: JSON.stringify({ settings }) }),
+    getFinanceOverview: (timeframe?: string) => request<any>('/api/admin/finance/overview' + (timeframe ? '?timeframe=' + timeframe : '')),
+    getFinanceTransactions: () => request<{ transactions: any[] }>('/api/admin/finance/transactions'),
+    getFinanceSettings: () => request<{ settings: Record<string, string> }>('/api/admin/finance/settings'),
+    updateFinanceSettings: (settings: Record<string, string>) => request<{ message: string }>('/api/admin/finance/settings', { method: 'PUT', body: JSON.stringify({ settings }) }),
   },
 
   // Public

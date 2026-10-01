@@ -611,6 +611,270 @@ router.put('/products/:id', (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
+// Delete Product (Safe with Order Dependencies check)
+router.delete('/products/:id', (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const existing = db.prepare('SELECT id, name, sku FROM products WHERE id = ?').get(id) as any;
+    if (!existing) {
+      return res.status(404).json({ error: 'Product not found.' });
+    }
+
+    // Check if referenced in historical orders
+    const orderItemsCount = db.prepare('SELECT COUNT(*) as count FROM order_items WHERE product_id = ?').get(id) as { count: number };
+
+    if (orderItemsCount && orderItemsCount.count > 0) {
+      // Soft-delete: archive to preserve historical customer orders integrity
+      db.prepare("UPDATE products SET status = 'archived', updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(id);
+
+      logAdminActivity(
+        req.user!.userId,
+        req.user!.firstName || 'Admin',
+        'product.archive',
+        'products',
+        id,
+        { status: 'active' },
+        { status: 'archived', reason: `Product referenced in ${orderItemsCount.count} historical order(s)` },
+        req.ip
+      );
+
+      return res.json({
+        message: `Product is linked to ${orderItemsCount.count} order(s). It has been safely archived instead of deleted to protect financial records.`,
+        action: 'archived',
+        productId: id,
+      });
+    }
+
+    // No historical orders: safely delete variants, images, and product record
+    db.prepare('DELETE FROM product_images WHERE product_id = ?').run(id);
+    db.prepare('DELETE FROM product_variants WHERE product_id = ?').run(id);
+    db.prepare('DELETE FROM products WHERE id = ?').run(id);
+
+    logAdminActivity(
+      req.user!.userId,
+      req.user!.firstName || 'Admin',
+      'product.delete',
+      'products',
+      id,
+      existing,
+      null,
+      req.ip
+    );
+
+    return res.json({
+      message: 'Product deleted permanently from catalog.',
+      action: 'deleted',
+      productId: id,
+    });
+  } catch (err: any) {
+    console.error('Delete product error:', err);
+    return res.status(500).json({ error: 'Failed to delete product.' });
+  }
+});
+
+// Duplicate Product
+router.post('/products/:id/duplicate', (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const product = db.prepare('SELECT * FROM products WHERE id = ?').get(id) as any;
+    if (!product) {
+      return res.status(404).json({ error: 'Source product not found.' });
+    }
+
+    const newId = `prod_${Date.now()}`;
+    const newSku = `${product.sku}-COPY-${Math.floor(Math.random() * 900 + 100)}`;
+    const newName = `${product.name} (Copy)`;
+    const newNameAr = `${product.name_ar} (نسخة)`;
+
+    db.prepare(`
+      INSERT INTO products (
+        id, name, name_ar, subtitle, description, category_id, subcategory, collection,
+        brand, price_egp, price_usd, original_price_egp, cost_price_egp, badge,
+        fabric, fit, care, shipping, sku, is_modest_edit, status
+      ) VALUES (
+        ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, 'draft'
+      )
+    `).run(
+      newId,
+      newName,
+      newNameAr,
+      product.subtitle,
+      product.description,
+      product.category_id,
+      product.subcategory,
+      product.collection,
+      product.brand || 'LORÉA',
+      product.price_egp,
+      product.price_usd,
+      product.original_price_egp,
+      product.cost_price_egp || 0,
+      product.badge,
+      product.fabric,
+      product.fit,
+      product.care,
+      product.shipping,
+      newSku,
+      product.is_modest_edit
+    );
+
+    // Duplicate images
+    const images = db.prepare('SELECT * FROM product_images WHERE product_id = ?').all(id) as any[];
+    const insertImg = db.prepare('INSERT INTO product_images (id, product_id, image_url, sort_order, is_primary) VALUES (?, ?, ?, ?, ?)');
+    for (let i = 0; i < images.length; i++) {
+      insertImg.run(`img_${newId}_${i}`, newId, images[i].image_url, images[i].sort_order, images[i].is_primary);
+    }
+
+    // Duplicate variants
+    const variants = db.prepare('SELECT * FROM product_variants WHERE product_id = ?').all(id) as any[];
+    const insertVar = db.prepare('INSERT INTO product_variants (id, product_id, sku, color_name, color_hex, size, stock, low_stock_threshold) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+    const insertInv = db.prepare('INSERT INTO inventory (id, variant_id, current_stock, low_stock_threshold) VALUES (?, ?, ?, ?)');
+    for (const v of variants) {
+      const varId = `var_${newId}_${v.size.toLowerCase()}_${Math.random().toString(36).substring(2, 5)}`;
+      const varSku = `${newSku}-${v.size}`;
+      insertVar.run(varId, newId, varSku, v.color_name, v.color_hex, v.size, v.stock, v.low_stock_threshold || 5);
+      insertInv.run(`inv_${varId}`, varId, v.stock, 5);
+    }
+
+    logAdminActivity(
+      req.user!.userId,
+      req.user!.firstName || 'Admin',
+      'product.duplicate',
+      'products',
+      newId,
+      { sourceId: id },
+      { id: newId, sku: newSku, name: newName },
+      req.ip
+    );
+
+    return res.status(201).json({
+      message: 'Product duplicated successfully as draft.',
+      productId: newId,
+      product: { ...product, id: newId, name: newName, sku: newSku, status: 'draft' }
+    });
+  } catch (err: any) {
+    console.error('Duplicate product error:', err);
+    return res.status(500).json({ error: 'Failed to duplicate product.' });
+  }
+});
+
+// Update Product Status (Publish / Unpublish / Archive)
+router.put('/products/:id/status', (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!['active', 'draft', 'archived'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid product status.' });
+    }
+
+    const existing = db.prepare('SELECT id, name, status FROM products WHERE id = ?').get(id) as any;
+    if (!existing) {
+      return res.status(404).json({ error: 'Product not found.' });
+    }
+
+    db.prepare('UPDATE products SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(status, id);
+
+    logAdminActivity(
+      req.user!.userId,
+      req.user!.firstName || 'Admin',
+      `product.${status}`,
+      'products',
+      id,
+      { status: existing.status },
+      { status },
+      req.ip
+    );
+
+    return res.json({ message: `Product status updated to ${status}.`, productId: id, status });
+  } catch (err: any) {
+    console.error('Update product status error:', err);
+    return res.status(500).json({ error: 'Failed to update product status.' });
+  }
+});
+
+// Product Bulk Actions
+router.post('/products/bulk', (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { action, productIds, payload } = req.body;
+
+    if (!Array.isArray(productIds) || productIds.length === 0) {
+      return res.status(400).json({ error: 'No products selected for bulk action.' });
+    }
+
+    let affected = 0;
+
+    if (action === 'publish') {
+      const stmt = db.prepare("UPDATE products SET status = 'active', updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+      for (const pid of productIds) {
+        stmt.run(pid);
+        affected++;
+      }
+    } else if (action === 'unpublish') {
+      const stmt = db.prepare("UPDATE products SET status = 'draft', updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+      for (const pid of productIds) {
+        stmt.run(pid);
+        affected++;
+      }
+    } else if (action === 'archive') {
+      const stmt = db.prepare("UPDATE products SET status = 'archived', updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+      for (const pid of productIds) {
+        stmt.run(pid);
+        affected++;
+      }
+    } else if (action === 'delete') {
+      const checkOrderStmt = db.prepare('SELECT COUNT(*) as count FROM order_items WHERE product_id = ?');
+      const archiveStmt = db.prepare("UPDATE products SET status = 'archived', updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+      const delImgStmt = db.prepare('DELETE FROM product_images WHERE product_id = ?');
+      const delVarStmt = db.prepare('DELETE FROM product_variants WHERE product_id = ?');
+      const delProdStmt = db.prepare('DELETE FROM products WHERE id = ?');
+
+      for (const pid of productIds) {
+        const orderCount = checkOrderStmt.get(pid) as { count: number };
+        if (orderCount && orderCount.count > 0) {
+          archiveStmt.run(pid);
+        } else {
+          delImgStmt.run(pid);
+          delVarStmt.run(pid);
+          delProdStmt.run(pid);
+        }
+        affected++;
+      }
+    } else if (action === 'change_category' && payload?.categoryId) {
+      const stmt = db.prepare('UPDATE products SET category_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+      for (const pid of productIds) {
+        stmt.run(payload.categoryId, pid);
+        affected++;
+      }
+    } else if (action === 'change_collection' && payload?.collection) {
+      const stmt = db.prepare('UPDATE products SET collection = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+      for (const pid of productIds) {
+        stmt.run(payload.collection, pid);
+        affected++;
+      }
+    } else {
+      return res.status(400).json({ error: 'Unsupported bulk action.' });
+    }
+
+    logAdminActivity(
+      req.user!.userId,
+      req.user!.firstName || 'Admin',
+      `product.bulk_${action}`,
+      'products',
+      `${affected}_items`,
+      null,
+      { action, count: affected },
+      req.ip
+    );
+
+    return res.json({ message: `Successfully performed ${action} on ${affected} products.`, affectedCount: affected });
+  } catch (err: any) {
+    console.error('Bulk action error:', err);
+    return res.status(500).json({ error: 'Failed to execute bulk action.' });
+  }
+});
+
 // 5. Inventory Management
 router.get('/inventory', (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -846,6 +1110,319 @@ router.put('/settings', (req: AuthenticatedRequest, res: Response) => {
     return res.json({ message: 'Settings saved successfully.' });
   } catch (err: any) {
     return res.status(500).json({ error: 'Failed to save settings.' });
+  }
+});
+
+// 12. Collections Management
+router.get('/collections', (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const collections = db.prepare(`
+      SELECT c.*, COUNT(p.id) as products_count
+      FROM collections c
+      LEFT JOIN products p ON p.collection = c.name
+      GROUP BY c.id
+      ORDER BY c.sort_order ASC, c.name ASC
+    `).all();
+    return res.json({ collections });
+  } catch (err: any) {
+    console.error('Fetch collections error:', err);
+    return res.status(500).json({ error: 'Failed to fetch collections.' });
+  }
+});
+
+router.post('/collections', (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { name, nameAr, slug, description, image, sortOrder = 0 } = req.body;
+    if (!name || !nameAr || !slug) {
+      return res.status(422).json({ error: 'Name, Arabic name, and slug are required.' });
+    }
+
+    const colId = `col_${slug.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+    db.prepare(`
+      INSERT INTO collections (id, name, name_ar, slug, description, image, sort_order, is_active)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 1)
+    `).run(colId, name.trim(), nameAr.trim(), slug.trim(), description || null, image || null, Number(sortOrder));
+
+    logAdminActivity(
+      req.user!.userId,
+      req.user!.firstName || 'Admin',
+      'collection.create',
+      'collections',
+      colId,
+      null,
+      { name, slug },
+      req.ip
+    );
+
+    return res.status(201).json({ message: 'Collection created successfully.', id: colId });
+  } catch (err: any) {
+    console.error('Create collection error:', err);
+    return res.status(500).json({ error: 'Failed to create collection.' });
+  }
+});
+
+router.put('/collections/:id', (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { name, nameAr, slug, description, image, sortOrder, isActive } = req.body;
+
+    const existing = db.prepare('SELECT * FROM collections WHERE id = ?').get(id) as any;
+    if (!existing) {
+      return res.status(404).json({ error: 'Collection not found.' });
+    }
+
+    db.prepare(`
+      UPDATE collections
+      SET name = ?, name_ar = ?, slug = ?, description = ?, image = ?,
+          sort_order = ?, is_active = ?
+      WHERE id = ?
+    `).run(
+      name || existing.name,
+      nameAr || existing.name_ar,
+      slug || existing.slug,
+      description !== undefined ? description : existing.description,
+      image !== undefined ? image : existing.image,
+      sortOrder !== undefined ? Number(sortOrder) : existing.sort_order,
+      isActive !== undefined ? (isActive ? 1 : 0) : existing.is_active,
+      id
+    );
+
+    return res.json({ message: 'Collection updated successfully.' });
+  } catch (err: any) {
+    console.error('Update collection error:', err);
+    return res.status(500).json({ error: 'Failed to update collection.' });
+  }
+});
+
+router.delete('/collections/:id', (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const existing = db.prepare('SELECT * FROM collections WHERE id = ?').get(id) as any;
+    if (!existing) {
+      return res.status(404).json({ error: 'Collection not found.' });
+    }
+
+    // Check if products belong to this collection
+    const productsCount = db.prepare('SELECT COUNT(*) as count FROM products WHERE collection = ?').get(existing.name) as { count: number };
+    if (productsCount && productsCount.count > 0) {
+      return res.status(400).json({
+        error: `Cannot delete collection because ${productsCount.count} product(s) are currently assigned to it. Please reassign them first.`
+      });
+    }
+
+    db.prepare('DELETE FROM collections WHERE id = ?').run(id);
+
+    return res.json({ message: 'Collection deleted successfully.' });
+  } catch (err: any) {
+    console.error('Delete collection error:', err);
+    return res.status(500).json({ error: 'Failed to delete collection.' });
+  }
+});
+
+// 13. Financial System & Accounting Engine
+router.get('/finance/overview', (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { timeframe = '30days' } = req.query;
+
+    // Base query conditions for orders
+    let timeFilter = "AND o.status != 'cancelled'";
+    if (timeframe === 'today') {
+      timeFilter += " AND date(o.created_at) = date('now')";
+    } else if (timeframe === '7days') {
+      timeFilter += " AND o.created_at >= datetime('now', '-7 days')";
+    } else if (timeframe === '30days') {
+      timeFilter += " AND o.created_at >= datetime('now', '-30 days')";
+    } else if (timeframe === '90days') {
+      timeFilter += " AND o.created_at >= datetime('now', '-90 days')";
+    } else if (timeframe === 'this_year') {
+      timeFilter += " AND strftime('%Y', o.created_at) = strftime('%Y', 'now')";
+    }
+
+    // 1. Gross Revenue, Discounts, Shipping, Tax, Net
+    const aggregates = db.prepare(`
+      SELECT
+        COALESCE(SUM(o.subtotal + o.discount), 0) as gross_revenue,
+        COALESCE(SUM(o.discount), 0) as total_discounts,
+        COALESCE(SUM(o.subtotal), 0) as net_revenue,
+        COALESCE(SUM(o.shipping_cost), 0) as shipping_revenue,
+        COALESCE(SUM(o.tax), 0) as taxes_collected,
+        COALESCE(SUM(o.total), 0) as total_collected,
+        COUNT(o.id) as orders_count
+      FROM orders o
+      WHERE 1=1 ${timeFilter}
+    `).get() as any;
+
+    // 2. Refunds
+    const refunds = db.prepare(`
+      SELECT COALESCE(SUM(o.total), 0) as total_refunds, COUNT(o.id) as refund_count
+      FROM orders o
+      WHERE o.status = 'refunded' OR o.payment_status = 'refunded'
+    `).get() as any;
+
+    // 3. Cost of Goods Sold (COGS) calculated from order_items joining products
+    const cogsQuery = db.prepare(`
+      SELECT
+        COALESCE(SUM(
+          oi.quantity * CASE
+            WHEN p.cost_price_egp IS NOT NULL AND p.cost_price_egp > 0 THEN p.cost_price_egp
+            ELSE (oi.price * 0.35)
+          END
+        ), 0) as total_cogs
+      FROM order_items oi
+      JOIN orders o ON o.id = oi.order_id
+      LEFT JOIN products p ON p.id = oi.product_id
+      WHERE 1=1 ${timeFilter}
+    `).get() as any;
+
+    const grossRevenue = aggregates.gross_revenue || 0;
+    const totalDiscounts = aggregates.total_discounts || 0;
+    const netRevenue = aggregates.net_revenue || 0;
+    const shippingRevenue = aggregates.shipping_revenue || 0;
+    const taxesCollected = aggregates.taxes_collected || 0;
+    const totalCollected = aggregates.total_collected || 0;
+    const totalRefunds = refunds.total_refunds || 0;
+    const costOfGoods = cogsQuery.total_cogs || 0;
+
+    // Standard e-commerce financial formulas:
+    // Net Product Revenue = Gross Revenue - Discounts
+    // Estimated Profit = Net Product Revenue - Cost of Goods
+    // Profit Margin = (Estimated Profit / Net Product Revenue) * 100
+    const estimatedProfit = Math.max(0, netRevenue - costOfGoods);
+    const profitMargin = netRevenue > 0 ? Number(((estimatedProfit / netRevenue) * 100).toFixed(1)) : 0;
+
+    // 4. Breakdown by Payment Method
+    const paymentMethods = db.prepare(`
+      SELECT o.payment_method,
+             COUNT(o.id) as count,
+             COALESCE(SUM(o.total), 0) as total_amount
+      FROM orders o
+      WHERE 1=1 ${timeFilter}
+      GROUP BY o.payment_method
+    `).all() as any[];
+
+    // 5. Daily timeline for financial chart
+    const dailyTimeline = db.prepare(`
+      SELECT strftime('%Y-%m-%d', o.created_at) as date,
+             COUNT(o.id) as orders,
+             COALESCE(SUM(o.total), 0) as revenue,
+             COALESCE(SUM(o.discount), 0) as discount
+      FROM orders o
+      WHERE 1=1 ${timeFilter}
+      GROUP BY strftime('%Y-%m-%d', o.created_at)
+      ORDER BY date ASC
+    `).all() as any[];
+
+    // 6. Recent financial transactions
+    const recentTransactions = db.prepare(`
+      SELECT o.id, o.order_number, o.created_at, o.payment_method, o.total,
+             o.payment_status, o.currency,
+             c.first_name || ' ' || c.last_name as customer_name
+      FROM orders o
+      JOIN customers c ON c.id = o.customer_id
+      ORDER BY o.created_at DESC
+      LIMIT 10
+    `).all() as any[];
+
+    return res.json({
+      timeframe,
+      metrics: {
+        grossRevenue,
+        totalDiscounts,
+        netRevenue,
+        shippingRevenue,
+        taxesCollected,
+        totalCollected,
+        totalRefunds,
+        costOfGoods,
+        estimatedProfit,
+        profitMargin,
+        ordersCount: aggregates.orders_count || 0,
+      },
+      paymentMethods,
+      dailyTimeline,
+      recentTransactions,
+    });
+  } catch (err: any) {
+    console.error('Finance overview error:', err);
+    return res.status(500).json({ error: 'Failed to generate financial overview.' });
+  }
+});
+
+router.get('/finance/transactions', (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const transactions = db.prepare(`
+      SELECT o.id as order_id, o.order_number, o.created_at, o.payment_method, o.total as amount,
+             o.payment_status, o.status as order_status, o.currency, o.subtotal, o.discount, o.shipping_cost, o.tax,
+             c.first_name || ' ' || c.last_name as customer_name, u.email as customer_email
+      FROM orders o
+      JOIN customers c ON c.id = o.customer_id
+      JOIN users u ON u.id = o.user_id
+      ORDER BY o.created_at DESC
+    `).all();
+    return res.json({ transactions });
+  } catch (err: any) {
+    console.error('Fetch transactions error:', err);
+    return res.status(500).json({ error: 'Failed to retrieve transactions.' });
+  }
+});
+
+router.get('/finance/settings', (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const rows = db.prepare("SELECT * FROM settings WHERE category IN ('financial', 'shipping', 'tax', 'localization', 'general')").all() as any[];
+    const settingsMap: Record<string, string> = {
+      currency_code: 'EGP',
+      currency_symbol: 'ج.م',
+      tax_enabled: 'false',
+      tax_rate: '14',
+      tax_mode: 'inclusive',
+      shipping_fee_cairo: '75',
+      shipping_fee_governorates: '120',
+      free_shipping_threshold: '2500',
+      delivery_estimate: '24–48 hours across Cairo & Giza; 2–4 days for other governorates',
+      cod_enabled: 'true',
+      card_enabled: 'true',
+      bank_transfer_enabled: 'true',
+      bank_account_details: 'CIB Bank Egypt · Account: 1000-4829-1928 · IBAN: EG3800020001000000100048291928',
+    };
+
+    for (const r of rows) {
+      settingsMap[r.key] = r.value;
+    }
+
+    return res.json({ settings: settingsMap });
+  } catch (err: any) {
+    console.error('Fetch financial settings error:', err);
+    return res.status(500).json({ error: 'Failed to load financial settings.' });
+  }
+});
+
+router.put('/finance/settings', (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { settings } = req.body;
+    if (settings && typeof settings === 'object') {
+      const updateStmt = db.prepare(`
+        INSERT OR REPLACE INTO settings (key, value, category, updated_at)
+        VALUES (?, ?, 'financial', CURRENT_TIMESTAMP)
+      `);
+      for (const [k, v] of Object.entries(settings)) {
+        updateStmt.run(k, String(v));
+      }
+
+      logAdminActivity(
+        req.user!.userId,
+        req.user!.firstName || 'Admin',
+        'financial_settings.update',
+        'settings',
+        'financial_config',
+        null,
+        settings,
+        req.ip
+      );
+    }
+    return res.json({ message: 'Store financial & shipping settings saved successfully.' });
+  } catch (err: any) {
+    console.error('Save financial settings error:', err);
+    return res.status(500).json({ error: 'Failed to save financial settings.' });
   }
 });
 
