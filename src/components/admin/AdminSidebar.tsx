@@ -400,7 +400,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   return (
     <>
       {/* Desktop Persistent Sidebar */}
-      <aside className="hidden lg:block w-64 shrink-0 h-screen sticky top-0 z-30">
+      <aside className="hidden lg:flex flex-col w-64 shrink-0 h-[calc(100vh-61px)] sticky top-[61px] z-30 bg-[#151413]">
         {navContent}
       </aside>
 
