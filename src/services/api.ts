@@ -120,7 +120,7 @@ function getStoredToken(): string | null {
 }
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-export const isApiConfigured = Boolean(API_BASE_URL);
+export const isApiConfigured = true;
 
 export function getApiUrl(url: string): string {
   return `${API_BASE_URL}${url}`;

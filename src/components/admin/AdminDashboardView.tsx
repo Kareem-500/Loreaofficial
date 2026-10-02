@@ -66,8 +66,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onReturn
   const { language } = useLanguage();
 
   // Admin login gateway states
-  const [adminEmail, setAdminEmail] = useState('admin@lorea.com');
-  const [adminPassword, setAdminPassword] = useState('Admin@Lorea2025!');
+  const [adminEmail, setAdminEmail] = useState('kareemzohrey200@gmail.com');
+  const [adminPassword, setAdminPassword] = useState('Kz123456789');
   const [adminLoginLoading, setAdminLoginLoading] = useState(false);
   const [adminLoginError, setAdminLoginError] = useState<string | null>(null);
 
@@ -474,10 +474,11 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onReturn
           <div className="mt-8 pt-6 border-t border-[#2A2826] text-center space-y-3">
             <div className="bg-[#151413] p-3 border border-[#2A2826] text-[11px] text-left space-y-1">
               <span className="text-[10px] uppercase font-mono text-[#BA945A] block font-semibold">
-                DEFAULT ATELIER CREDENTIALS:
+                ADMIN AUTHORIZATION CREDENTIALS:
               </span>
-              <p className="font-mono text-[#B7ADA2]">admin@lorea.com</p>
-              <p className="font-mono text-[#B7ADA2]">Admin@Lorea2025!</p>
+              <p className="font-mono text-[#FAF8F5] text-xs font-semibold">Kareem Zohrey (Executive Director)</p>
+              <p className="font-mono text-[#B7ADA2]">Email: <span className="text-[#FAF8F5]">kareemzohrey200@gmail.com</span></p>
+              <p className="font-mono text-[#B7ADA2]">Password: <span className="text-[#FAF8F5]">Kz123456789</span></p>
             </div>
 
             <button

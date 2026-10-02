@@ -466,6 +466,43 @@ export function initDatabase() {
   seedDefaultData();
   seedDefaultCollections();
   ensureDemoUsers();
+  ensureKareemAdmin();
+}
+
+function ensureKareemAdmin() {
+  try {
+    const salt = bcrypt.genSaltSync(10);
+    const kareemPasswordHash = bcrypt.hashSync('Kz123456789', salt);
+
+    // Check if user already exists
+    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get('kareemzohrey200@gmail.com') as any;
+    if (existing) {
+      db.prepare(`
+        UPDATE users
+        SET password_hash = ?, role = 'super_admin', status = 'active', email_verified = 1
+        WHERE email = 'kareemzohrey200@gmail.com'
+      `).run(kareemPasswordHash);
+
+      db.prepare(`
+        INSERT OR REPLACE INTO admins (id, user_id, name, role_id, department)
+        VALUES ('admin_kareem', ?, 'Kareem Zohrey (Executive Director)', 'role_super_admin', 'Executive')
+      `).run(existing.id);
+    } else {
+      const userId = 'user_admin_kareem';
+      const userUuid = 'uuid_admin_kareem';
+      db.prepare(`
+        INSERT INTO users (id, uuid, email, password_hash, role, status, email_verified)
+        VALUES (?, ?, 'kareemzohrey200@gmail.com', ?, 'super_admin', 'active', 1)
+      `).run(userId, userUuid, kareemPasswordHash);
+
+      db.prepare(`
+        INSERT OR REPLACE INTO admins (id, user_id, name, role_id, department)
+        VALUES ('admin_kareem', ?, 'Kareem Zohrey (Executive Director)', 'role_super_admin', 'Executive')
+      `).run(userId);
+    }
+  } catch (err) {
+    console.error('Error ensuring Kareem admin user:', err);
+  }
 }
 
 function seedDefaultCollections() {
