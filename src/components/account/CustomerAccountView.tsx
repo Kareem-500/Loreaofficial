@@ -259,6 +259,39 @@ export const CustomerAccountView: React.FC<CustomerAccountViewProps> = ({
         </div>
       </div>
 
+      {/* Staff Privilege Direct Admin Dashboard Launcher */}
+      {(user?.role === 'admin' || user?.role === 'super_admin' || user?.role === 'manager') && (
+        <div className="mb-8 p-4 bg-[#151413] border border-[#BA945A] flex flex-col sm:flex-row items-center justify-between gap-4 text-[#FAF8F5]">
+          <div className="flex items-center space-x-3">
+            <div className="w-9 h-9 rounded-full bg-[#BA945A]/20 border border-[#BA945A] flex items-center justify-center text-[#BA945A] shrink-0">
+              <Shield className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="text-[10px] tracking-[0.2em] uppercase font-mono text-[#BA945A] font-semibold">
+                  STAFF PRIVILEGE DETECTED
+                </span>
+                <span className="px-1.5 py-0.2 bg-[#BA945A] text-black text-[9px] font-mono font-bold uppercase">
+                  {user.role}
+                </span>
+              </div>
+              <p className="text-xs text-[#B7ADA2] mt-0.5">
+                You have administrative authority for catalog management, live telemetry, inventory, and financial systems.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              window.history.pushState({}, '', '/admin');
+              window.dispatchEvent(new PopStateEvent('popstate'));
+            }}
+            className="px-4 py-2 bg-[#BA945A] hover:bg-[#A38048] text-white text-xs uppercase tracking-[0.2em] font-medium transition-colors cursor-pointer shrink-0"
+          >
+            Launch Admin Dashboard →
+          </button>
+        </div>
+      )}
+
       {/* Floating feedback toast */}
       {feedback && (
         <div

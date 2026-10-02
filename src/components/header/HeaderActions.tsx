@@ -11,6 +11,8 @@ export interface HeaderActionsProps {
   isAuthenticated?: boolean;
   userName?: string;
   isMobileCompact?: boolean;
+  isAdmin?: boolean;
+  onOpenAdmin?: () => void;
   className?: string;
 }
 
@@ -23,6 +25,8 @@ export const HeaderActions: React.FC<HeaderActionsProps> = ({
   cartCount = 0,
   isAuthenticated = false,
   userName = '',
+  isAdmin = false,
+  onOpenAdmin,
   className = ''
 }) => {
   return (
@@ -31,6 +35,19 @@ export const HeaderActions: React.FC<HeaderActionsProps> = ({
       role="toolbar"
       aria-label="Account and shopping utilities"
     >
+      {/* 0. Admin OPS Quick Badge for authorized staff */}
+      {isAdmin && onOpenAdmin && (
+        <button
+          onClick={onOpenAdmin}
+          aria-label="Atelier Admin Operations"
+          title="Atelier Admin Dashboard"
+          className="hidden sm:flex items-center space-x-1.5 px-2.5 py-1 bg-[#151413] text-[#BA945A] hover:bg-black text-[10px] uppercase font-mono tracking-wider transition-colors border border-[#333] cursor-pointer"
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span>OPS</span>
+        </button>
+      )}
+
       {/* 1. Account Icon */}
       <button
         id="header-account-btn"

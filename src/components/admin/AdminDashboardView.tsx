@@ -132,14 +132,19 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onReturn
   const [isLoading, setIsLoading] = useState(true);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
+  // Live Telemetry states
+  const [autoRefreshInterval, setAutoRefreshInterval] = useState<number>(15); // 15 seconds live stream
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date>(new Date());
+  const [isLivePolling, setIsLivePolling] = useState(true);
+
   const notify = (type: 'success' | 'error', message: string) => {
     setFeedback({ type, message });
     setTimeout(() => setFeedback(null), 4000);
   };
 
-  const loadCurrentSectionData = async () => {
+  const loadCurrentSectionData = async (silent = false) => {
     try {
-      setIsLoading(true);
+      if (!silent) setIsLoading(true);
       if (activeSection === 'dashboard') {
         const [dashRes, prodRes] = await Promise.all([
           api.admin.getDashboard(),
@@ -189,18 +194,31 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onReturn
         const res = await api.admin.getSettings();
         setSettings(res.settings || {});
       }
+      setLastRefreshedAt(new Date());
     } catch (err: any) {
       console.error('Failed to load admin data:', err);
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     }
   };
 
   useEffect(() => {
     if (user && (user.role === 'admin' || user.role === 'super_admin' || user.role === 'manager')) {
-      loadCurrentSectionData();
+      loadCurrentSectionData(false);
     }
   }, [activeSection, user]);
+
+  // Live Auto-Refresh Polling Stream
+  useEffect(() => {
+    if (!isLivePolling || autoRefreshInterval <= 0) return;
+    if (!user || (user.role !== 'admin' && user.role !== 'super_admin' && user.role !== 'manager')) return;
+
+    const timer = setInterval(() => {
+      loadCurrentSectionData(true);
+    }, autoRefreshInterval * 1000);
+
+    return () => clearInterval(timer);
+  }, [isLivePolling, autoRefreshInterval, activeSection, user]);
 
   // Order status update
   const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
@@ -572,84 +590,330 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onReturn
           {/* SECTION: DASHBOARD OVERVIEW */}
           {activeSection === 'dashboard' && dashboardData && (
             <div className="space-y-8 max-w-7xl mx-auto">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <span className="text-[11px] uppercase tracking-[0.3em] text-[#7C746B] font-medium block">
-                    COMMERCIAL PERFORMANCE
-                  </span>
-                  <h2 className="font-serif text-3xl font-light text-[#1D1D1B] mt-1">
+              {/* Live Telemetry Control Header */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#151413] text-[#FAF8F5] p-5 border border-[#2A2826] shadow-md">
+                <div className="space-y-1">
+                  <div className="flex items-center space-x-2.5">
+                    <span className="relative flex h-2.5 w-2.5">
+                      {isLivePolling && (
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                      )}
+                      <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isLivePolling ? 'bg-emerald-500' : 'bg-zinc-500'}`} />
+                    </span>
+                    <span className="text-[10px] tracking-[0.25em] uppercase font-mono font-semibold text-[#BA945A]">
+                      {isLivePolling ? 'LIVE TELEMETRY STREAM ACTIVE' : 'STREAM PAUSED'}
+                    </span>
+                    <span className="text-zinc-600">·</span>
+                    <span className="text-[11px] text-[#B7ADA2] font-mono">
+                      Last sync: {lastRefreshedAt.toLocaleTimeString()}
+                    </span>
+                  </div>
+                  <h2 className="font-serif text-2xl sm:text-3xl font-light text-white tracking-wide">
                     Atelier Executive Overview
                   </h2>
                 </div>
-                <div className="flex items-center space-x-3">
+
+                <div className="flex flex-wrap items-center gap-2.5 text-xs">
+                  {/* Auto-refresh interval switcher */}
+                  <div className="flex items-center bg-[#222120] border border-[#333] px-2 py-1 text-[11px] font-mono text-[#B7ADA2]">
+                    <span className="mr-2 text-[10px] uppercase text-[#7C746B]">Polling:</span>
+                    <select
+                      value={autoRefreshInterval}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        setAutoRefreshInterval(val);
+                        setIsLivePolling(val > 0);
+                      }}
+                      className="bg-transparent text-white focus:outline-none cursor-pointer"
+                    >
+                      <option value={10} className="bg-[#151413]">10s</option>
+                      <option value={15} className="bg-[#151413]">15s</option>
+                      <option value={30} className="bg-[#151413]">30s</option>
+                      <option value={60} className="bg-[#151413]">60s</option>
+                      <option value={0} className="bg-[#151413]">Manual</option>
+                    </select>
+                  </div>
+
+                  <button
+                    onClick={() => loadCurrentSectionData(false)}
+                    disabled={isLoading}
+                    className="flex items-center space-x-1.5 px-3 py-1.5 bg-[#252422] hover:bg-[#333] border border-[#3A3835] text-[#FAF8F5] transition-colors cursor-pointer text-xs"
+                    title="Refresh Live Telemetry"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 text-[#BA945A] ${isLoading ? 'animate-spin' : ''}`} />
+                    <span>Sync</span>
+                  </button>
+
                   <button
                     onClick={() => {
                       setProductToEdit(null);
                       setIsProductFormOpen(true);
                     }}
-                    className="px-4 py-2 bg-[#1D1D1B] text-[#FAF8F5] text-xs uppercase tracking-wider flex items-center space-x-2 font-medium hover:bg-black transition-colors"
+                    className="px-3.5 py-1.5 bg-[#BA945A] hover:bg-[#A38048] text-white text-xs uppercase tracking-wider flex items-center space-x-1.5 font-medium transition-colors cursor-pointer"
                   >
-                    <Plus className="w-4 h-4 text-[#BA945A]" />
-                    <span>Add New Garment</span>
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Garment</span>
                   </button>
+
                   <button
                     onClick={() => setActiveSection('finance_overview')}
-                    className="px-4 py-2 border border-[#1D1D1B] text-[#1D1D1B] text-xs uppercase tracking-wider font-medium hover:bg-[#1D1D1B] hover:text-[#FAF8F5] transition-colors"
+                    className="px-3 py-1.5 bg-transparent border border-[#BA945A] text-[#BA945A] hover:bg-[#BA945A] hover:text-white text-xs uppercase tracking-wider font-medium transition-colors cursor-pointer"
                   >
-                    Finance Engine
+                    Finance Hub
                   </button>
                 </div>
               </div>
 
-              {/* Top KPI Metrics Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white border border-[#EAE5DE] p-5 shadow-xs">
-                  <span className="text-[10px] tracking-widest uppercase text-[#7C746B] font-semibold block">
-                    TOTAL NET REVENUE
+              {/* SECTION 1: SALES VELOCITY & ORDER VOLUME */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] tracking-[0.24em] uppercase font-mono text-[#7C746B] font-semibold">
+                    01 · SALES VELOCITY & ORDER VOLUME
                   </span>
-                  <div className="font-serif text-3xl text-[#1D1D1B] mt-2">
-                    {formatPrice(dashboardData.stats.totalSales || 0, 'EGP')}
+                  <button
+                    onClick={() => setActiveSection('orders')}
+                    className="text-[11px] uppercase tracking-wider text-[#BA945A] hover:underline"
+                  >
+                    All Orders →
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+                  <div className="bg-white border border-[#EAE5DE] p-4.5 shadow-xs hover:border-[#BA945A] transition-colors">
+                    <span className="text-[10px] tracking-widest uppercase text-[#7C746B] font-semibold block">
+                      TOTAL SALES
+                    </span>
+                    <div className="font-serif text-2xl text-[#1D1D1B] mt-1.5 font-light">
+                      {formatPrice(dashboardData.stats.totalSales || 0, 'EGP')}
+                    </div>
+                    <p className="text-[11px] text-emerald-700 mt-1.5 flex items-center space-x-1 font-medium">
+                      <TrendingUp className="w-3 h-3" />
+                      <span>{dashboardData.stats.totalOrders} total orders</span>
+                    </p>
                   </div>
-                  <div className="flex items-center space-x-1 text-xs text-emerald-700 mt-2 font-medium">
-                    <TrendingUp className="w-3.5 h-3.5" />
-                    <span>+24.5% vs previous quarter</span>
+
+                  <div className="bg-white border border-[#EAE5DE] p-4.5 shadow-xs hover:border-[#BA945A] transition-colors">
+                    <span className="text-[10px] tracking-widest uppercase text-[#7C746B] font-semibold block">
+                      TODAY'S SALES
+                    </span>
+                    <div className="font-serif text-2xl text-[#1D1D1B] mt-1.5 font-light">
+                      {formatPrice(dashboardData.stats.todaySales || 0, 'EGP')}
+                    </div>
+                    <p className="text-[11px] text-[#7C746B] mt-1.5">
+                      {dashboardData.stats.todayOrders || 0} orders placed today
+                    </p>
+                  </div>
+
+                  <div className="bg-white border border-[#EAE5DE] p-4.5 shadow-xs hover:border-[#BA945A] transition-colors">
+                    <span className="text-[10px] tracking-widest uppercase text-[#7C746B] font-semibold block">
+                      THIS WEEK
+                    </span>
+                    <div className="font-serif text-2xl text-[#1D1D1B] mt-1.5 font-light">
+                      {formatPrice(dashboardData.stats.weekSales || 0, 'EGP')}
+                    </div>
+                    <p className="text-[11px] text-[#7C746B] mt-1.5">
+                      {dashboardData.stats.weekOrders || 0} orders in last 7 days
+                    </p>
+                  </div>
+
+                  <div className="bg-white border border-[#EAE5DE] p-4.5 shadow-xs hover:border-[#BA945A] transition-colors">
+                    <span className="text-[10px] tracking-widest uppercase text-[#7C746B] font-semibold block">
+                      THIS MONTH
+                    </span>
+                    <div className="font-serif text-2xl text-[#1D1D1B] mt-1.5 font-light">
+                      {formatPrice(dashboardData.stats.monthlySales || 0, 'EGP')}
+                    </div>
+                    <p className="text-[11px] text-[#7C746B] mt-1.5">
+                      {dashboardData.stats.monthOrders || 0} orders this calendar month
+                    </p>
+                  </div>
+
+                  <div className="bg-white border border-[#EAE5DE] p-4.5 shadow-xs hover:border-[#BA945A] transition-colors">
+                    <span className="text-[10px] tracking-widest uppercase text-[#7C746B] font-semibold block">
+                      ACTIVE FULFILLMENT
+                    </span>
+                    <div className="font-serif text-2xl text-[#1D1D1B] mt-1.5 font-light">
+                      {dashboardData.stats.pendingOrders + dashboardData.stats.processingOrders}
+                    </div>
+                    <p className="text-[11px] text-amber-700 mt-1.5 font-medium">
+                      {dashboardData.stats.pendingOrders} pending · {dashboardData.stats.processingOrders} in atelier
+                    </p>
                   </div>
                 </div>
+              </div>
 
-                <div className="bg-white border border-[#EAE5DE] p-5 shadow-xs">
-                  <span className="text-[10px] tracking-widest uppercase text-[#7C746B] font-semibold block">
-                    CLIENT ORDERS
+              {/* SECTION 2: FINANCIAL INTELLIGENCE & AUDITING */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] tracking-[0.24em] uppercase font-mono text-[#7C746B] font-semibold">
+                    02 · FINANCIAL INTELLIGENCE & UNIT ECONOMICS
                   </span>
-                  <div className="font-serif text-3xl text-[#1D1D1B] mt-2">
-                    {dashboardData.stats.totalOrders}
-                  </div>
-                  <p className="text-[11px] text-[#7C746B] mt-2 font-light">
-                    {dashboardData.stats.completedOrders} delivered · {dashboardData.stats.pendingOrders} pending
-                  </p>
+                  <button
+                    onClick={() => setActiveSection('finance_overview')}
+                    className="text-[11px] uppercase tracking-wider text-[#BA945A] hover:underline"
+                  >
+                    Ledger & P&L Statement →
+                  </button>
                 </div>
-
-                <div className="bg-white border border-[#EAE5DE] p-5 shadow-xs">
-                  <span className="text-[10px] tracking-widest uppercase text-[#7C746B] font-semibold block">
-                    ACTIVE PRODUCTS
-                  </span>
-                  <div className="font-serif text-3xl text-[#1D1D1B] mt-2">
-                    {products.length}
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+                  <div className="bg-[#FAF8F5] border border-[#EAE5DE] p-3 rounded-xs">
+                    <span className="text-[9px] uppercase tracking-wider text-[#7C746B] block">GROSS REVENUE</span>
+                    <span className="font-serif text-lg text-[#1D1D1B] font-medium mt-1 block">
+                      {formatPrice(dashboardData.stats.grossRevenue || 0, 'EGP')}
+                    </span>
                   </div>
-                  <p className="text-[11px] text-[#7C746B] mt-2 font-light">
-                    {dashboardData.stats.lowStockCount} low stock · {dashboardData.stats.outOfStockCount || 0} depleted
-                  </p>
+
+                  <div className="bg-[#FAF8F5] border border-[#EAE5DE] p-3 rounded-xs">
+                    <span className="text-[9px] uppercase tracking-wider text-rose-700 block">DISCOUNTS</span>
+                    <span className="font-serif text-lg text-rose-800 font-medium mt-1 block">
+                      -{formatPrice(dashboardData.stats.discounts || 0, 'EGP')}
+                    </span>
+                  </div>
+
+                  <div className="bg-[#FAF8F5] border border-[#EAE5DE] p-3 rounded-xs">
+                    <span className="text-[9px] uppercase tracking-wider text-[#7C746B] block">NET REVENUE</span>
+                    <span className="font-serif text-lg text-emerald-800 font-medium mt-1 block">
+                      {formatPrice(dashboardData.stats.netRevenue || 0, 'EGP')}
+                    </span>
+                  </div>
+
+                  <div className="bg-[#FAF8F5] border border-[#EAE5DE] p-3 rounded-xs">
+                    <span className="text-[9px] uppercase tracking-wider text-[#7C746B] block">SHIPPING FEES</span>
+                    <span className="font-serif text-lg text-[#1D1D1B] font-medium mt-1 block">
+                      {formatPrice(dashboardData.stats.shippingRevenue || 0, 'EGP')}
+                    </span>
+                  </div>
+
+                  <div className="bg-[#FAF8F5] border border-[#EAE5DE] p-3 rounded-xs">
+                    <span className="text-[9px] uppercase tracking-wider text-[#7C746B] block">VAT TAXES</span>
+                    <span className="font-serif text-lg text-[#1D1D1B] font-medium mt-1 block">
+                      {formatPrice(dashboardData.stats.taxes || 0, 'EGP')}
+                    </span>
+                  </div>
+
+                  <div className="bg-[#FAF8F5] border border-[#EAE5DE] p-3 rounded-xs">
+                    <span className="text-[9px] uppercase tracking-wider text-[#7C746B] block">EST. COGS</span>
+                    <span className="font-serif text-lg text-[#7C746B] font-medium mt-1 block">
+                      {formatPrice(dashboardData.stats.estimatedCost || 0, 'EGP')}
+                    </span>
+                  </div>
+
+                  <div className="bg-[#FAF8F5] border border-emerald-300 p-3 rounded-xs bg-emerald-50/50">
+                    <span className="text-[9px] uppercase tracking-wider text-emerald-800 font-semibold block">EST. PROFIT</span>
+                    <span className="font-serif text-lg text-emerald-900 font-bold mt-1 block">
+                      {formatPrice(dashboardData.stats.estimatedProfit || 0, 'EGP')}
+                    </span>
+                  </div>
+
+                  <div className="bg-[#FAF8F5] border border-[#BA945A]/40 p-3 rounded-xs bg-[#BA945A]/5">
+                    <span className="text-[9px] uppercase tracking-wider text-[#BA945A] font-semibold block">PROFIT MARGIN</span>
+                    <span className="font-serif text-lg text-[#BA945A] font-bold mt-1 block">
+                      {dashboardData.stats.profitMargin || 0}%
+                    </span>
+                  </div>
                 </div>
+              </div>
 
-                <div className="bg-white border border-[#EAE5DE] p-5 shadow-xs">
-                  <span className="text-[10px] tracking-widest uppercase text-[#7C746B] font-semibold block">
-                    VERIFIED CLIENTS
+              {/* SECTION 3: CATALOG & INVENTORY HEALTH */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] tracking-[0.24em] uppercase font-mono text-[#7C746B] font-semibold">
+                    03 · CATALOG & INVENTORY HEALTH
                   </span>
-                  <div className="font-serif text-3xl text-[#1D1D1B] mt-2">
-                    {dashboardData.stats.totalCustomers}
+                  <button
+                    onClick={() => setActiveSection('products')}
+                    className="text-[11px] uppercase tracking-wider text-[#BA945A] hover:underline"
+                  >
+                    Manage Garments →
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3.5">
+                  <div className="bg-white border border-[#EAE5DE] p-4 shadow-xs">
+                    <span className="text-[10px] uppercase tracking-widest text-[#7C746B] block">TOTAL GARMENTS</span>
+                    <div className="font-serif text-2xl text-[#1D1D1B] mt-1 font-light">
+                      {dashboardData.stats.totalProducts}
+                    </div>
+                    <span className="text-[11px] text-[#7C746B] mt-1 block">Haute & Ready-to-wear</span>
                   </div>
-                  <p className="text-[11px] text-[#7C746B] mt-2 font-light">
-                    {dashboardData.stats.verifiedCustomers} authenticated accounts
-                  </p>
+
+                  <div className="bg-white border border-[#EAE5DE] p-4 shadow-xs">
+                    <span className="text-[10px] uppercase tracking-widest text-emerald-700 block">ACTIVE PUBLISHED</span>
+                    <div className="font-serif text-2xl text-emerald-800 mt-1 font-light">
+                      {dashboardData.stats.activeProducts}
+                    </div>
+                    <span className="text-[11px] text-emerald-700 mt-1 block">Live in boutique catalog</span>
+                  </div>
+
+                  <div className="bg-white border border-red-200 p-4 shadow-xs bg-red-50/30">
+                    <span className="text-[10px] uppercase tracking-widest text-red-700 block">DEPLETED SKUS</span>
+                    <div className="font-serif text-2xl text-red-700 mt-1 font-bold">
+                      {dashboardData.stats.outOfStockCount || 0}
+                    </div>
+                    <span className="text-[11px] text-red-600 mt-1 block">Immediate restock needed</span>
+                  </div>
+
+                  <div className="bg-white border border-amber-200 p-4 shadow-xs bg-amber-50/30">
+                    <span className="text-[10px] uppercase tracking-widest text-amber-800 block">LOW STOCK ALERTS</span>
+                    <div className="font-serif text-2xl text-amber-800 mt-1 font-bold">
+                      {dashboardData.stats.lowStockCount || 0}
+                    </div>
+                    <span className="text-[11px] text-amber-700 mt-1 block">Below safety threshold</span>
+                  </div>
+
+                  <div className="bg-white border border-[#EAE5DE] p-4 shadow-xs">
+                    <span className="text-[10px] uppercase tracking-widest text-[#7C746B] block">DRAFT EDITS</span>
+                    <div className="font-serif text-2xl text-[#7C746B] mt-1 font-light">
+                      {dashboardData.stats.draftProducts || 0}
+                    </div>
+                    <span className="text-[11px] text-[#7C746B] mt-1 block">Pre-release staging</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 4: CLIENT RELATIONSHIPS (CRM) */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] tracking-[0.24em] uppercase font-mono text-[#7C746B] font-semibold">
+                    04 · CLIENT RELATIONSHIPS & ACCOUNTS
+                  </span>
+                  <button
+                    onClick={() => setActiveSection('customers')}
+                    className="text-[11px] uppercase tracking-wider text-[#BA945A] hover:underline"
+                  >
+                    Directory →
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+                  <div className="bg-white border border-[#EAE5DE] p-4 shadow-xs">
+                    <span className="text-[10px] uppercase tracking-widest text-[#7C746B] block">TOTAL PATRONS</span>
+                    <div className="font-serif text-2xl text-[#1D1D1B] mt-1 font-light">
+                      {dashboardData.stats.totalCustomers}
+                    </div>
+                    <span className="text-[11px] text-[#7C746B] mt-1 block">Registered client accounts</span>
+                  </div>
+
+                  <div className="bg-white border border-[#EAE5DE] p-4 shadow-xs">
+                    <span className="text-[10px] uppercase tracking-widest text-emerald-700 block">ACTIVE PATRONS</span>
+                    <div className="font-serif text-2xl text-emerald-800 mt-1 font-light">
+                      {dashboardData.stats.activeCustomers || dashboardData.stats.totalCustomers}
+                    </div>
+                    <span className="text-[11px] text-emerald-700 mt-1 block">Allowed boutique checkout</span>
+                  </div>
+
+                  <div className="bg-white border border-[#EAE5DE] p-4 shadow-xs">
+                    <span className="text-[10px] uppercase tracking-widest text-[#BA945A] block">NEW THIS WEEK</span>
+                    <div className="font-serif text-2xl text-[#BA945A] mt-1 font-bold">
+                      {dashboardData.stats.newCustomers || 0}
+                    </div>
+                    <span className="text-[11px] text-[#BA945A] mt-1 block">Recent client signups</span>
+                  </div>
+
+                  <div className="bg-white border border-[#EAE5DE] p-4 shadow-xs">
+                    <span className="text-[10px] uppercase tracking-widest text-[#7C746B] block">VERIFIED ACCOUNTS</span>
+                    <div className="font-serif text-2xl text-[#1D1D1B] mt-1 font-light">
+                      {dashboardData.stats.verifiedCustomers}
+                    </div>
+                    <span className="text-[11px] text-[#7C746B] mt-1 block">Verified Egyptian profiles</span>
+                  </div>
                 </div>
               </div>
 

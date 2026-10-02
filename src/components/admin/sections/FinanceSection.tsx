@@ -12,7 +12,8 @@ import {
   Check,
   AlertCircle,
   Clock,
-  ArrowUpRight
+  ArrowUpRight,
+  X
 } from 'lucide-react';
 import { formatPrice } from '../../../utils/currency';
 import { api } from '../../../services/api';

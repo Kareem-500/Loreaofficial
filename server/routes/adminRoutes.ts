@@ -17,7 +17,7 @@ router.use(requireRoles(['super_admin', 'admin', 'manager', 'support']));
 // 1. Dashboard Metrics & Analytics
 router.get('/dashboard', (req: AuthenticatedRequest, res: Response) => {
   try {
-    // Totals
+    // 1. Sales Metrics
     const salesTotal = db.prepare(`
       SELECT COALESCE(SUM(total), 0) as total_sales,
              COUNT(id) as total_orders
@@ -25,6 +25,63 @@ router.get('/dashboard', (req: AuthenticatedRequest, res: Response) => {
       WHERE status != 'cancelled'
     `).get() as any;
 
+    const todaySales = db.prepare(`
+      SELECT COALESCE(SUM(total), 0) as today_sales,
+             COUNT(id) as today_orders
+      FROM orders
+      WHERE status != 'cancelled' AND date(created_at) = date('now')
+    `).get() as any;
+
+    const weekSales = db.prepare(`
+      SELECT COALESCE(SUM(total), 0) as week_sales,
+             COUNT(id) as week_orders
+      FROM orders
+      WHERE status != 'cancelled' AND created_at >= datetime('now', '-7 days')
+    `).get() as any;
+
+    const monthSales = db.prepare(`
+      SELECT COALESCE(SUM(total), 0) as month_sales,
+             COUNT(id) as month_orders
+      FROM orders
+      WHERE status != 'cancelled' AND strftime('%Y-%m', created_at) = strftime('%Y-%m', 'now')
+    `).get() as any;
+
+    // 2. Financial Aggregates
+    const financialAggregates = db.prepare(`
+      SELECT
+        COALESCE(SUM(subtotal + discount), 0) as gross_revenue,
+        COALESCE(SUM(discount), 0) as total_discounts,
+        COALESCE(SUM(subtotal), 0) as net_revenue,
+        COALESCE(SUM(shipping_cost), 0) as shipping_revenue,
+        COALESCE(SUM(tax), 0) as taxes_collected
+      FROM orders
+      WHERE status != 'cancelled'
+    `).get() as any;
+
+    const cogsQuery = db.prepare(`
+      SELECT
+        COALESCE(SUM(
+          oi.quantity * CASE
+            WHEN p.cost_price_egp IS NOT NULL AND p.cost_price_egp > 0 THEN p.cost_price_egp
+            ELSE (oi.price * 0.35)
+          END
+        ), 0) as total_cogs
+      FROM order_items oi
+      JOIN orders o ON o.id = oi.order_id
+      LEFT JOIN products p ON p.id = oi.product_id
+      WHERE o.status != 'cancelled'
+    `).get() as any;
+
+    const grossRevenue = financialAggregates.gross_revenue || 0;
+    const totalDiscounts = financialAggregates.total_discounts || 0;
+    const netRevenue = financialAggregates.net_revenue || 0;
+    const shippingRevenue = financialAggregates.shipping_revenue || 0;
+    const taxesCollected = financialAggregates.taxes_collected || 0;
+    const estimatedCost = cogsQuery.total_cogs || 0;
+    const estimatedProfit = Math.max(0, netRevenue - estimatedCost);
+    const profitMargin = netRevenue > 0 ? Number(((estimatedProfit / netRevenue) * 100).toFixed(1)) : 0;
+
+    // 3. Order Status Distribution
     const orderStatuses = db.prepare(`
       SELECT status, COUNT(id) as count
       FROM orders
@@ -38,16 +95,18 @@ router.get('/dashboard', (req: AuthenticatedRequest, res: Response) => {
       shipped: 0,
       delivered: 0,
       cancelled: 0,
+      refunded: 0,
     };
     for (const row of orderStatuses) {
       statusCounts[row.status] = row.count;
     }
 
-    const customersCount = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'customer'").get() as any;
-    const verifiedCustomers = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'customer' AND email_verified = 1").get() as any;
-    const productsCount = db.prepare("SELECT COUNT(*) as count FROM products WHERE status = 'active'").get() as any;
+    // 4. Products Breakdown
+    const totalProductsCount = db.prepare("SELECT COUNT(*) as count FROM products").get() as any;
+    const activeProductsCount = db.prepare("SELECT COUNT(*) as count FROM products WHERE status = 'active'").get() as any;
+    const draftProductsCount = db.prepare("SELECT COUNT(*) as count FROM products WHERE status = 'draft'").get() as any;
+    const archivedProductsCount = db.prepare("SELECT COUNT(*) as count FROM products WHERE status = 'archived'").get() as any;
 
-    // Low stock variants
     const lowStockVariants = db.prepare(`
       SELECT pv.id, pv.sku, pv.size, pv.color_name, pv.stock, pv.low_stock_threshold,
              p.name as product_name, p.id as product_id
@@ -58,10 +117,15 @@ router.get('/dashboard', (req: AuthenticatedRequest, res: Response) => {
       LIMIT 10
     `).all() as any[];
 
-    // Out of stock
     const outOfStockCount = db.prepare(`
       SELECT COUNT(*) as count FROM product_variants WHERE stock = 0
     `).get() as any;
+
+    // 5. Customers Breakdown
+    const customersCount = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'customer'").get() as any;
+    const activeCustomersCount = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'customer' AND status = 'active'").get() as any;
+    const newCustomersCount = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'customer' AND created_at >= datetime('now', '-7 days')").get() as any;
+    const verifiedCustomers = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'customer' AND email_verified = 1").get() as any;
 
     // Recent orders
     const recentOrders = db.prepare(`
@@ -106,42 +170,83 @@ router.get('/dashboard', (req: AuthenticatedRequest, res: Response) => {
       GROUP BY c.id
     `).all() as any[];
 
-    // Monthly revenue simulation/chart points
-    const revenueTimeline = [
-      { month: 'Oct 2024', revenue: 145000, orders: 38 },
-      { month: 'Nov 2024', revenue: 198000, orders: 52 },
-      { month: 'Dec 2024', revenue: 275000, orders: 74 },
-      { month: 'Jan 2025', revenue: 210000, orders: 58 },
-      { month: 'Feb 2025', revenue: 290000, orders: 81 },
-      { month: 'Mar 2025', revenue: salesTotal.total_sales + 120000, orders: salesTotal.total_orders + 35 },
-    ];
+    // Real historical months from orders, default to current months if empty
+    const realMonthlyData = db.prepare(`
+      SELECT strftime('%Y-%m', created_at) as ym,
+             COALESCE(SUM(total), 0) as revenue,
+             COUNT(id) as orders
+      FROM orders
+      WHERE status != 'cancelled'
+      GROUP BY strftime('%Y-%m', created_at)
+      ORDER BY ym ASC
+      LIMIT 6
+    `).all() as any[];
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const revenueTimeline = realMonthlyData.length > 0
+      ? realMonthlyData.map((row: any) => {
+          const [year, monthNum] = (row.ym || '').split('-');
+          const mIdx = parseInt(monthNum, 10) - 1;
+          const label = mIdx >= 0 && mIdx < 12 ? `${monthNames[mIdx]} ${year}` : row.ym;
+          return { month: label, revenue: row.revenue, orders: row.orders };
+        })
+      : [
+          { month: 'Recent', revenue: salesTotal.total_sales || 0, orders: salesTotal.total_orders || 0 },
+        ];
 
     return res.json({
       stats: {
-        totalSales: salesTotal.total_sales + 1118000, // Aggregate with historical
-        todaySales: 18450,
-        monthlySales: 410000,
-        totalOrders: salesTotal.total_orders + 298,
+        // Sales
+        totalSales: salesTotal.total_sales || 0,
+        todaySales: todaySales.today_sales || 0,
+        todayOrders: todaySales.today_orders || 0,
+        weekSales: weekSales.week_sales || 0,
+        weekOrders: weekSales.week_orders || 0,
+        monthlySales: monthSales.month_sales || 0,
+        monthOrders: monthSales.month_orders || 0,
+        totalOrders: salesTotal.total_orders || 0,
+        // Order Statuses
         pendingOrders: statusCounts.pending,
+        confirmedOrders: statusCounts.confirmed,
         processingOrders: statusCounts.processing,
+        shippedOrders: statusCounts.shipped,
         completedOrders: statusCounts.delivered,
         cancelledOrders: statusCounts.cancelled,
-        totalCustomers: customersCount.count + 42,
-        verifiedCustomers: verifiedCustomers.count + 35,
-        totalProducts: productsCount.count,
+        refundedOrders: statusCounts.refunded,
+        // Financial
+        grossRevenue,
+        discounts: totalDiscounts,
+        netRevenue,
+        shippingRevenue,
+        taxes: taxesCollected,
+        estimatedCost,
+        estimatedProfit,
+        profitMargin,
+        // Products
+        totalProducts: totalProductsCount.count,
+        activeProducts: activeProductsCount.count,
+        draftProducts: draftProductsCount.count,
+        archivedProducts: archivedProductsCount.count,
         lowStockCount: lowStockVariants.length,
         outOfStockCount: outOfStockCount.count,
+        // Customers
+        totalCustomers: customersCount.count,
+        activeCustomers: activeCustomersCount.count,
+        newCustomers: newCustomersCount.count,
+        verifiedCustomers: verifiedCustomers.count,
       },
       charts: {
         revenueTimeline,
         salesByCategory,
         bestSelling,
         orderStatusDistribution: [
-          { status: 'Delivered', count: statusCounts.delivered || 14 },
-          { status: 'Shipped', count: statusCounts.shipped || 5 },
-          { status: 'Processing', count: statusCounts.processing || 3 },
-          { status: 'Pending', count: statusCounts.pending || 2 },
-          { status: 'Cancelled', count: statusCounts.cancelled || 1 },
+          { status: 'Delivered', count: statusCounts.delivered },
+          { status: 'Shipped', count: statusCounts.shipped },
+          { status: 'Processing', count: statusCounts.processing },
+          { status: 'Confirmed', count: statusCounts.confirmed },
+          { status: 'Pending', count: statusCounts.pending },
+          { status: 'Cancelled', count: statusCounts.cancelled },
+          { status: 'Refunded', count: statusCounts.refunded },
         ],
       },
       recentOrders,

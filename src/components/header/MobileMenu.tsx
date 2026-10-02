@@ -325,6 +325,23 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                 <span>AI Style Assistant</span>
               </button>
             )}
+
+            {/* Atelier Admin Portal for authorized staff */}
+            {isAuthenticated && (userRole === 'admin' || userRole === 'super_admin' || userRole === 'manager') && (
+              <button
+                onClick={() => {
+                  onNavigate('admin');
+                  onClose();
+                }}
+                className="flex items-center justify-between w-full text-left py-2 px-3 bg-[#151413] text-[#BA945A] text-xs uppercase tracking-[0.2em] font-mono cursor-pointer border border-[#333] hover:bg-black transition-colors"
+              >
+                <span className="flex items-center space-x-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Atelier Admin</span>
+                </span>
+                <span className="text-[10px] bg-[#BA945A] text-black px-1.5 py-0.5 font-sans font-bold">OPS</span>
+              </button>
+            )}
           </div>
 
           {/* Customer Care Accordion */}
