@@ -35,6 +35,7 @@ interface CustomerAccountViewProps {
   onOpenWishlistDrawer: () => void;
   onNavigateToShop: () => void;
   onSelectProductById: (productId: string) => void;
+  initialTab?: 'overview' | 'orders' | 'addresses' | 'profile' | 'security';
 }
 
 export const CustomerAccountView: React.FC<CustomerAccountViewProps> = ({
@@ -42,11 +43,26 @@ export const CustomerAccountView: React.FC<CustomerAccountViewProps> = ({
   onOpenWishlistDrawer,
   onNavigateToShop,
   onSelectProductById,
+  initialTab,
 }) => {
   const { user, logout, refreshUser } = useAuth();
   const { t, language } = useLanguage();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'addresses' | 'profile' | 'security'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'addresses' | 'profile' | 'security'>(initialTab || 'overview');
+
+  useEffect(() => {
+    if (initialTab && initialTab !== activeTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
+
+  const handleTabChange = (tab: 'overview' | 'orders' | 'addresses' | 'profile' | 'security') => {
+    setActiveTab(tab);
+    const subpath = tab === 'overview' ? '/account' : `/account/${tab}`;
+    if (window.location.pathname !== subpath) {
+      window.history.pushState({}, '', subpath);
+    }
+  };
 
   // Data states
   const [profile, setProfile] = useState<CustomerProfile | null>(null);
@@ -322,7 +338,7 @@ export const CustomerAccountView: React.FC<CustomerAccountViewProps> = ({
               <button
                 key={item.id}
                 onClick={() => {
-                  setActiveTab(item.id as any);
+                  handleTabChange(item.id as any);
                   setSelectedOrder(null);
                 }}
                 className={`w-full flex items-center justify-between px-4 py-3.5 text-xs tracking-wider uppercase font-medium transition-all text-left ${

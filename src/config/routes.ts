@@ -13,7 +13,9 @@ export const ROUTES = {
   ACCOUNT: '/account',
   CART: '/cart',
   CHECKOUT: '/checkout',
+  ORDER_CONFIRMATION: '/order-confirmation',
   ABOUT: '/story',
+  STORY: '/story',
   JOURNAL: '/journal',
   CONTACT: '/contact',
   SHIPPING: '/shipping',
@@ -100,6 +102,10 @@ export interface ParsedRoute {
   categoryParam?: string;
   subcategoryParam?: string;
   searchQuery?: string;
+  orderNumber?: string;
+  accountTab?: 'overview' | 'orders' | 'profile' | 'addresses' | 'security';
+  adminSection?: string;
+  adminEntityId?: string;
   is404?: boolean;
 }
 
@@ -125,6 +131,7 @@ export function parseCurrentRoute(
   const categoryParam = params.get('category') || undefined;
   const subcategoryParam = params.get('subcategory') || undefined;
   const searchQuery = params.get('q') || undefined;
+  const orderNumber = params.get('order') || params.get('orderNumber') || undefined;
 
   if (cleanPath === '/') return { pathname: '/', view: 'home' };
   if (cleanPath === '/new-in' || cleanPath === '/store/new-in') {
@@ -138,17 +145,15 @@ export function parseCurrentRoute(
     return { pathname: '/collection', view: 'collections' };
   }
 
-  const collectionMatch = cleanPath.match(/^\/collection\/([^/]+)$/);
-  if (collectionMatch) {
-    const rawCategory = slugify(collectionMatch[1]);
-    if (!COLLECTION_SLUGS.has(rawCategory)) {
-      return { pathname: cleanPath, view: '404', is404: true };
-    }
+  // Support /shop/:category and /collection/:category
+  const shopCategoryMatch = cleanPath.match(/^\/(?:shop|collection)\/([^/]+)$/);
+  if (shopCategoryMatch) {
+    const rawCategory = slugify(shopCategoryMatch[1]);
     return {
       pathname: cleanPath,
       view: 'store',
       categoryParam: normalizeCategorySlug(rawCategory),
-      subcategoryParam
+      subcategoryParam,
     };
   }
 
@@ -156,15 +161,42 @@ export function parseCurrentRoute(
   if (productMatch) return { pathname: cleanPath, view: 'product', productSlug: productMatch[1] };
   if (cleanPath === '/search') return { pathname: cleanPath, view: 'search', searchQuery };
   if (cleanPath === '/wishlist') return { pathname: cleanPath, view: 'wishlist' };
-  if (cleanPath === '/account') return { pathname: cleanPath, view: 'account' };
+
+  // Account & Sub-routes
+  if (cleanPath === '/account') return { pathname: cleanPath, view: 'account', accountTab: 'overview' };
+  if (cleanPath === '/account/orders') return { pathname: cleanPath, view: 'account', accountTab: 'orders' };
+  if (cleanPath === '/account/profile') return { pathname: cleanPath, view: 'account', accountTab: 'profile' };
+  if (cleanPath === '/account/addresses') return { pathname: cleanPath, view: 'account', accountTab: 'addresses' };
+  if (cleanPath === '/account/security') return { pathname: cleanPath, view: 'account', accountTab: 'security' };
+
   if (cleanPath === '/cart') return { pathname: cleanPath, view: 'cart' };
   if (cleanPath === '/checkout') return { pathname: cleanPath, view: 'checkout' };
+  if (cleanPath === '/order-confirmation') {
+    return { pathname: cleanPath, view: 'order-confirmation', orderNumber };
+  }
+
   if (cleanPath === '/about' || cleanPath === '/story') return { pathname: '/story', view: 'about' };
   if (cleanPath === '/journal') return { pathname: cleanPath, view: 'journal' };
   if (cleanPath === '/contact') return { pathname: cleanPath, view: 'contact' };
   if (cleanPath === '/shipping') return { pathname: cleanPath, view: 'shipping' };
   if (cleanPath === '/returns') return { pathname: cleanPath, view: 'returns' };
   if (cleanPath === '/faq') return { pathname: cleanPath, view: 'faq' };
-  if (cleanPath === '/admin') return { pathname: cleanPath, view: 'admin' };
+
+  // Admin & Sub-routes
+  if (cleanPath === '/admin' || cleanPath === '/admin/dashboard') {
+    return { pathname: cleanPath, view: 'admin', adminSection: 'dashboard' };
+  }
+  const adminMatch = cleanPath.match(/^\/admin\/([^/]+)(?:\/([^/]+))?$/);
+  if (adminMatch) {
+    const rawSection = adminMatch[1];
+    const entityId = adminMatch[2];
+    return {
+      pathname: cleanPath,
+      view: 'admin',
+      adminSection: rawSection,
+      adminEntityId: entityId,
+    };
+  }
+
   return { pathname: cleanPath, view: '404', is404: true };
 }

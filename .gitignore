@@ -5,5 +5,8 @@ coverage/
 .DS_Store
 *.log
 *.db
-.env*
+*.sqlite
+*.sqlite3
+.env
+.env.*
 !.env.example

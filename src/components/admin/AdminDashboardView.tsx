@@ -59,6 +59,8 @@ import { AdminDeleteConfirmModal } from './AdminDeleteConfirmModal';
 
 interface AdminDashboardViewProps {
   onReturnToStore: () => void;
+  initialSection?: string;
+  initialEntityId?: string;
 }
 
 const DEFAULT_DASHBOARD_DATA = {
@@ -135,7 +137,11 @@ const DEFAULT_DASHBOARD_DATA = {
   },
 };
 
-export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onReturnToStore }) => {
+export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
+  onReturnToStore,
+  initialSection,
+  initialEntityId,
+}) => {
   const { user, login, logout } = useAuth();
   const { language } = useLanguage();
 
@@ -146,7 +152,34 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onReturn
   const [adminLoginError, setAdminLoginError] = useState<string | null>(null);
 
   // Active section state
-  const [activeSection, setActiveSection] = useState<AdminSection>('dashboard');
+  const [activeSection, setActiveSection] = useState<AdminSection>(() => {
+    if (initialSection) {
+      const valid: AdminSection[] = [
+        'dashboard', 'products', 'categories', 'collections', 'orders',
+        'customers', 'finance_overview', 'finance_transactions', 'finance_discounts',
+        'finance_shipping_tax', 'finance_currency', 'inventory', 'reviews',
+        'settings_store', 'settings_admin', 'activity_logs'
+      ];
+      if (valid.includes(initialSection as AdminSection)) {
+        return initialSection as AdminSection;
+      }
+    }
+    return 'dashboard';
+  });
+
+  useEffect(() => {
+    if (initialSection) {
+      const valid: AdminSection[] = [
+        'dashboard', 'products', 'categories', 'collections', 'orders',
+        'customers', 'finance_overview', 'finance_transactions', 'finance_discounts',
+        'finance_shipping_tax', 'finance_currency', 'inventory', 'reviews',
+        'settings_store', 'settings_admin', 'activity_logs'
+      ];
+      if (valid.includes(initialSection as AdminSection) && initialSection !== activeSection) {
+        setActiveSection(initialSection as AdminSection);
+      }
+    }
+  }, [initialSection]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Core Data states
@@ -635,6 +668,10 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onReturn
             setActiveSection(sec);
             setSelectedOrder(null);
             setSelectedCustomer(null);
+            const targetUrl = sec === 'dashboard' ? '/admin' : `/admin/${sec}`;
+            if (window.location.pathname !== targetUrl) {
+              window.history.pushState({}, '', targetUrl);
+            }
           }}
           onReturnToStore={onReturnToStore}
           onLogout={logout}

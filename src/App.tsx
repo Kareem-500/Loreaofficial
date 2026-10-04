@@ -29,12 +29,14 @@ import { AccountModal } from './components/AccountModal';
 import { LoreaAIStyleAssistant } from './components/LoreaAIStyleAssistant';
 import { CustomerAccountView } from './components/account/CustomerAccountView';
 import { AdminDashboardView } from './components/admin/AdminDashboardView';
+import { OrderConfirmationView } from './components/OrderConfirmationView';
 import { ScrollProgress } from './components/ui/ScrollProgress';
 import { useAuth } from './context/AuthContext';
 import { api, isApiConfigured } from './services/api';
 import { isSupabaseConfigured } from './lib/supabase';
 import { supabaseProductService } from './services/supabaseService';
-import { ROUTES, appPath, parseCurrentRoute, buildProductUrl, buildCategoryUrl } from './config/routes';
+import { ROUTES, appPath, parseCurrentRoute, buildProductUrl, buildCategoryUrl, ParsedRoute } from './config/routes';
+import { SITE_CONFIG, getCanonicalUrl } from './config/site';
 import { WOMEN_CATEGORIES } from './config/categories';
 
 const isCartItem = (value: unknown): value is CartItem => {
@@ -58,7 +60,8 @@ export default function App() {
   const { user, isAuthenticated } = useAuth();
 
   // Active Routing State
-  const [currentView, setCurrentView] = useState<string>('home');
+  const [routeState, setRouteState] = useState<ParsedRoute>(() => parseCurrentRoute());
+  const [currentView, setCurrentView] = useState<string>(() => routeState.view || 'home');
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<string>('All');
   const [activeSubcategoryFilter, setActiveSubcategoryFilter] = useState<string>('All');
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
@@ -233,6 +236,7 @@ export default function App() {
   // URL Routing Sync Logic
   const syncRouteFromLocation = useCallback(() => {
     const parsed = parseCurrentRoute(window.location.pathname, window.location.search);
+    setRouteState(parsed);
 
     if (parsed.is404) {
       setCurrentView('404');
@@ -278,25 +282,25 @@ export default function App() {
 
     if (parsed.view === 'cart') {
       setIsCartOpen(true);
-      setCurrentView('home');
+      setCurrentView('store');
       return;
     }
 
     if (parsed.view === 'wishlist') {
       setIsWishlistOpen(true);
-      setCurrentView('home');
+      setCurrentView('store');
       return;
     }
 
     if (parsed.view === 'checkout') {
       setIsCheckoutOpen(true);
-      setCurrentView('home');
+      setCurrentView('store');
       return;
     }
 
     if (parsed.view === 'search') {
       setIsSearchOpen(true);
-      setCurrentView('home');
+      setCurrentView('store');
       return;
     }
 
@@ -314,25 +318,92 @@ export default function App() {
     const pageTitle = currentProduct
       ? `${currentProduct.name} | LORÉA`
       : currentView === 'store'
-        ? 'Shop Women\'s Fashion | LORÉA'
+        ? 'Shop Haute Couture & Tailored Fashion | LORÉA'
         : currentView === 'new-in'
-          ? 'New In | LORÉA Women\'s Fashion'
+          ? 'New In Runway Silhouettes | LORÉA'
           : currentView === 'collections'
-            ? 'Collections | LORÉA'
-            : currentView === 'journal'
-              ? 'The LORÉA Journal'
-              : currentView === 'about'
-                ? 'Our Story | LORÉA'
-                : 'LORÉA | Luxury Women\'s Fashion';
+            ? 'Atelier Collections | LORÉA'
+            : currentView === 'order-confirmation'
+              ? 'Order Confirmed | LORÉA'
+              : currentView === 'journal'
+                ? 'The LORÉA Journal'
+                : currentView === 'about'
+                  ? 'Our Heritage Story | LORÉA'
+                  : currentView === 'account'
+                    ? 'Private Client Portal | LORÉA'
+                    : 'LORÉA | Quiet Luxury & Timeless Poise';
+
     const description = currentProduct?.description ||
       'Discover refined women\'s fashion by LORÉA, designed in Cairo with Egyptian cotton, European linen, and effortless modern silhouettes.';
-    const canonicalUrl = `${window.location.origin}${window.location.pathname}`;
+    const canonicalUrl = getCanonicalUrl(window.location.pathname);
 
     document.title = pageTitle;
     document.querySelector('meta[name="description"]')?.setAttribute('content', description);
     document.querySelector('meta[property="og:title"]')?.setAttribute('content', pageTitle);
     document.querySelector('meta[property="og:description"]')?.setAttribute('content', description);
+    document.querySelector('meta[property="og:url"]')?.setAttribute('content', canonicalUrl);
     document.querySelector('link[rel="canonical"]')?.setAttribute('href', canonicalUrl);
+
+    // Schema.org Structured Data Injection
+    try {
+      let schemaScript = document.getElementById('lorea-schema-jsonld') as HTMLScriptElement | null;
+      if (!schemaScript) {
+        schemaScript = document.createElement('script');
+        schemaScript.id = 'lorea-schema-jsonld';
+        schemaScript.type = 'application/ld+json';
+        document.head.appendChild(schemaScript);
+      }
+
+      const structuredData: any = {
+        '@context': 'https://schema.org',
+        '@graph': [
+          {
+            '@type': 'Organization',
+            '@id': `${SITE_CONFIG.baseUrl}/#organization`,
+            name: SITE_CONFIG.name,
+            legalName: SITE_CONFIG.legalName,
+            url: SITE_CONFIG.baseUrl,
+            logo: `${SITE_CONFIG.baseUrl}/LOREA%20fashion.svg`,
+            contactPoint: {
+              '@type': 'ContactPoint',
+              telephone: SITE_CONFIG.contact.phone,
+              contactType: 'customer service',
+              areaServed: 'EG',
+              availableLanguage: ['en', 'ar'],
+            },
+          },
+          {
+            '@type': 'WebSite',
+            '@id': `${SITE_CONFIG.baseUrl}/#website`,
+            url: SITE_CONFIG.baseUrl,
+            name: SITE_CONFIG.name,
+            description: SITE_CONFIG.description,
+            publisher: { '@id': `${SITE_CONFIG.baseUrl}/#organization` },
+          },
+        ],
+      };
+
+      if (currentProduct) {
+        structuredData['@graph'].push({
+          '@type': 'Product',
+          name: currentProduct.name,
+          description: currentProduct.description,
+          image: currentProduct.images,
+          sku: currentProduct.sku,
+          offers: {
+            '@type': 'Offer',
+            priceCurrency: 'EGP',
+            price: currentProduct.priceEgp,
+            availability: 'https://schema.org/InStock',
+            seller: { '@id': `${SITE_CONFIG.baseUrl}/#organization` },
+          },
+        });
+      }
+
+      schemaScript.textContent = JSON.stringify(structuredData);
+    } catch (e) {
+      console.warn('Schema.org injection warning:', e);
+    }
   }, [currentProduct, currentView]);
 
   // Cart Handlers
@@ -452,12 +523,14 @@ export default function App() {
       targetPath = ROUTES.NEW_IN;
     } else if (view === 'collections') {
       targetPath = ROUTES.COLLECTIONS;
-    } else if (view === 'about') {
-      targetPath = ROUTES.ABOUT;
+    } else if (view === 'about' || view === 'story') {
+      targetPath = ROUTES.STORY;
     } else if (view === 'journal') {
       targetPath = ROUTES.JOURNAL;
     } else if (view === 'account') {
       targetPath = ROUTES.ACCOUNT;
+    } else if (view === 'order-confirmation') {
+      targetPath = ROUTES.ORDER_CONFIRMATION;
     } else if (view === 'contact') {
       targetPath = ROUTES.CONTACT;
     } else if (view === 'shipping') {
@@ -538,7 +611,13 @@ export default function App() {
 
   // If Admin View is active, render dedicated Admin Operations Control Panel
   if (currentView === 'admin') {
-    return <AdminDashboardView onReturnToStore={() => handleNavigate('home')} />;
+    return (
+      <AdminDashboardView
+        onReturnToStore={() => handleNavigate('home')}
+        initialSection={routeState.adminSection}
+        initialEntityId={routeState.adminEntityId}
+      />
+    );
   }
 
   // Category product slices for Homepage Carousels
@@ -840,10 +919,21 @@ export default function App() {
           </div>
         )}
 
-        {/* CUSTOMER ACCOUNT VIEW (/account) */}
+        {/* ORDER CONFIRMATION VIEW (/order-confirmation) */}
+        {currentView === 'order-confirmation' && (
+          <OrderConfirmationView
+            orderNumber={routeState.orderNumber}
+            currency={currency}
+            onNavigateToShop={() => handleNavigate('store')}
+            onNavigateToAccount={() => handleNavigate('account')}
+          />
+        )}
+
+        {/* CUSTOMER ACCOUNT VIEW (/account, /account/orders, /account/profile, etc.) */}
         {currentView === 'account' && (
           <CustomerAccountView
             currency={currency}
+            initialTab={routeState.accountTab}
             onOpenWishlistDrawer={() => setIsWishlistOpen(true)}
             onNavigateToShop={() => handleNavigate('store')}
             onSelectProductById={(productId) => {
