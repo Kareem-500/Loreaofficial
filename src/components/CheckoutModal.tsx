@@ -129,7 +129,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         couponCode: discountPercent > 0 ? couponCode : undefined,
       });
 
-      setOrderNumber(result?.order?.order_number || `LOR-${Math.floor(100000 + Math.random() * 900000)}`);
+      const generatedNum = result?.order?.order_number || `LOR-${Math.floor(100000 + Math.random() * 900000)}`;
+      setOrderNumber(generatedNum);
+      try {
+        localStorage.setItem('lorea_last_order_num', generatedNum);
+      } catch {}
       setStep('success');
       onClearCart();
     } catch (err) {
@@ -530,12 +534,26 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               <p><strong>Estimated Arrival:</strong> 24–48 hours across Egypt</p>
             </div>
 
-            <button
-              onClick={onClose}
-              className="px-8 py-3.5 bg-[#1D1D1B] text-[#F7F4EF] text-xs tracking-[0.2em] uppercase font-medium hover:bg-[#333]"
-            >
-              RETURN TO LORÉA ATELIER
-            </button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  window.history.pushState({}, '', `/order-confirmation?order=${encodeURIComponent(orderNumber)}`);
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                  onClose();
+                }}
+                className="w-full sm:w-auto px-6 py-3.5 bg-[#BA945A] text-white text-xs tracking-[0.2em] uppercase font-medium hover:bg-[#A37F46] transition-colors"
+              >
+                Track Order & Receipt →
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full sm:w-auto px-6 py-3.5 bg-[#1D1D1B] text-[#F7F4EF] text-xs tracking-[0.2em] uppercase font-medium hover:bg-[#333] transition-colors"
+              >
+                Return to Atelier
+              </button>
+            </div>
           </div>
         )}
       </div>

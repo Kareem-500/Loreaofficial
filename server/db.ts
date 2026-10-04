@@ -443,6 +443,43 @@ export function initDatabase() {
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
+    -- 16. Customer Chat & Messages
+    CREATE TABLE IF NOT EXISTS chat_conversations (
+      id TEXT PRIMARY KEY,
+      user_id TEXT,
+      session_token TEXT NOT NULL,
+      title TEXT DEFAULT 'Atelier Styling Consultation',
+      status TEXT NOT NULL DEFAULT 'active',
+      last_message_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS chat_messages (
+      id TEXT PRIMARY KEY,
+      conversation_id TEXT NOT NULL,
+      sender_role TEXT NOT NULL,
+      sender_name TEXT DEFAULT 'Atelier Concierge',
+      content TEXT NOT NULL,
+      metadata_json TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (conversation_id) REFERENCES chat_conversations(id) ON DELETE CASCADE
+    );
+
+    -- 17. Analytics Events
+    CREATE TABLE IF NOT EXISTS analytics_events (
+      id TEXT PRIMARY KEY,
+      event_name TEXT NOT NULL,
+      user_id TEXT,
+      session_id TEXT NOT NULL,
+      path TEXT NOT NULL,
+      properties_json TEXT,
+      ip_hash TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    );
+
     -- Indexes for performance
     CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
     CREATE INDEX IF NOT EXISTS idx_customers_user_id ON customers(user_id);
@@ -452,6 +489,10 @@ export function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_product_variants_product ON product_variants(product_id);
     CREATE INDEX IF NOT EXISTS idx_wishlist_items_wishlist ON wishlist_items(wishlist_id);
     CREATE INDEX IF NOT EXISTS idx_admin_logs_created ON admin_activity_logs(created_at);
+    CREATE INDEX IF NOT EXISTS idx_chat_conversations_user ON chat_conversations(user_id);
+    CREATE INDEX IF NOT EXISTS idx_chat_messages_conv ON chat_messages(conversation_id);
+    CREATE INDEX IF NOT EXISTS idx_analytics_events_name ON analytics_events(event_name);
+    CREATE INDEX IF NOT EXISTS idx_analytics_events_created ON analytics_events(created_at);
   `);
 
   // Safe schema migrations for existing database files

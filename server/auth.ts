@@ -11,7 +11,7 @@ export interface AuthUserPayload {
   userId: string;
   uuid: string;
   email: string;
-  role: 'customer' | 'admin' | 'super_admin' | 'manager' | 'support';
+  role: 'customer' | 'staff' | 'admin' | 'super_admin' | 'manager' | 'support';
   firstName?: string;
   lastName?: string;
 }

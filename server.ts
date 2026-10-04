@@ -12,6 +12,8 @@ import adminRoutes from './server/routes/adminRoutes';
 import publicRoutes from './server/routes/publicRoutes';
 import aiRoutes from './server/routes/aiRoutes';
 import apiRoutes from './server/routes/apiRoutes';
+import chatRoutes from './server/routes/chatRoutes';
+import analyticsRoutes from './server/routes/analyticsRoutes';
 
 dotenv.config();
 
@@ -139,6 +141,8 @@ Sitemap: ${siteUrl}/sitemap.xml
   app.use('/api/admin', adminRoutes);
   app.use('/api/public', publicRoutes);
   app.use('/api/ai', aiRoutes);
+  app.use('/api/chat', chatRoutes);
+  app.use('/api/analytics', analyticsRoutes);
 
   // Vite middleware for development vs static for production
   if (process.env.NODE_ENV !== 'production') {
