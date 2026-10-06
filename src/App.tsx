@@ -58,6 +58,9 @@ const isCartItem = (value: unknown): value is CartItem => {
 
 export default function App() {
   const { user, isAuthenticated } = useAuth();
+  const isAuthorizedStaff = Boolean(
+    user && (user.role === 'admin' || user.role === 'super_admin' || user.role === 'manager')
+  );
 
   // Active Routing State
   const [routeState, setRouteState] = useState<ParsedRoute>(() => parseCurrentRoute());
@@ -540,7 +543,13 @@ export default function App() {
     } else if (view === 'faq') {
       targetPath = ROUTES.FAQ;
     } else if (view === 'admin') {
-      targetPath = ROUTES.ADMIN;
+      if (!isAuthorizedStaff) {
+        setCurrentView('404');
+        return;
+      }
+      setCurrentView('admin');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
     } else if (view === 'best-sellers') {
       targetPath = `${ROUTES.STORE}?collection=best-sellers`;
     } else if (view === 'sale') {
@@ -609,11 +618,18 @@ export default function App() {
     handleOpenProductPreview(product);
   };
 
-  // If Admin View is active, render dedicated Admin Operations Control Panel
-  if (currentView === 'admin') {
+  // If Admin View is requested by unauthorized user, immediately route to 404
+  useEffect(() => {
+    if (currentView === 'admin' && !isAuthorizedStaff) {
+      setCurrentView('404');
+    }
+  }, [currentView, isAuthorizedStaff]);
+
+  // If Admin View is active and user has verified staff credentials, render operations dashboard
+  if (currentView === 'admin' && isAuthorizedStaff) {
     return (
       <AdminDashboardView
-        onReturnToStore={() => handleNavigate('home')}
+        onReturnToStore={() => handleNavigate('account')}
         initialSection={routeState.adminSection}
         initialEntityId={routeState.adminEntityId}
       />
@@ -940,6 +956,12 @@ export default function App() {
               const p = PRODUCTS.find((item) => item.id === productId);
               if (p) handleSelectProduct(p);
             }}
+            onOpenAdminConsole={() => {
+              if (isAuthorizedStaff) {
+                setCurrentView('admin');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
+            }}
           />
         )}
 
@@ -1096,10 +1118,6 @@ export default function App() {
         onNavigateToFullAccount={() => {
           setIsAccountOpen(false);
           handleNavigate('account');
-        }}
-        onNavigateToAdmin={() => {
-          setIsAccountOpen(false);
-          handleNavigate('admin');
         }}
       />
     </div>

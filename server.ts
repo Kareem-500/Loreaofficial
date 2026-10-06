@@ -65,8 +65,6 @@ async function startServer() {
     res.type('text/plain');
     res.send(`User-agent: *
 Allow: /
-Disallow: /admin
-Disallow: /admin/*
 Disallow: /api/*
 
 Sitemap: ${siteUrl}/sitemap.xml

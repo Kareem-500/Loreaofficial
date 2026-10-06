@@ -9,6 +9,7 @@ import {
   AuthenticatedRequest,
   rateLimitAuth,
 } from '../auth';
+import { sendPasswordResetEmail, sendPasswordChangedEmail } from '../emailService';
 
 const router = Router();
 
@@ -135,9 +136,6 @@ router.post('/register', rateLimitAuth(8, 10 * 60 * 1000), (req: Request, res: R
     return res.status(201).json({
       message: 'Registration successful. Welcome to LORÉA.',
       token,
-      ...(process.env.ENABLE_PREVIEW_TOKENS === 'true' && process.env.NODE_ENV !== 'production'
-        ? { verificationToken: verifyToken }
-        : {}),
       user: {
         id: userId,
         uuid: userUuid,
@@ -319,7 +317,7 @@ router.get('/me', (req: AuthenticatedRequest, res: Response) => {
 });
 
 // Forgot password
-router.post('/forgot-password', rateLimitAuth(5, 15 * 60 * 1000), (req: Request, res: Response) => {
+router.post('/forgot-password', rateLimitAuth(5, 15 * 60 * 1000), async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
     if (!email || !email.trim()) {
@@ -329,26 +327,43 @@ router.post('/forgot-password', rateLimitAuth(5, 15 * 60 * 1000), (req: Request,
     const normalizedEmail = email.trim().toLowerCase();
     const user = db.prepare('SELECT id FROM users WHERE email = ?').get(normalizedEmail) as any;
 
-    let previewResetToken: string | null = null;
-
     if (user) {
+      // 1. Generate 64-char crypto token for one-click URL reset link
       const resetToken = crypto.randomBytes(32).toString('hex');
+      // 2. Generate 6-digit numeric recovery code for quick manual typing
+      const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
       const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 hour
 
-      db.prepare(`
-        INSERT INTO password_reset_tokens (id, user_id, token, expires_at, used)
-        VALUES (?, ?, ?, ?, 0)
-      `).run(`pr_${Date.now()}`, user.id, resetToken, expiresAt);
+      // Invalidate existing unused tokens for this user
+      db.prepare('UPDATE password_reset_tokens SET used = 1 WHERE user_id = ? AND used = 0').run(user.id);
 
-      if (process.env.ENABLE_PREVIEW_TOKENS === 'true' && process.env.NODE_ENV !== 'production') {
-        previewResetToken = resetToken;
-      }
+      db.prepare(`
+        INSERT INTO password_reset_tokens (id, user_id, token, code, expires_at, used)
+        VALUES (?, ?, ?, ?, ?, 0)
+      `).run(`pr_${Date.now()}`, user.id, resetToken, resetCode, expiresAt);
+
+      // Determine recipient name
+      const customer = db.prepare('SELECT first_name, last_name FROM customers WHERE user_id = ?').get(user.id) as any;
+      const admin = db.prepare('SELECT name FROM admins WHERE user_id = ?').get(user.id) as any;
+      const recipientName = customer ? `${customer.first_name} ${customer.last_name}`.trim() : admin?.name || 'Valued Client';
+
+      const origin = (req.headers.origin as string) || (req.headers.referer as string) || process.env.SITE_URL || 'https://loreafashion.ai.studio';
+      const cleanOrigin = origin.replace(/\/+$/, '');
+      const resetUrl = `${cleanOrigin}/?reset_token=${resetToken}`;
+
+      // Dispatch real email via nodemailer
+      await sendPasswordResetEmail({
+        toEmail: normalizedEmail,
+        recipientName,
+        resetCode,
+        resetToken,
+        resetUrl,
+      });
     }
 
     // Always respond with the same message to avoid user enumeration
     return res.json({
-      message: 'If that email address is registered with LORÉA, a password reset link has been dispatched to your inbox.',
-      ...(previewResetToken ? { previewResetToken } : {}),
+      message: 'If that email address is registered with LORÉA, a password recovery code and reset link have been dispatched to your inbox.',
     });
   } catch (err: any) {
     console.error('Forgot password error:', err);
@@ -356,14 +371,16 @@ router.post('/forgot-password', rateLimitAuth(5, 15 * 60 * 1000), (req: Request,
   }
 });
 
-// Reset password with token
-router.post('/reset-password', rateLimitAuth(10, 15 * 60 * 1000), (req: Request, res: Response) => {
+// Reset password with token or 6-digit code
+router.post('/reset-password', rateLimitAuth(10, 15 * 60 * 1000), async (req: Request, res: Response) => {
   try {
     const { token, newPassword, confirmPassword } = req.body;
 
-    if (!token) {
-      return res.status(400).json({ error: 'Password reset token is required.' });
+    if (!token || !token.trim()) {
+      return res.status(400).json({ error: 'Password recovery code is required.' });
     }
+
+    const cleanToken = token.trim();
 
     if (newPassword !== confirmPassword) {
       return res.status(422).json({ error: 'Passwords do not match.' });
@@ -374,20 +391,22 @@ router.post('/reset-password', rateLimitAuth(10, 15 * 60 * 1000), (req: Request,
       return res.status(422).json({ error: strength.message });
     }
 
-    // Check token
+    // Check token by either 64-char token OR 6-digit code
     const tokenRow = db.prepare(`
-      SELECT id, user_id, expires_at, used
+      SELECT id, user_id, token, code, expires_at, used
       FROM password_reset_tokens
-      WHERE token = ?
-    `).get(token) as any;
+      WHERE (token = ? OR code = ?)
+      ORDER BY created_at DESC
+      LIMIT 1
+    `).get(cleanToken, cleanToken) as any;
 
     if (!tokenRow || tokenRow.used === 1) {
-      return res.status(400).json({ error: 'This password reset link is invalid or has already been used.' });
+      return res.status(400).json({ error: 'This recovery code is invalid or has already been used. Please request a new recovery link.' });
     }
 
     const isExpired = new Date(tokenRow.expires_at).getTime() < Date.now();
     if (isExpired) {
-      return res.status(400).json({ error: 'This password reset link has expired. Please request a new one.' });
+      return res.status(400).json({ error: 'This recovery code has expired. Please request a new recovery link.' });
     }
 
     const newHash = hashPassword(newPassword);
@@ -395,6 +414,12 @@ router.post('/reset-password', rateLimitAuth(10, 15 * 60 * 1000), (req: Request,
     // Update password & invalidate token
     db.prepare('UPDATE users SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(newHash, tokenRow.user_id);
     db.prepare('UPDATE password_reset_tokens SET used = 1 WHERE id = ?').run(tokenRow.id);
+
+    // Send confirmation email
+    const userRow = db.prepare('SELECT email FROM users WHERE id = ?').get(tokenRow.user_id) as any;
+    if (userRow?.email) {
+      sendPasswordChangedEmail({ toEmail: userRow.email }).catch(() => {});
+    }
 
     return res.json({ message: 'Your password has been successfully updated. You may now sign in with your new password.' });
   } catch (err: any) {

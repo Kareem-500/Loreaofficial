@@ -142,14 +142,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
   initialSection,
   initialEntityId,
 }) => {
-  const { user, login, logout } = useAuth();
+  const { user, logout } = useAuth();
   const { language } = useLanguage();
-
-  // Admin login gateway states
-  const [adminEmail, setAdminEmail] = useState('');
-  const [adminPassword, setAdminPassword] = useState('');
-  const [adminLoginLoading, setAdminLoginLoading] = useState(false);
-  const [adminLoginError, setAdminLoginError] = useState<string | null>(null);
 
   // Active section state
   const [activeSection, setActiveSection] = useState<AdminSection>(() => {
@@ -505,143 +499,21 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
     }
   };
 
-  // 1. If user is logged in as a non-admin (e.g. customer), show explicit 403 Forbidden screen
-  if (user && user.role !== 'admin' && user.role !== 'super_admin' && user.role !== 'manager') {
+  // Security Guard: Only authenticated personnel with verified admin claims can access
+  if (!user || (user.role !== 'admin' && user.role !== 'super_admin' && user.role !== 'manager')) {
     return (
-      <div className="min-h-screen bg-[#151413] flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden font-sans">
-        <div className="relative z-10 w-full max-w-md bg-[#1D1D1B] border border-[#2A2826] p-8 sm:p-10 shadow-2xl text-center">
-          <LoreaLogo variant="dark" className="mx-auto scale-110 mb-4" />
-          <div className="inline-flex items-center space-x-2 px-3 py-1 bg-red-950/60 border border-red-800/80 mb-4">
-            <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
-            <span className="text-[10px] tracking-[0.25em] uppercase font-mono text-red-300">
-              403 ACCESS DENIED
-            </span>
-          </div>
-          <h2 className="font-serif text-2xl font-light text-[#FAF8F5] mb-2">
-            Administrative Clearance Required
-          </h2>
-          <p className="text-xs text-[#B7ADA2] leading-relaxed mb-6 font-light">
-            You are currently signed in as a boutique customer account (<span className="text-white font-mono">{user.email}</span>). Administrative and operational portals are restricted to authorized personnel only.
-          </p>
-          <div className="space-y-3">
-            <button
-              onClick={onReturnToStore}
-              className="w-full py-3 bg-[#BA945A] hover:bg-[#A38048] text-white text-xs uppercase tracking-[0.2em] font-medium transition-colors cursor-pointer"
-            >
-              Return to Store
-            </button>
-            <button
-              onClick={async () => {
-                await logout();
-                onReturnToStore();
-              }}
-              className="w-full py-2.5 bg-[#252422] hover:bg-[#333] text-[#B7ADA2] hover:text-white text-xs uppercase tracking-[0.18em] font-medium transition-colors cursor-pointer border border-[#333]"
-            >
-              Sign Out & Switch Account
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // 2. If user is unauthenticated, present the secure Atelier Operations Login Gateway
-  if (!user) {
-    const handleAdminLogin = async (e: React.FormEvent) => {
-      e.preventDefault();
-      setAdminLoginError(null);
-      if (!adminEmail.trim() || !adminPassword) {
-        setAdminLoginError('Staff identity email and password are required.');
-        return;
-      }
-      try {
-        setAdminLoginLoading(true);
-        await login(adminEmail.trim(), adminPassword, true);
-        await loadCurrentSectionData();
-      } catch (err: any) {
-        setAdminLoginError(err.message || 'Administrative authentication failed. Please verify your credentials.');
-      } finally {
-        setAdminLoginLoading(false);
-      }
-    };
-
-    return (
-      <div className="min-h-screen bg-[#151413] flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden font-sans">
-        {/* Subtle background glow */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-[#BA945A]/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 w-full max-w-md bg-[#1D1D1B] border border-[#2A2826] p-8 sm:p-10 shadow-2xl">
-          <div className="text-center mb-8">
-            <LoreaLogo variant="dark" className="mx-auto scale-110 mb-4" />
-            <div className="inline-flex items-center space-x-2 px-3 py-1 bg-[#252422] border border-[#333] mb-3">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#BA945A]" />
-              <span className="text-[10px] tracking-[0.25em] uppercase font-mono text-[#FAF8F5]">
-                ATELIER OPERATIONS GATEWAY
-              </span>
-            </div>
-            <h2 className="font-serif text-2xl font-light text-[#FAF8F5]">
-              Administrative Authorization
-            </h2>
-            <p className="text-xs text-[#7C746B] mt-1 font-light">
-              Restricted to authorized atelier directors and operations staff.
-            </p>
-          </div>
-
-          {adminLoginError && (
-            <div className="mb-6 p-3 bg-red-950/60 border border-red-800/80 text-red-200 text-xs flex items-center space-x-2">
-              <AlertTriangle className="w-4 h-4 shrink-0 text-red-400" />
-              <span>{adminLoginError}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleAdminLogin} className="space-y-4 text-xs">
-            <div>
-              <label className="block text-[10px] uppercase tracking-[0.2em] text-[#7C746B] font-mono mb-1.5">
-                Staff Identity / Email
-              </label>
-              <input
-                type="email"
-                value={adminEmail}
-                onChange={(e) => setAdminEmail(e.target.value)}
-                required
-                placeholder="staff@loreaofficial.com"
-                className="w-full bg-[#151413] border border-[#333] text-[#FAF8F5] px-3.5 py-2.5 focus:border-[#BA945A] focus:outline-none transition-colors font-mono"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[10px] uppercase tracking-[0.2em] text-[#7C746B] font-mono mb-1.5">
-                Atelier Password
-              </label>
-              <input
-                type="password"
-                value={adminPassword}
-                onChange={(e) => setAdminPassword(e.target.value)}
-                required
-                placeholder="••••••••••••"
-                className="w-full bg-[#151413] border border-[#333] text-[#FAF8F5] px-3.5 py-2.5 focus:border-[#BA945A] focus:outline-none transition-colors"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={adminLoginLoading}
-              className="w-full mt-2 py-3 bg-[#BA945A] hover:bg-[#A38048] text-white text-xs uppercase tracking-[0.25em] font-medium transition-colors disabled:opacity-50 cursor-pointer"
-            >
-              {adminLoginLoading ? 'Verifying Security Token...' : 'Authenticate Admin Access'}
-            </button>
-          </form>
-
-          <div className="mt-8 pt-6 border-t border-[#2A2826] text-center space-y-3">
-            <button
-              onClick={onReturnToStore}
-              className="text-xs text-[#7C746B] hover:text-[#FAF8F5] transition-colors flex items-center justify-center space-x-1.5 mx-auto"
-            >
-              <Store className="w-3.5 h-3.5" />
-              <span>Return to Boutique Homepage</span>
-            </button>
-          </div>
-        </div>
+      <div className="min-h-screen bg-[#F7F4EF] text-[#1D1D1B] flex flex-col items-center justify-center p-6 text-center font-sans">
+        <LoreaLogo variant="light" className="mb-6 scale-110" />
+        <h1 className="font-serif text-3xl font-light text-[#1D1D1B] mb-3">404 — Page Not Found</h1>
+        <p className="text-xs text-[#7C746B] max-w-sm mb-6 leading-relaxed font-light">
+          The garment, curation, or archival document you seek is currently unavailable in the atelier archives.
+        </p>
+        <button
+          onClick={onReturnToStore}
+          className="px-6 py-3 bg-[#1D1D1B] text-[#F7F4EF] text-xs uppercase tracking-[0.2em] font-medium hover:bg-[#333] transition-colors cursor-pointer"
+        >
+          Return to Store
+        </button>
       </div>
     );
   }

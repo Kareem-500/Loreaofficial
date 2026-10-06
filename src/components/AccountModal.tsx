@@ -29,7 +29,6 @@ interface AccountModalProps {
   wishlistCount: number;
   onOpenWishlist: () => void;
   onNavigateToFullAccount: () => void;
-  onNavigateToAdmin: () => void;
 }
 
 export const AccountModal: React.FC<AccountModalProps> = ({
@@ -39,13 +38,27 @@ export const AccountModal: React.FC<AccountModalProps> = ({
   wishlistCount,
   onOpenWishlist,
   onNavigateToFullAccount,
-  onNavigateToAdmin,
 }) => {
   const { user, isAuthenticated, logout } = useAuth();
   const { t, language } = useLanguage();
 
   const [authView, setAuthView] = useState<'login' | 'register'>('login');
-  const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
+  const [isForgotModalOpen, setIsForgotModalOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return Boolean(params.get('reset_token') || params.get('code'));
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('reset_token') || params.get('code')) {
+        setIsForgotModalOpen(true);
+      }
+    }
+  }, []);
 
   // ESC and body scroll lock
   useOverlayAccessibility({
@@ -201,25 +214,6 @@ export const AccountModal: React.FC<AccountModalProps> = ({
                 </div>
                 <ArrowRight className="w-4 h-4 text-[#7C746B] group-hover:text-[#BA945A] group-hover:translate-x-1 transition-transform" />
               </button>
-
-              {(user?.role === 'admin' || user?.role === 'super_admin') && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    onClose();
-                    onNavigateToAdmin();
-                  }}
-                  className="w-full flex items-center justify-between p-3.5 bg-[#BA945A]/10 border border-[#BA945A]/30 hover:border-[#BA945A] transition-colors group cursor-pointer text-left"
-                >
-                  <div className="flex items-center space-x-3">
-                    <ShieldCheck className="w-4 h-4 text-[#BA945A]" />
-                    <span className="text-xs uppercase tracking-wider text-[#BA945A] font-semibold">
-                      Operations Admin Portal
-                    </span>
-                  </div>
-                  <ExternalLink className="w-4 h-4 text-[#BA945A]" />
-                </button>
-              )}
             </div>
 
             {/* Logout Action */}

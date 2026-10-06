@@ -101,8 +101,6 @@ export const Header: React.FC<HeaderProps> = ({
               cartCount={cartCount}
               isAuthenticated={isAuthenticated}
               userName={user?.firstName || 'Account'}
-              isAdmin={user?.role === 'admin' || user?.role === 'super_admin' || user?.role === 'manager'}
-              onOpenAdmin={() => onNavigate('admin')}
             />
           </div>
         </div>

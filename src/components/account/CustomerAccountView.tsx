@@ -36,6 +36,7 @@ interface CustomerAccountViewProps {
   onNavigateToShop: () => void;
   onSelectProductById: (productId: string) => void;
   initialTab?: 'overview' | 'orders' | 'addresses' | 'profile' | 'security';
+  onOpenAdminConsole?: () => void;
 }
 
 export const CustomerAccountView: React.FC<CustomerAccountViewProps> = ({
@@ -44,6 +45,7 @@ export const CustomerAccountView: React.FC<CustomerAccountViewProps> = ({
   onNavigateToShop,
   onSelectProductById,
   initialTab,
+  onOpenAdminConsole,
 }) => {
   const { user, logout, refreshUser } = useAuth();
   const { t, language } = useLanguage();
@@ -297,13 +299,15 @@ export const CustomerAccountView: React.FC<CustomerAccountViewProps> = ({
             </div>
           </div>
           <button
+            type="button"
             onClick={() => {
-              window.history.pushState({}, '', '/admin');
-              window.dispatchEvent(new PopStateEvent('popstate'));
+              if (onOpenAdminConsole) {
+                onOpenAdminConsole();
+              }
             }}
             className="px-4 py-2 bg-[#BA945A] hover:bg-[#A38048] text-white text-xs uppercase tracking-[0.2em] font-medium transition-colors cursor-pointer shrink-0"
           >
-            Launch Admin Dashboard →
+            Launch Operations Console →
           </button>
         </div>
       )}

@@ -113,6 +113,7 @@ export function initDatabase() {
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL,
       token TEXT UNIQUE NOT NULL,
+      code TEXT,
       expires_at DATETIME NOT NULL,
       used INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -501,6 +502,12 @@ export function initDatabase() {
   } catch {}
   try {
     db.exec("ALTER TABLE products ADD COLUMN brand TEXT DEFAULT 'LORÉA';");
+  } catch {}
+  try {
+    db.exec("ALTER TABLE password_reset_tokens ADD COLUMN code TEXT;");
+  } catch {}
+  try {
+    db.exec("CREATE INDEX IF NOT EXISTS idx_password_reset_code ON password_reset_tokens(code);");
   } catch {}
 
   // Seed default data if database is fresh

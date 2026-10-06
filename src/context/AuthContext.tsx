@@ -176,19 +176,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const forgotPassword = async (email: string) => {
+    // 1. Authoritative server dispatch via nodemailer (sends real email with 6-digit code and direct link)
+    const res = await api.auth.forgotPassword(email);
+    // 2. Also notify Supabase auth if configured
     if (isSupabaseConfigured()) {
-      await supabaseAuthService.resetPasswordForEmail(email);
-      return { message: 'Password recovery email sent via Supabase Auth.' };
+      try {
+        await supabaseAuthService.resetPasswordForEmail(email);
+      } catch (e) {
+        // server-side email has already been dispatched
+      }
     }
-    return await api.auth.forgotPassword(email);
+    return res;
   };
 
   const resetPassword = async (token: string, newPassword: string, confirmPassword: string) => {
+    // Authoritatively verify recovery token/code on server - NEVER bypass verification!
+    const res = await api.auth.resetPassword(token, newPassword, confirmPassword);
     if (isSupabaseConfigured()) {
-      await supabaseAuthService.updatePassword(newPassword);
-      return { message: 'Password successfully updated via Supabase Auth.' };
+      try {
+        await supabaseAuthService.updatePassword(newPassword);
+      } catch (e) {
+        // ignore client-side session sync error
+      }
     }
-    return await api.auth.resetPassword(token, newPassword, confirmPassword);
+    return res;
   };
 
   const verifyEmail = async (token: string) => {

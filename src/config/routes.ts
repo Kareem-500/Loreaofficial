@@ -20,8 +20,7 @@ export const ROUTES = {
   CONTACT: '/contact',
   SHIPPING: '/shipping',
   RETURNS: '/returns',
-  FAQ: '/faq',
-  ADMIN: '/admin'
+  FAQ: '/faq'
 } as const;
 
 export function getAppBasePath(): string {
@@ -38,7 +37,7 @@ export function getAppBasePath(): string {
       'shop', 'store', 'new-in', 'sale', 'collection', 'collections',
       'product', 'search', 'wishlist', 'account', 'cart', 'checkout',
       'story', 'about', 'journal', 'contact', 'shipping', 'returns',
-      'faq', 'admin'
+      'faq'
     ]);
     // If the first pathname segment is NOT a known app route, it is a project repository subpath (e.g. /my-repo/)
     if (segments.length > 0 && !knownTopRoutes.has(segments[0].toLowerCase())) {
@@ -181,22 +180,6 @@ export function parseCurrentRoute(
   if (cleanPath === '/shipping') return { pathname: cleanPath, view: 'shipping' };
   if (cleanPath === '/returns') return { pathname: cleanPath, view: 'returns' };
   if (cleanPath === '/faq') return { pathname: cleanPath, view: 'faq' };
-
-  // Admin & Sub-routes
-  if (cleanPath === '/admin' || cleanPath === '/admin/dashboard') {
-    return { pathname: cleanPath, view: 'admin', adminSection: 'dashboard' };
-  }
-  const adminMatch = cleanPath.match(/^\/admin\/([^/]+)(?:\/([^/]+))?$/);
-  if (adminMatch) {
-    const rawSection = adminMatch[1];
-    const entityId = adminMatch[2];
-    return {
-      pathname: cleanPath,
-      view: 'admin',
-      adminSection: rawSection,
-      adminEntityId: entityId,
-    };
-  }
 
   return { pathname: cleanPath, view: '404', is404: true };
 }
