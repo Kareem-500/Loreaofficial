@@ -9,10 +9,10 @@ export const SITE_CONFIG = {
   legalName: 'LORÉA Atelier Cairo S.A.E.',
   brandTagline: 'Quiet Luxury & Timeless Poise',
   description: 'Bespoke modern silhouettes, tailored outerwear, and quiet-luxury essentials crafted in Cairo from rare European and Egyptian textiles.',
-  defaultDomain: 'www.loreaofficial.com',
+  defaultDomain: 'loreafashion.ai.studio',
   baseUrl: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SITE_URL) 
     || (typeof process !== 'undefined' && process.env?.SITE_URL) 
-    || 'https://www.loreaofficial.com',
+    || 'https://loreafashion.ai.studio',
   currency: {
     code: 'EGP',
     symbol: 'EGP',

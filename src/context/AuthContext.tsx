@@ -58,33 +58,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
 
-      // Check local API session
+      // Check local API session via server-side verification (/api/auth/me)
       if (isApiConfigured) {
         try {
           const res = await api.auth.me();
-          if (res.user) {
+          if (res && res.user) {
             setUser(res.user);
             setIsLoading(false);
             return;
           }
-        } catch {}
+        } catch {
+          // Invalidate on verification failure
+        }
       }
 
-      // Check cached user in localStorage
-      const cached = localStorage.getItem('lorea_user');
-      if (cached) {
-        try {
-          const parsed = JSON.parse(cached);
-          if (parsed && parsed.email) {
-            setUser(parsed);
-            setIsLoading(false);
-            return;
-          }
-        } catch {}
-      }
-
+      // If server verification fails, clear any stale state
+      setStoredToken(null);
+      try {
+        localStorage.removeItem('lorea_user');
+      } catch {}
       setUser(null);
     } catch {
+      setStoredToken(null);
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -114,72 +109,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [refreshUser]);
 
   const login = async (email: string, password: string, rememberMe = false) => {
-    const normEmail = email.trim().toLowerCase();
+    const cleanEmail = email.trim().toLowerCase();
 
-    // 1. Direct verified check for Kareem Zohrey (Executive Director)
-    if (
-      (normEmail === 'kareemzohrey200@gmail.com' && password === 'Kz123456789') ||
-      (normEmail === 'admin@lorea.com' && password === 'Admin@Lorea2025!')
-    ) {
-      try {
-        const res = await api.auth.login(normEmail, password, rememberMe);
-        if (res.token) {
-          setStoredToken(res.token);
-        }
-        setUser(res.user);
-        try {
-          localStorage.setItem('lorea_user', JSON.stringify(res.user));
-        } catch {}
-        return;
-      } catch (err) {
-        console.warn('API route call fallback, authenticating administrator:', err);
-        const adminUser: User = {
-          id: normEmail === 'kareemzohrey200@gmail.com' ? 'user_admin_kareem' : 'user_admin_01',
-          uuid: normEmail === 'kareemzohrey200@gmail.com' ? 'uuid_admin_kareem' : 'uuid_admin_01',
-          email: normEmail,
-          role: 'super_admin',
-          firstName: normEmail === 'kareemzohrey200@gmail.com' ? 'Kareem' : 'Farida',
-          lastName: normEmail === 'kareemzohrey200@gmail.com' ? 'Zohrey' : 'Al-Sayed',
-          emailVerified: true,
-          phone: normEmail === 'kareemzohrey200@gmail.com' ? '+20 100 000 0000' : '',
-          permissions: [
-            'admin_users.manage', 'admin_users.view', 'analytics.view',
-            'customers.disable', 'customers.edit', 'customers.view',
-            'inventory.edit', 'inventory.view', 'orders.cancel',
-            'orders.edit', 'orders.view', 'products.create',
-            'products.delete', 'products.edit', 'products.view',
-            'settings.edit', 'settings.view',
-          ],
-        };
-        const demoJwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c2VyX2FkbWluX2thcmVlbSIsInJvbGUiOiJzdXBlcl9hZG1pbiJ9.local_sig';
-        setStoredToken(demoJwt);
-        setUser(adminUser);
-        try {
-          localStorage.setItem('lorea_user', JSON.stringify(adminUser));
-        } catch {}
-        return;
-      }
-    }
-
+    // 1. Supabase Hosted Auth (if configured)
     if (isSupabaseConfigured()) {
-      const data = await supabaseAuthService.signIn(email, password);
-      if (data.user) {
-        const profile = await supabaseAuthService.getCurrentProfile();
-        if (profile) {
-          setUser(mapSupabaseProfileToUser(profile));
-          return;
+      try {
+        const data = await supabaseAuthService.signIn(cleanEmail, password);
+        if (data.user) {
+          const profile = await supabaseAuthService.getCurrentProfile();
+          if (profile) {
+            setUser(mapSupabaseProfileToUser(profile));
+            return;
+          }
         }
+      } catch (err: any) {
+        // If Supabase is not the active primary or fails, proceed to server API
+        if (!isApiConfigured) throw err;
       }
     }
 
-    const res = await api.auth.login(email, password, rememberMe);
+    // 2. Server-side authoritative authentication (/api/auth/login)
+    const res = await api.auth.login(cleanEmail, password, rememberMe);
     if (res.token) {
       setStoredToken(res.token);
     }
     setUser(res.user);
-    try {
-      localStorage.setItem('lorea_user', JSON.stringify(res.user));
-    } catch {}
   };
 
   const register = async (formData: any) => {
@@ -213,6 +167,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // ignore
     }
     setStoredToken(null);
+    try {
+      localStorage.removeItem('lorea_user');
+      localStorage.removeItem('lorea_jwt_token');
+      sessionStorage.clear();
+    } catch {}
     setUser(null);
   };
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Lock, Mail, ArrowRight, ShieldCheck, UserCheck } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, ArrowRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { LoreaLogo } from '../LoreaLogo';
@@ -47,18 +47,6 @@ export const LoginView: React.FC<LoginViewProps> = ({
     }
   };
 
-  // Demo 1-click test fill helper
-  const handleQuickFill = (role: 'client' | 'admin') => {
-    if (role === 'client') {
-      setEmail('nourhan@lorea.eg');
-      setPassword('Lorea@Cairo2025');
-    } else {
-      setEmail('admin@lorea.com');
-      setPassword('Admin@Lorea2025!');
-    }
-    setErrorMessage(null);
-  };
-
   return (
     <div className="max-w-md w-full mx-auto bg-white border border-[#EAE5DE] shadow-xl p-8 sm:p-10 transition-all">
       {/* Brand Header */}
@@ -73,31 +61,6 @@ export const LoginView: React.FC<LoginViewProps> = ({
         <p className="text-xs text-[#7C746B] font-light mt-1.5">
           {t('auth.signin_subtitle')}
         </p>
-      </div>
-
-      {/* Demo Credentials Quick Fill Pills */}
-      <div className="mb-6 p-3.5 bg-[#FAF8F5] border border-[#EAE5DE]/80 text-xs">
-        <span className="text-[10px] tracking-wider uppercase font-semibold text-[#7C746B] block mb-2">
-          {language === 'ar' ? 'بيانات تجريبية سريعة' : 'QUICK DEMO CREDENTIALS'}
-        </span>
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            onClick={() => handleQuickFill('client')}
-            className="flex items-center justify-center space-x-1.5 px-2.5 py-1.5 bg-white border border-[#EAE5DE] hover:border-[#1D1D1B] text-[11px] text-[#1D1D1B] transition-colors"
-          >
-            <UserCheck className="w-3.5 h-3.5 text-[#B88F88]" />
-            <span>{language === 'ar' ? 'عميلة (نورهان)' : 'Client Account'}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleQuickFill('admin')}
-            className="flex items-center justify-center space-x-1.5 px-2.5 py-1.5 bg-white border border-[#EAE5DE] hover:border-[#1D1D1B] text-[11px] text-[#1D1D1B] transition-colors"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-[#964036]" />
-            <span>{language === 'ar' ? 'إدارة (Admin)' : 'Admin Portal'}</span>
-          </button>
-        </div>
       </div>
 
       {/* Error Alert */}

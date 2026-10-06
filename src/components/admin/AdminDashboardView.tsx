@@ -146,8 +146,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
   const { language } = useLanguage();
 
   // Admin login gateway states
-  const [adminEmail, setAdminEmail] = useState('kareemzohrey200@gmail.com');
-  const [adminPassword, setAdminPassword] = useState('Kz123456789');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
   const [adminLoginLoading, setAdminLoginLoading] = useState(false);
   const [adminLoginError, setAdminLoginError] = useState<string | null>(null);
 
@@ -505,17 +505,61 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
     }
   };
 
-  // If user is not an authenticated Admin, present the Admin Security Gateway
-  if (!user || (user.role !== 'admin' && user.role !== 'super_admin' && user.role !== 'manager')) {
+  // 1. If user is logged in as a non-admin (e.g. customer), show explicit 403 Forbidden screen
+  if (user && user.role !== 'admin' && user.role !== 'super_admin' && user.role !== 'manager') {
+    return (
+      <div className="min-h-screen bg-[#151413] flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden font-sans">
+        <div className="relative z-10 w-full max-w-md bg-[#1D1D1B] border border-[#2A2826] p-8 sm:p-10 shadow-2xl text-center">
+          <LoreaLogo variant="dark" className="mx-auto scale-110 mb-4" />
+          <div className="inline-flex items-center space-x-2 px-3 py-1 bg-red-950/60 border border-red-800/80 mb-4">
+            <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
+            <span className="text-[10px] tracking-[0.25em] uppercase font-mono text-red-300">
+              403 ACCESS DENIED
+            </span>
+          </div>
+          <h2 className="font-serif text-2xl font-light text-[#FAF8F5] mb-2">
+            Administrative Clearance Required
+          </h2>
+          <p className="text-xs text-[#B7ADA2] leading-relaxed mb-6 font-light">
+            You are currently signed in as a boutique customer account (<span className="text-white font-mono">{user.email}</span>). Administrative and operational portals are restricted to authorized personnel only.
+          </p>
+          <div className="space-y-3">
+            <button
+              onClick={onReturnToStore}
+              className="w-full py-3 bg-[#BA945A] hover:bg-[#A38048] text-white text-xs uppercase tracking-[0.2em] font-medium transition-colors cursor-pointer"
+            >
+              Return to Store
+            </button>
+            <button
+              onClick={async () => {
+                await logout();
+                onReturnToStore();
+              }}
+              className="w-full py-2.5 bg-[#252422] hover:bg-[#333] text-[#B7ADA2] hover:text-white text-xs uppercase tracking-[0.18em] font-medium transition-colors cursor-pointer border border-[#333]"
+            >
+              Sign Out & Switch Account
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. If user is unauthenticated, present the secure Atelier Operations Login Gateway
+  if (!user) {
     const handleAdminLogin = async (e: React.FormEvent) => {
       e.preventDefault();
       setAdminLoginError(null);
+      if (!adminEmail.trim() || !adminPassword) {
+        setAdminLoginError('Staff identity email and password are required.');
+        return;
+      }
       try {
         setAdminLoginLoading(true);
         await login(adminEmail.trim(), adminPassword, true);
         await loadCurrentSectionData();
       } catch (err: any) {
-        setAdminLoginError(err.message || 'Admin authentication failed');
+        setAdminLoginError(err.message || 'Administrative authentication failed. Please verify your credentials.');
       } finally {
         setAdminLoginLoading(false);
       }
@@ -538,8 +582,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
             <h2 className="font-serif text-2xl font-light text-[#FAF8F5]">
               Administrative Authorization
             </h2>
-            <p className="text-xs text-[#7C746B] mt-1">
-              Restricted to authorized atelier directors and logistics managers.
+            <p className="text-xs text-[#7C746B] mt-1 font-light">
+              Restricted to authorized atelier directors and operations staff.
             </p>
           </div>
 
@@ -560,19 +604,21 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
                 value={adminEmail}
                 onChange={(e) => setAdminEmail(e.target.value)}
                 required
+                placeholder="staff@loreaofficial.com"
                 className="w-full bg-[#151413] border border-[#333] text-[#FAF8F5] px-3.5 py-2.5 focus:border-[#BA945A] focus:outline-none transition-colors font-mono"
               />
             </div>
 
             <div>
               <label className="block text-[10px] uppercase tracking-[0.2em] text-[#7C746B] font-mono mb-1.5">
-                Atelier Master Key / Password
+                Atelier Password
               </label>
               <input
                 type="password"
                 value={adminPassword}
                 onChange={(e) => setAdminPassword(e.target.value)}
                 required
+                placeholder="••••••••••••"
                 className="w-full bg-[#151413] border border-[#333] text-[#FAF8F5] px-3.5 py-2.5 focus:border-[#BA945A] focus:outline-none transition-colors"
               />
             </div>
@@ -587,15 +633,6 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
           </form>
 
           <div className="mt-8 pt-6 border-t border-[#2A2826] text-center space-y-3">
-            <div className="bg-[#151413] p-3 border border-[#2A2826] text-[11px] text-left space-y-1">
-              <span className="text-[10px] uppercase font-mono text-[#BA945A] block font-semibold">
-                ADMIN AUTHORIZATION CREDENTIALS:
-              </span>
-              <p className="font-mono text-[#FAF8F5] text-xs font-semibold">Kareem Zohrey (Executive Director)</p>
-              <p className="font-mono text-[#B7ADA2]">Email: <span className="text-[#FAF8F5]">kareemzohrey200@gmail.com</span></p>
-              <p className="font-mono text-[#B7ADA2]">Password: <span className="text-[#FAF8F5]">Kz123456789</span></p>
-            </div>
-
             <button
               onClick={onReturnToStore}
               className="text-xs text-[#7C746B] hover:text-[#FAF8F5] transition-colors flex items-center justify-center space-x-1.5 mx-auto"
@@ -674,7 +711,11 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
             }
           }}
           onReturnToStore={onReturnToStore}
-          onLogout={logout}
+          onLogout={async () => {
+            await logout();
+            onReturnToStore();
+            window.history.replaceState({}, '', '/');
+          }}
           adminName={`${user.firstName} ${user.lastName}`}
           adminRole={user.role}
           isMobileOpen={isMobileMenuOpen}

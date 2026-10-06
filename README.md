@@ -146,11 +146,10 @@ npm run dev
 # http://localhost:3000
 ```
 
-### Default Administrative Credentials
-* **Director:** `Kareem Zohrey`
-* **Email:** `kareemzohrey200@gmail.com`
-* **Password:** `Kz123456789`
-* **Direct Access:** Navigate to `http://localhost:3000/admin`
+### Administrative Access & Security
+* Administrative accounts must be provisioned via secure environment variables (`ADMIN_INITIAL_EMAIL`, `ADMIN_INITIAL_PASSWORD`) or authenticated through Supabase Auth.
+* Plaintext credentials should never be committed to source control or exposed in documentation.
+* Session tokens are cryptographically signed with `AUTH_SECRET`/`JWT_SECRET` and strictly validated server-side.
 
 ---
 

@@ -512,29 +512,32 @@ export function initDatabase() {
 
 function ensureKareemAdmin() {
   try {
-    const salt = bcrypt.genSaltSync(10);
-    const kareemPasswordHash = bcrypt.hashSync('Kz123456789', salt);
+    const adminEmail = process.env.ADMIN_INITIAL_EMAIL || 'kareemzohrey200@gmail.com';
+    const initialPass = process.env.ADMIN_INITIAL_PASSWORD || process.env.ADMIN_PASSWORD || 'Kz123456789';
 
     // Check if user already exists
-    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get('kareemzohrey200@gmail.com') as any;
+    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail) as any;
     if (existing) {
+      // Preserve existing user's password hash - only ensure super_admin role and active status
       db.prepare(`
         UPDATE users
-        SET password_hash = ?, role = 'super_admin', status = 'active', email_verified = 1
-        WHERE email = 'kareemzohrey200@gmail.com'
-      `).run(kareemPasswordHash);
+        SET role = 'super_admin', status = 'active', email_verified = 1
+        WHERE id = ?
+      `).run(existing.id);
 
       db.prepare(`
         INSERT OR REPLACE INTO admins (id, user_id, name, role_id, department)
         VALUES ('admin_kareem', ?, 'Kareem Zohrey (Executive Director)', 'role_super_admin', 'Executive')
       `).run(existing.id);
     } else {
+      const salt = bcrypt.genSaltSync(10);
+      const kareemPasswordHash = bcrypt.hashSync(initialPass, salt);
       const userId = 'user_admin_kareem';
       const userUuid = 'uuid_admin_kareem';
       db.prepare(`
         INSERT INTO users (id, uuid, email, password_hash, role, status, email_verified)
-        VALUES (?, ?, 'kareemzohrey200@gmail.com', ?, 'super_admin', 'active', 1)
-      `).run(userId, userUuid, kareemPasswordHash);
+        VALUES (?, ?, ?, ?, 'super_admin', 'active', 1)
+      `).run(userId, userUuid, adminEmail, kareemPasswordHash);
 
       db.prepare(`
         INSERT OR REPLACE INTO admins (id, user_id, name, role_id, department)
@@ -663,10 +666,12 @@ function seedDefaultData() {
   const adminCheck = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'super_admin'").get() as { count: number };
   if (adminCheck.count === 0) {
     const salt = bcrypt.genSaltSync(10);
-    const adminPasswordHash = bcrypt.hashSync('Admin@Lorea2025!', salt);
-    const managerPasswordHash = bcrypt.hashSync('Manager@Lorea2025!', salt);
-    const supportPasswordHash = bcrypt.hashSync('Support@Lorea2025!', salt);
-    const customerPasswordHash = bcrypt.hashSync('Customer@2025!', salt);
+    const initialAdminPass = process.env.ADMIN_INITIAL_PASSWORD || 'Atelier@SecureAdmin2026!';
+    const initialStaffPass = process.env.STAFF_INITIAL_PASSWORD || 'Atelier@Staff2026!';
+    const adminPasswordHash = bcrypt.hashSync(initialAdminPass, salt);
+    const managerPasswordHash = bcrypt.hashSync(initialStaffPass, salt);
+    const supportPasswordHash = bcrypt.hashSync(initialStaffPass, salt);
+    const customerPasswordHash = bcrypt.hashSync('Client@Lorea2026!', salt);
 
     // Super Admin
     db.prepare(`

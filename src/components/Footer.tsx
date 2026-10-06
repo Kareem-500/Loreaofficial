@@ -411,15 +411,6 @@ export const Footer: React.FC<FooterProps> = ({
                   Checkout
                 </a>
               </li>
-              <li>
-                <a
-                  href={appPath('/admin')}
-                  onClick={(e) => navigateTo(e, '/admin', 'admin')}
-                  className="hover:text-white transition-colors text-[#BA945A] font-mono text-[11px] uppercase tracking-wider flex items-center space-x-1"
-                >
-                  <span>Atelier Admin</span>
-                </a>
-              </li>
             </ul>
           </div>
         </div>
