@@ -120,7 +120,9 @@ function getStoredToken(): string | null {
 }
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-export const isApiConfigured = true;
+// In local development the Express/Vite host serves /api. A static Pages build
+// has no API unless a separately hosted HTTPS endpoint is configured.
+export const isApiConfigured = import.meta.env.DEV || Boolean(API_BASE_URL);
 
 export function getApiUrl(url: string): string {
   return `${API_BASE_URL}${url}`;
@@ -139,6 +141,9 @@ export function setStoredToken(token: string | null) {
 }
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
+  if (!isApiConfigured) {
+    throw new Error('This feature needs a configured backend API.');
+  }
   const token = getStoredToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',

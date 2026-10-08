@@ -22,7 +22,7 @@ initDatabase();
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT || 3000);
 
   // Production Security Headers
   app.use((req, res, next) => {
@@ -36,15 +36,21 @@ async function startServer() {
     next();
   });
 
-  // CORS & Preflight Handling (loreafashion.ai.studio, loreaofficial.com, preview containers)
+  // CORS & Preflight Handling with a strict origin allowlist for production deployment.
   app.use((req, res, next) => {
     const origin = req.headers.origin;
-    if (origin) {
+    const allowedOrigins = new Set([
+      process.env.SITE_URL,
+      ...(process.env.CORS_ALLOWED_ORIGINS || '').split(',').map((value) => value.trim()),
+      'http://localhost:3000',
+      'http://localhost:5173',
+    ].filter((value): value is string => Boolean(value)));
+
+    if (origin && allowedOrigins.has(origin)) {
       res.header('Access-Control-Allow-Origin', origin);
       res.header('Access-Control-Allow-Credentials', 'true');
-    } else {
-      res.header('Access-Control-Allow-Origin', '*');
     }
+
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
     if (req.method === 'OPTIONS') {

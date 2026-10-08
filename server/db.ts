@@ -2,6 +2,7 @@ import { DatabaseSync } from 'node:sqlite';
 import path from 'path';
 import fs from 'fs';
 import bcrypt from 'bcryptjs';
+import { randomUUID } from 'node:crypto';
 
 const dbPath = path.join(process.cwd(), 'lorea.db');
 export const db = new DatabaseSync(dbPath);
@@ -513,47 +514,29 @@ export function initDatabase() {
   // Seed default data if database is fresh
   seedDefaultData();
   seedDefaultCollections();
-  ensureDemoUsers();
-  ensureKareemAdmin();
+  ensureInitialAdmin();
 }
 
-function ensureKareemAdmin() {
-  try {
-    const adminEmail = process.env.ADMIN_INITIAL_EMAIL || 'kareemzohrey200@gmail.com';
-    const initialPass = process.env.ADMIN_INITIAL_PASSWORD || process.env.ADMIN_PASSWORD || 'Kz123456789';
-
-    // Check if user already exists
-    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail) as any;
-    if (existing) {
-      // Preserve existing user's password hash - only ensure super_admin role and active status
-      db.prepare(`
-        UPDATE users
-        SET role = 'super_admin', status = 'active', email_verified = 1
-        WHERE id = ?
-      `).run(existing.id);
-
-      db.prepare(`
-        INSERT OR REPLACE INTO admins (id, user_id, name, role_id, department)
-        VALUES ('admin_kareem', ?, 'Kareem Zohrey (Executive Director)', 'role_super_admin', 'Executive')
-      `).run(existing.id);
-    } else {
-      const salt = bcrypt.genSaltSync(10);
-      const kareemPasswordHash = bcrypt.hashSync(initialPass, salt);
-      const userId = 'user_admin_kareem';
-      const userUuid = 'uuid_admin_kareem';
-      db.prepare(`
-        INSERT INTO users (id, uuid, email, password_hash, role, status, email_verified)
-        VALUES (?, ?, ?, ?, 'super_admin', 'active', 1)
-      `).run(userId, userUuid, adminEmail, kareemPasswordHash);
-
-      db.prepare(`
-        INSERT OR REPLACE INTO admins (id, user_id, name, role_id, department)
-        VALUES ('admin_kareem', ?, 'Kareem Zohrey (Executive Director)', 'role_super_admin', 'Executive')
-      `).run(userId);
-    }
-  } catch (err) {
-    console.error('Error ensuring Kareem admin user:', err);
+function ensureInitialAdmin() {
+  const email = process.env.ADMIN_INITIAL_EMAIL?.trim().toLowerCase();
+  const password = process.env.ADMIN_INITIAL_PASSWORD;
+  if (!email && !password) return;
+  if (!email || !password || password.length < 16) {
+    throw new Error('Set ADMIN_INITIAL_EMAIL and a 16+ character ADMIN_INITIAL_PASSWORD to bootstrap the first admin.');
   }
+  const existing = db.prepare('SELECT id, role FROM users WHERE email = ?').get(email) as { id: string; role: string } | undefined;
+  if (existing) {
+    if (!['admin', 'super_admin'].includes(existing.role)) {
+      throw new Error('ADMIN_INITIAL_EMAIL belongs to a non-admin account; refusing role escalation.');
+    }
+    return;
+  }
+  const id = `user_${randomUUID()}`;
+  const hash = bcrypt.hashSync(password, bcrypt.genSaltSync(12));
+  db.prepare("INSERT INTO users (id, uuid, email, password_hash, role, status, email_verified) VALUES (?, ?, ?, ?, 'super_admin', 'active', 1)")
+    .run(id, randomUUID(), email, hash);
+  db.prepare("INSERT INTO admins (id, user_id, name, role_id, department) VALUES (?, ?, 'Initial Administrator', 'role_super_admin', 'Executive')")
+    .run(`admin_${randomUUID()}`, id);
 }
 
 function seedDefaultCollections() {
@@ -577,43 +560,6 @@ function seedDefaultCollections() {
     }
   } catch (err) {
     console.warn('Collections seed warning:', err);
-  }
-}
-
-function ensureDemoUsers() {
-  try {
-    const salt = bcrypt.genSaltSync(10);
-    const clientHash = bcrypt.hashSync('Lorea@Cairo2025', salt);
-
-    const existingClient = db.prepare('SELECT id FROM users WHERE email = ?').get('nourhan@lorea.eg') as any;
-    if (!existingClient) {
-      db.prepare(`
-        INSERT INTO users (id, uuid, email, password_hash, role, status, email_verified)
-        VALUES (?, ?, ?, ?, 'customer', 'active', 1)
-      `).run('user_cust_00', 'uuid_cust_00', 'nourhan@lorea.eg', clientHash);
-
-      db.prepare(`
-        INSERT OR IGNORE INTO customers (id, user_id, first_name, last_name, phone, country, city)
-        VALUES (?, ?, 'Nourhan', 'El-Kady', '+20 100 111 2233', 'Egypt', 'Cairo')
-      `).run('cust_user_cust_00', 'user_cust_00');
-
-      db.prepare(`
-        INSERT OR IGNORE INTO customer_profiles (id, customer_id, marketing_consent)
-        VALUES (?, ?, 1)
-      `).run('prof_user_cust_00', 'cust_user_cust_00');
-
-      db.prepare(`
-        INSERT OR IGNORE INTO addresses (id, customer_id, full_name, phone, governorate, city, street, building_number, is_default)
-        VALUES (?, ?, 'Nourhan El-Kady', '+20 100 111 2233', 'Cairo', 'Zamalek', 'Gezira Street, Near Moroccan Embassy', 'Villa 12', 1)
-      `).run('addr_user_cust_00', 'cust_user_cust_00');
-
-      db.prepare(`
-        INSERT OR IGNORE INTO wishlists (id, customer_id, user_id)
-        VALUES (?, ?, ?)
-      `).run('wish_user_cust_00', 'cust_user_cust_00', 'user_cust_00');
-    }
-  } catch (err) {
-    console.error('Error ensuring demo users:', err);
   }
 }
 
@@ -669,167 +615,7 @@ function seedDefaultData() {
     insertRolePerm.run('role_support', 'customers.view');
   }
 
-  // Seed default admin users
-  const adminCheck = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'super_admin'").get() as { count: number };
-  if (adminCheck.count === 0) {
-    const salt = bcrypt.genSaltSync(10);
-    const initialAdminPass = process.env.ADMIN_INITIAL_PASSWORD || 'Atelier@SecureAdmin2026!';
-    const initialStaffPass = process.env.STAFF_INITIAL_PASSWORD || 'Atelier@Staff2026!';
-    const adminPasswordHash = bcrypt.hashSync(initialAdminPass, salt);
-    const managerPasswordHash = bcrypt.hashSync(initialStaffPass, salt);
-    const supportPasswordHash = bcrypt.hashSync(initialStaffPass, salt);
-    const customerPasswordHash = bcrypt.hashSync('Client@Lorea2026!', salt);
-
-    // Super Admin
-    db.prepare(`
-      INSERT INTO users (id, uuid, email, password_hash, role, status, email_verified)
-      VALUES (?, ?, ?, ?, 'super_admin', 'active', 1)
-    `).run('user_admin_01', 'uuid_admin_01', 'admin@lorea.com', adminPasswordHash);
-
-    db.prepare(`
-      INSERT INTO admins (id, user_id, name, role_id, department)
-      VALUES (?, ?, ?, ?, ?)
-    `).run('admin_01', 'user_admin_01', 'Farida Al-Sayed (Head of Operations)', 'role_super_admin', 'Executive');
-
-    // Manager
-    db.prepare(`
-      INSERT INTO users (id, uuid, email, password_hash, role, status, email_verified)
-      VALUES (?, ?, ?, ?, 'manager', 'active', 1)
-    `).run('user_mgr_01', 'uuid_mgr_01', 'manager@lorea.com', managerPasswordHash);
-
-    db.prepare(`
-      INSERT INTO admins (id, user_id, name, role_id, department)
-      VALUES (?, ?, ?, ?, ?)
-    `).run('admin_02', 'user_mgr_01', 'Youssef Mansour (Merchandising)', 'role_manager', 'Retail');
-
-    // Support
-    db.prepare(`
-      INSERT INTO users (id, uuid, email, password_hash, role, status, email_verified)
-      VALUES (?, ?, ?, ?, 'support', 'active', 1)
-    `).run('user_spt_01', 'uuid_spt_01', 'support@lorea.com', supportPasswordHash);
-
-    db.prepare(`
-      INSERT INTO admins (id, user_id, name, role_id, department)
-      VALUES (?, ?, ?, ?, ?)
-    `).run('admin_03', 'user_spt_01', 'Salma El-Gazzar (Concierge)', 'role_support', 'Client Concierge');
-
-    // Seed 4 realistic Egyptian customers
-    const demoCustomers = [
-      {
-        id: 'user_cust_00',
-        uuid: 'uuid_cust_00',
-        email: 'nourhan@lorea.eg',
-        first: 'Nourhan',
-        last: 'El-Kady',
-        phone: '+20 100 111 2233',
-        governorate: 'Cairo',
-        city: 'Zamalek',
-        street: 'Gezira Street, Near Moroccan Embassy',
-        building: 'Villa 12',
-      },
-      {
-        id: 'user_cust_01',
-        uuid: 'uuid_cust_01',
-        email: 'nour.khalil@example.com',
-        first: 'Nour',
-        last: 'Khalil',
-        phone: '+20 100 234 5678',
-        governorate: 'Cairo',
-        city: 'New Cairo',
-        street: 'Street 90 North, Choueifat District',
-        building: 'Villa 14B',
-      },
-      {
-        id: 'user_cust_02',
-        uuid: 'uuid_cust_02',
-        email: 'mariam.hassan@example.com',
-        first: 'Mariam',
-        last: 'Hassan',
-        phone: '+20 122 876 5432',
-        governorate: 'Giza',
-        city: 'Sheikh Zayed',
-        street: 'El Boustan St, Beverly Hills Compound',
-        building: 'Building 42, Apt 3',
-      },
-      {
-        id: 'user_cust_03',
-        uuid: 'uuid_cust_03',
-        email: 'layla.mansour@example.com',
-        first: 'Layla',
-        last: 'Mansour',
-        phone: '+20 111 456 7890',
-        governorate: 'Alexandria',
-        city: 'Kafr Abdo',
-        street: 'Abou Quir Road, Near Saint Marc',
-        building: 'Tower 9, Floor 5',
-      },
-    ];
-
-    for (const cust of demoCustomers) {
-      db.prepare(`
-        INSERT INTO users (id, uuid, email, password_hash, role, status, email_verified)
-        VALUES (?, ?, ?, ?, 'customer', 'active', 1)
-      `).run(cust.id, cust.uuid, cust.email, customerPasswordHash);
-
-      const custRecordId = `cust_${cust.id}`;
-      db.prepare(`
-        INSERT INTO customers (id, user_id, first_name, last_name, phone, country, city)
-        VALUES (?, ?, ?, ?, ?, 'Egypt', ?)
-      `).run(custRecordId, cust.id, cust.first, cust.last, cust.phone, cust.city);
-
-      db.prepare(`
-        INSERT INTO customer_profiles (id, customer_id, marketing_consent)
-        VALUES (?, ?, 1)
-      `).run(`prof_${cust.id}`, custRecordId);
-
-      db.prepare(`
-        INSERT INTO addresses (id, customer_id, full_name, phone, governorate, city, street, building_number, is_default)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
-      `).run(`addr_${cust.id}`, custRecordId, `${cust.first} ${cust.last}`, cust.phone, cust.governorate, cust.city, cust.street, cust.building);
-
-      db.prepare(`
-        INSERT INTO wishlists (id, customer_id, user_id)
-        VALUES (?, ?, ?)
-      `).run(`wish_${cust.id}`, custRecordId, cust.id);
-    }
-
-    // Seed Coupons
-    const insertCoupon = db.prepare(`
-      INSERT INTO coupons (id, code, discount_type, discount_value, min_order_value, max_discount, usage_limit, times_used, is_active)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
-    `);
-    insertCoupon.run('cp_01', 'WELCOME10', 'percentage', 10, 1000, 500, 5000, 48);
-    insertCoupon.run('cp_02', 'LOREA15', 'percentage', 15, 3000, 1000, 1000, 19);
-    insertCoupon.run('cp_03', 'CAIROVIP', 'fixed', 500, 4000, 500, 500, 8);
-    insertCoupon.run('cp_04', 'EID2025', 'percentage', 20, 2500, 1500, 200, 72);
-
-    // Seed Settings
-    const insertSetting = db.prepare('INSERT OR REPLACE INTO settings (key, value, category) VALUES (?, ?, ?)');
-    insertSetting.run('site_name', 'LORÉA', 'brand');
-    insertSetting.run('site_name_ar', 'لوريا', 'brand');
-    insertSetting.run('currency_primary', 'EGP', 'localization');
-    insertSetting.run('timezone', 'Africa/Cairo', 'localization');
-    insertSetting.run('shipping_domestic_cairo_egp', '85', 'shipping');
-    insertSetting.run('shipping_domestic_governorates_egp', '120', 'shipping');
-    insertSetting.run('free_shipping_threshold_egp', '2500', 'shipping');
-    insertSetting.run('support_phone', '+20 2 2456 7890', 'general');
-    insertSetting.run('support_email', 'concierge@lorea.com', 'general');
-    insertSetting.run('boutique_address', '14 Patrice Lumumba St, Zamalek, Cairo, Egypt', 'general');
-
-    // Seed Initial Activity Log
-    db.prepare(`
-      INSERT INTO admin_activity_logs (id, admin_id, admin_name, action, resource, resource_id, after_state)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      'log_init_01',
-      'user_admin_01',
-      'Farida Al-Sayed',
-      'system.bootstrap',
-      'platform',
-      'lorea_main',
-      JSON.stringify({ status: 'Platform initialised with luxury fashion schema & RBAC' })
-    );
-  }
+  // Production installs start without test accounts; catalog data remains seeded separately.
 
   // Populate categories and products from products.ts if not yet populated
   seedCatalogFromProducts();

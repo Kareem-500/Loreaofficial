@@ -1,178 +1,55 @@
-# LORÉA — Haute Couture & Modern Women's Fashion
-### Full-Stack Production Architecture, Secure Backend & Enterprise E-Commerce Platform
+# LORÉA
 
----
+LORÉA is a React 19, TypeScript, and Vite fashion storefront. The repository includes a static GitHub Pages frontend, Supabase client integration and PostgreSQL migrations, plus an optional Express/SQLite API for deployments that host a Node server.
 
-## 1. Project Overview & Architectural Vision
+## Local development
 
-**LORÉA** is an haute couture women’s fashion maison designed in Cairo, marrying architectural silhouettes, European deadstock linens, and quiet luxury. 
-
-This platform represents a complete **Full-Stack E-Commerce Engine** adhering to the immutable principle: **The frontend is never the source of truth.** All business rules, garment valuations, discount bounds, stock decrement locks, and administrative authorizations are enforced strictly on the server-side.
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    LORÉA CLIENT BROWSER                     │
-│    (React 19 SPA, Tailwind CSS v4, Motion, Lucide Icons)   │
-└──────────────────────────────┬──────────────────────────────┘
-                               │ HTTPS / REST / JSON
-                               ▼
-┌─────────────────────────────────────────────────────────────┐
-│               BACKEND / API SECURITY LAYER                  │
-│       (Express 4, Helmet Security Headers, CORS, Rate Limit)│
-└──────────────────────────────┬──────────────────────────────┘
-                               │ Authentication & Authorization
-                               ▼
-┌─────────────────────────────────────────────────────────────┐
-│             ROLE-BASED ACCESS CONTROL (RBAC)                │
-│    CUSTOMER  │  STAFF  │  ADMIN  │  SUPER_ADMIN (Kareem)    │
-└──────────────────────────────┬──────────────────────────────┘
-                               │ Validation & Business Logic
-                               ▼
-┌─────────────────────────────────────────────────────────────┐
-│          ATELIER TRANSACTION & AUDIT LOG ENGINE             │
-│    Price Verification · Atomic Inventory Locks · Timeline   │
-└──────────────────────────────┬──────────────────────────────┘
-                               │ Normalized Relational Storage
-                               ▼
-┌─────────────────────────────────────────────────────────────┐
-│             DUAL RELATIONAL STORAGE PERSISTENCE             │
-│   Primary Local/Cloud: SQLite with Foreign Key Cascade      │
-│   Hosted PostgreSQL: Supabase with Row Level Security (RLS) │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 2. Page & Routing Architecture
-
-### Public Client Routes
-| Route | View Component | Description |
-| :--- | :--- | :--- |
-| `/` | `Hero`, `Trending`, `BrandStory` | Homepage showcasing trending runway carousels |
-| `/shop` | `ShopCatalogView` | Comprehensive catalog with multi-facet filters |
-| `/shop/:category` | `ShopCatalogView` | Filtered category view (Dresses, Tops, Sets, Modest) |
-| `/product/:slug` | `ProductPageView` | High-fidelity product page with interactive atelier try-on |
-| `/story` | `BrandStory` | Cairo heritage editorial & deadstock fabric manifesto |
-| `/contact` | `CustomerCareView` | Atelier concierge desk & WhatsApp inquiries |
-| `/wishlist` | `WishlistDrawer` | Client private wishlist synced to relational DB |
-| `/cart` | `CartDrawer` | Bag with live stock threshold feedback |
-| `/checkout` | `CheckoutModal` | Express Egyptian shipping calculation (Governorates) |
-| `/order-confirmation`| `OrderConfirmationView` | Acquisition confirmation, receipt, & Bosta tracking |
-| `/account` | `CustomerAccountView` | Client dashboard (Overview tab) |
-| `/account/orders` | `CustomerAccountView` | Real-time order fulfillment & receipt history |
-| `/account/profile` | `CustomerAccountView` | Client personal details & measurements |
-| `/account/addresses` | `CustomerAccountView` | Saved Cairo & Egyptian delivery locations |
-| `/account/security` | `CustomerAccountView` | Password rotation & active device sessions |
-
-### Protected Administrative Routes
-| Route | Security Level | Functionality |
-| :--- | :--- | :--- |
-| `/admin` | `Staff+` | Atelier Operations Security Gateway |
-| `/admin/dashboard` | `Staff+` | Real-time telemetry, revenue velocity, & stock alarms |
-| `/admin/products` | `Admin+` | Garment catalog CRUD, batch edits, & image ordering |
-| `/admin/products/new`| `Admin+` | New garment modal with variant generation |
-| `/admin/categories` | `Admin+` | Taxonomy and collection spotlight management |
-| `/admin/orders` | `Staff+` | Order pipeline (Pending → Delivered → Cancelled) |
-| `/admin/orders/:id` | `Staff+` | Deep order inspection and courier dispatch |
-| `/admin/customers` | `Admin+` | VIP customer intelligence and purchase frequency |
-| `/admin/inventory` | `Manager+`| Variant SKU matrix with atomic stock adjustments |
-| `/admin/coupons` | `Admin+` | Promotional codes with max discount caps |
-| `/admin/reviews` | `Support+`| Verified purchase testimonial moderation |
-| `/admin/analytics` | `SuperAdmin`| COGS margins, net revenue, and ledger analytics |
-| `/admin/settings` | `SuperAdmin`| Atelier store parameters and currency rates |
-
----
-
-## 3. Technology Stack
-
-- **Frontend:** React 19, TypeScript 5.8, Vite 6, Tailwind CSS 4, Motion, Lucide React.
-- **Backend / API:** Node.js, Express 4, Cookie-Parser, BcryptJS, JSONWebToken, Dotenv.
-- **Persistence:** SQLite (`better-sqlite3` compatible), Supabase PostgreSQL with RLS.
-- **AI Atelier:** Google Gemini 2.5 Flash for virtual garment styling.
-- **SEO & Social:** OpenGraph, Twitter Cards, Schema.org JSON-LD (Product, Organization, WebSite).
-
----
-
-## 4. Security & Role-Based Access Control (RBAC)
-
-### Role Hierarchy
-1. **`CUSTOMER`**: Can browse public catalog, save wishlists, submit orders, and manage personal address books.
-2. **`STAFF`**: Can inspect assigned orders and customer care tickets.
-3. **`ADMIN`**: Can create/edit products, manage categories, moderate reviews, adjust coupons, and dispatch orders.
-4. **`SUPER_ADMIN` (`Kareem Zohrey`)**: Unrestricted operational governance, ledger analytics, and administrative role provisioning.
-
-### Production Security Hardening
-- **Zero-Trust Pricing:** The client never dictates prices or discounts. All line items are recalculated against the database during checkout.
-- **Atomic Stock Deductions:** Orders execute within database transactions, checking variant stock availability and decrementing counts to prevent race conditions.
-- **HTTP Security Headers:** Implemented `X-Content-Type-Options: nosniff`, `X-XSS-Protection: 1; mode=block`, and strict `Referrer-Policy`.
-- **Credential Storage:** High-entropy salt hashing via Bcrypt; authentication tokens stored in HttpOnly, SameSite cookies or signed Bearer headers.
-- **Admin Audit Trail:** Every product modification, inventory adjustment, and status change writes to `admin_activity_logs`.
-
----
-
-## 5. Environment Configuration
-
-Copy `.env.example` to `.env`:
-
-```bash
-cp .env.example .env
-```
-
-| Key | Purpose | Scope |
-| :--- | :--- | :--- |
-| `PORT` | Local dev and production server port (Default: `3000`) | Server |
-| `NODE_ENV` | `development` or `production` | Server |
-| `SITE_URL` | Canonical custom domain (e.g. `https://www.loreaofficial.com`) | Server |
-| `DATABASE_URL` | Local SQLite database file path (`./lorea.db`) | Server |
-| `AUTH_SECRET` | Secret key for signing session tokens | Server Private |
-| `JWT_SECRET` | Secret key for JWT payload validation | Server Private |
-| `GEMINI_API_KEY`| API key for atelier virtual stylist try-on | Server Private |
-| `VITE_SITE_URL` | Base canonical domain injected into client metadata | Client Public |
-| `VITE_SUPABASE_URL` | Optional Supabase project URL | Client Public |
-| `VITE_SUPABASE_ANON_KEY` | Optional Supabase anonymous public key | Client Public |
-
----
-
-## 6. Local Installation & Development
-
-```bash
-# 1. Install dependencies
-npm install
-
-# 2. Run integrated full-stack server (Express API + Vite SPA)
+```sh
+npm ci
+cp .env.example .env.local
 npm run dev
-
-# 3. Access local storefront
-# http://localhost:3000
 ```
 
-### Administrative Access & Security
-* Administrative accounts must be provisioned via secure environment variables (`ADMIN_INITIAL_EMAIL`, `ADMIN_INITIAL_PASSWORD`) or authenticated through Supabase Auth.
-* Plaintext credentials should never be committed to source control or exposed in documentation.
-* Session tokens are cryptographically signed with `AUTH_SECRET`/`JWT_SECRET` and strictly validated server-side.
+Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in `.env.local` to enable Supabase Auth and catalog features. Without those values, the storefront can still be previewed against its bundled catalog. The local Express API serves at port 3000. Set `VITE_API_URL` in production builds to the API origin (including when frontend and API share an origin) so the frontend knows the API is available.
 
----
+## Supabase setup
 
-## 7. Production Build & Deployment
+Apply the SQL files in `supabase/migrations/` in filename order using the Supabase CLI or SQL editor. They create the commerce schema, triggers, RPCs, RLS and storage policies. The later security-hardening migration removes direct client order writes, limits RPC execution to authenticated users, and closes anonymous chat table writes. Review migrations against the target project's existing schema before applying them.
 
-### Full-Stack Deployment (Cloud Run, Render, VPS, Railway)
-```bash
-# Build Vite client assets and compile backend
+Set the Supabase Auth site's production URL and allowed redirect URLs for both the Pages URL and any future custom domain. New signups receive the `customer` role. Provision the first administrator through the Supabase SQL editor by updating that user's `profiles.role` to `admin`; never accept a role from signup metadata or the browser.
+
+The Express API is a separate server deployment and is not deployed by GitHub Pages. It uses local SQLite and must be hosted on a persistent Node-capable platform for its API routes. GitHub Pages cannot run those routes; point `VITE_API_URL` at the separately hosted HTTPS API if using it. Do not set that variable to a Pages URL. Configure the API host's `CORS_ALLOWED_ORIGINS` with the exact Pages/custom-domain origins allowed to call it.
+
+## GitHub Pages
+
+The workflow in `.github/workflows/deploy-pages.yml` builds the Vite frontend and publishes `dist/` using GitHub's Pages deployment actions. Repository subpaths are inferred from the repository name. Configure these GitHub Actions **Variables** for the frontend:
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_PUBLISHABLE_KEY` (public browser key; RLS must protect every table)
+- `VITE_SITE_URL` (optional override; by default derived from the Pages repository URL)
+- `VITE_BASE_PATH` (optional override; set to `/` for a custom root domain)
+- `VITE_API_URL` (optional HTTPS URL for a separately hosted Express API)
+
+The build copies `index.html` to `404.html` for direct route loads and refreshes, and adds `.nojekyll`. For a custom domain, set `VITE_SITE_URL` to the HTTPS origin, set the `VITE_BASE_PATH` Actions variable to `/`, configure the domain in GitHub Pages, and add the corresponding Supabase Auth redirect URL.
+
+## Environment variables
+
+`.env.example` contains placeholders only. `VITE_*` values are public and compiled into browser assets. Server credentials such as `AUTH_SECRET`, `ADMIN_INITIAL_PASSWORD`, SMTP credentials, AI/payment credentials, and Supabase service credentials must only be configured in the server host's secret store. Never add real values to frontend source, Pages artifacts, or GitHub Actions YAML. The service role key is not needed by the Pages frontend.
+
+## Build and checks
+
+```sh
+npm run build:frontend
 npm run build
-
-# Start production server
-npm start
+npm run lint
 ```
 
-### Custom Domain & SEO Verification
-- **Canonical Domain:** Configurable via `SITE_URL=https://www.loreaofficial.com`.
-- **Dynamic XML Sitemap:** Automatically available at `/sitemap.xml` with all catalog products.
-- **Robots.txt:** Automatically served at `/robots.txt` disallowing `/admin` and `/api` crawlers.
-- **SSL / HTTPS:** Ensure upstream reverse proxy (Cloudflare, Nginx, or Cloud Run) terminates TLS with automatic HTTP → HTTPS redirects.
+`build:frontend` is the GitHub Pages artifact build. `build` also bundles the optional Express server for a Node host. For the server, set a strong `AUTH_SECRET`; configure `ADMIN_INITIAL_EMAIL` and a unique 16+ character `ADMIN_INITIAL_PASSWORD` only for first-admin bootstrap. Existing non-admin accounts are never promoted by bootstrap. No test admin/customer accounts are seeded.
 
----
+## Security and production limits
 
-## 8. License & Attribution
-
-Copyright © 2026 LORÉA Atelier Cairo S.A.E. All rights reserved.
-Crafted with quiet luxury, Egyptian textile heritage, and high-performance full-stack architecture.
+- Supabase public access depends on applying the migrations and keeping RLS enabled. The browser must only use the publishable key.
+- The Pages workflow publishes a static frontend; it does not provide order processing, email delivery, rate limiting, or the Express routes. Configure and operate the needed backend separately before accepting real orders.
+- The SQLite API is a local/small deployment option and needs persistent storage and operational backups; Supabase PostgreSQL migrations do not automatically migrate SQLite data.
+- Previously committed bootstrap passwords existed in repository history. They were removed from the current code; rotate/revoke any credentials that may have been reused. History rewriting is not part of this deployment because it would require a coordinated force push.
+- Password recovery and email delivery require valid Supabase Auth email configuration, or a separately hosted API with its mail provider configured.

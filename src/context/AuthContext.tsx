@@ -129,6 +129,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // 2. Server-side authoritative authentication (/api/auth/login)
+    if (!isApiConfigured) throw new Error('Account services are not configured yet.');
     const res = await api.auth.login(cleanEmail, password, rememberMe);
     if (res.token) {
       setStoredToken(res.token);
@@ -149,6 +150,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return {};
     }
 
+    if (!isApiConfigured) throw new Error('Account services are not configured yet.');
+
     const res = await api.auth.register(formData);
     if (res.token) {
       setStoredToken(res.token);
@@ -162,7 +165,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (isSupabaseConfigured()) {
         await supabaseAuthService.signOut();
       }
-      await api.auth.logout();
+      if (isApiConfigured) await api.auth.logout();
     } catch (e) {
       // ignore
     }
@@ -176,39 +179,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const forgotPassword = async (email: string) => {
-    // 1. Authoritative server dispatch via nodemailer (sends real email with 6-digit code and direct link)
-    const res = await api.auth.forgotPassword(email);
-    // 2. Also notify Supabase auth if configured
     if (isSupabaseConfigured()) {
-      try {
-        await supabaseAuthService.resetPasswordForEmail(email);
-      } catch (e) {
-        // server-side email has already been dispatched
-      }
+      await supabaseAuthService.resetPasswordForEmail(email);
+      return { message: 'If an account exists for that email, a password reset link has been sent.' };
     }
-    return res;
+    if (!isApiConfigured) throw new Error('Password recovery is not configured yet.');
+    return api.auth.forgotPassword(email);
   };
 
   const resetPassword = async (token: string, newPassword: string, confirmPassword: string) => {
-    // Authoritatively verify recovery token/code on server - NEVER bypass verification!
-    const res = await api.auth.resetPassword(token, newPassword, confirmPassword);
     if (isSupabaseConfigured()) {
-      try {
-        await supabaseAuthService.updatePassword(newPassword);
-      } catch (e) {
-        // ignore client-side session sync error
-      }
+      if (newPassword !== confirmPassword) throw new Error('Passwords do not match.');
+      await supabaseAuthService.updatePassword(newPassword);
+      return { message: 'Your password has been updated.' };
     }
-    return res;
+    if (!isApiConfigured) throw new Error('Password recovery is not configured yet.');
+    return api.auth.resetPassword(token, newPassword, confirmPassword);
   };
 
   const verifyEmail = async (token: string) => {
+    if (!isApiConfigured) throw new Error('Email verification is not configured yet.');
     const res = await api.auth.verifyEmail(token);
     await refreshUser();
     return res;
   };
 
   const resendVerification = async (email?: string) => {
+    if (!isApiConfigured) throw new Error('Email verification is not configured yet.');
     return await api.auth.resendVerification(email);
   };
 

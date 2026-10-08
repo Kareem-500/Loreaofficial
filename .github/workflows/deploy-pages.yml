@@ -27,28 +27,39 @@ jobs:
           node-version: 22
 
       - name: Install dependencies
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci || npm install
-          else
-            npm install
-          fi
+        run: npm ci
 
       - name: Build frontend
         run: |
           # Extract repository name safely from github.repository (handles push, workflow_dispatch, and all events)
           REPO_FULL="${{ github.repository }}"
           REPO_NAME="${REPO_FULL##*/}"
-          if [[ -z "$REPO_NAME" || "$REPO_NAME" == *".github.io" ]]; then
+          if [[ -n "$CONFIGURED_BASE_PATH" ]]; then
+            export VITE_BASE_PATH="$CONFIGURED_BASE_PATH"
+          elif [[ -z "$REPO_NAME" || "$REPO_NAME" == *".github.io" ]]; then
             export VITE_BASE_PATH="/"
           else
             export VITE_BASE_PATH="/${REPO_NAME}/"
           fi
+          OWNER="${REPO_FULL%%/*}"
+          if [[ -z "$CONFIGURED_SITE_URL" ]]; then
+            if [[ "$REPO_NAME" == *".github.io" ]]; then
+              export VITE_SITE_URL="https://${REPO_NAME}"
+            else
+              export VITE_SITE_URL="https://${OWNER}.github.io/${REPO_NAME}"
+            fi
+          else
+            export VITE_SITE_URL="$CONFIGURED_SITE_URL"
+          fi
           echo "Building with VITE_BASE_PATH=$VITE_BASE_PATH"
+          echo "Building canonical URLs for $VITE_SITE_URL"
           npm run build:frontend
         env:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          CONFIGURED_SITE_URL: ${{ vars.VITE_SITE_URL }}
+          CONFIGURED_BASE_PATH: ${{ vars.VITE_BASE_PATH }}
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
 
       - name: Ensure .nojekyll & SPA 404 handler
         run: |

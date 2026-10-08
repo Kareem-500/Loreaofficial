@@ -1,26 +1,39 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-// Project identification & environment extraction
-export const SUPABASE_PROJECT_REF = 'gyzxqhcwdyismayrbxva';
-export const DEFAULT_SUPABASE_URL = `https://${SUPABASE_PROJECT_REF}.supabase.co`;
+// Supabase is enabled only when deployment supplies its public project values.
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabasePublishableKey =
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  '';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const isPlaceholderValue = (value?: string) => {
+  if (!value) return true;
+  const normalized = value.trim().toLowerCase();
+  return [
+    'your_supabase_project_url',
+    'https://your-project.supabase.co',
+    'your_supabase_publishable_key',
+    'your_supabase_anon_key',
+    'placeholder',
+    'replace_me',
+    'example',
+  ].includes(normalized) || normalized.includes('example') || normalized.includes('your-project-ref');
+};
 
 export const isSupabaseConfigured = (): boolean => {
   return (
     Boolean(supabaseUrl) &&
-    Boolean(supabaseAnonKey) &&
-    supabaseUrl !== 'your_supabase_project_url' &&
-    supabaseUrl !== 'https://your-project.supabase.co' &&
-    supabaseAnonKey !== 'your_supabase_anon_key' &&
+    Boolean(supabasePublishableKey) &&
+    !isPlaceholderValue(supabaseUrl) &&
+    !isPlaceholderValue(supabasePublishableKey) &&
     supabaseUrl.startsWith('https://')
   );
 };
 
 // Fallback dummy URL and key for safe instantiation in browser/build environments
 const safeUrl = isSupabaseConfigured() ? supabaseUrl : 'https://placeholder.supabase.co';
-const safeKey = isSupabaseConfigured() ? supabaseAnonKey : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
+const safeKey = isSupabaseConfigured() ? supabasePublishableKey : 'not-configured';
 
 export const supabase: SupabaseClient = createClient(safeUrl, safeKey, {
   auth: {
