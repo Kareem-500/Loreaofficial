@@ -925,6 +925,57 @@ function seedSampleOrders() {
   const orderCount = db.prepare('SELECT COUNT(*) as count FROM orders').get() as { count: number };
   if (orderCount.count > 0) return;
 
+  // The sample orders are used by the local admin preview, but they must still
+  // satisfy the same foreign keys as real orders. Older versions attempted to
+  // insert them before their demo customers existed, which made database
+  // initialization abort and prevented the server from starting at all.
+  const demoCustomers = [
+    {
+      userId: 'user_cust_01',
+      customerId: 'cust_user_cust_01',
+      email: 'nour.demo@lorea.local',
+      firstName: 'Nour',
+      lastName: 'Khalil',
+      phone: '+20 100 234 5678',
+      city: 'New Cairo',
+    },
+    {
+      userId: 'user_cust_02',
+      customerId: 'cust_user_cust_02',
+      email: 'mariam.demo@lorea.local',
+      firstName: 'Mariam',
+      lastName: 'Hassan',
+      phone: '+20 122 876 5432',
+      city: 'Sheikh Zayed',
+    },
+  ];
+
+  const insertDemoUser = db.prepare(`
+    INSERT OR IGNORE INTO users (id, uuid, email, password_hash, role, status, email_verified)
+    VALUES (?, ?, ?, ?, 'customer', 'active', 1)
+  `);
+  const insertDemoCustomer = db.prepare(`
+    INSERT OR IGNORE INTO customers (id, user_id, first_name, last_name, phone, city)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `);
+
+  for (const customer of demoCustomers) {
+    insertDemoUser.run(
+      customer.userId,
+      `uuid_${customer.userId}`,
+      customer.email,
+      '!seeded-demo-account-no-login',
+    );
+    insertDemoCustomer.run(
+      customer.customerId,
+      customer.userId,
+      customer.firstName,
+      customer.lastName,
+      customer.phone,
+      customer.city,
+    );
+  }
+
   const ordersData = [
     {
       id: 'ord_1001',

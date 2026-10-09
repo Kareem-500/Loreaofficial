@@ -6,7 +6,13 @@ import { LanguageProvider } from './context/LanguageContext.tsx';
 import { ErrorBoundary } from './components/common/ErrorBoundary.tsx';
 import './index.css';
 
-createRoot(document.getElementById('root')!).render(
+const rootElement = document.getElementById('root');
+
+if (!rootElement) {
+  throw new Error('LORÉA could not find the application mount point.');
+}
+
+createRoot(rootElement).render(
   <StrictMode>
     <ErrorBoundary>
       <LanguageProvider>
@@ -17,4 +23,3 @@ createRoot(document.getElementById('root')!).render(
     </ErrorBoundary>
   </StrictMode>,
 );
-
