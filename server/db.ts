@@ -104,6 +104,7 @@ export function initDatabase() {
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL,
       token TEXT UNIQUE NOT NULL,
+      code TEXT,
       expires_at DATETIME NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       verified_at DATETIME,
@@ -509,6 +510,9 @@ export function initDatabase() {
   } catch {}
   try {
     db.exec("CREATE INDEX IF NOT EXISTS idx_password_reset_code ON password_reset_tokens(code);");
+  } catch {}
+  try {
+    db.exec("ALTER TABLE email_verifications ADD COLUMN code TEXT;");
   } catch {}
 
   // Seed default data if database is fresh

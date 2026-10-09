@@ -1218,6 +1218,36 @@ router.put('/settings', (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
+router.post('/settings/test-email', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { toEmail } = req.body;
+    const target = toEmail || req.user?.email;
+    if (!target) {
+      return res.status(400).json({ error: 'Recipient email address is required.' });
+    }
+
+    const { sendVerificationEmail, isSmtpConfigured } = await import('../emailService');
+    const result = await sendVerificationEmail({
+      toEmail: target,
+      recipientName: req.user?.firstName || 'Atelier Administrator',
+      verifyCode: '888999',
+      verifyToken: 'test-preview-token',
+      verifyUrl: `${process.env.SITE_URL || 'https://loreafashion.ai.studio'}/?test_email=1`,
+    });
+
+    if (result.success) {
+      return res.json({
+        message: `Test email dispatched to ${target} successfully. Please check your inbox (and Spam folder).`,
+        isLiveSmtp: isSmtpConfigured(),
+      });
+    } else {
+      return res.status(500).json({ error: 'Failed to send test email. Check SMTP server configuration.' });
+    }
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Error executing email test.' });
+  }
+});
+
 // 12. Collections Management
 router.get('/collections', (req: AuthenticatedRequest, res: Response) => {
   try {

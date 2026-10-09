@@ -20,7 +20,8 @@ export const ROUTES = {
   CONTACT: '/contact',
   SHIPPING: '/shipping',
   RETURNS: '/returns',
-  FAQ: '/faq'
+  FAQ: '/faq',
+  ADMIN: '/admin'
 } as const;
 
 export function getAppBasePath(): string {
@@ -29,19 +30,21 @@ export function getAppBasePath(): string {
     return metaBase.replace(/\/$/, '');
   }
 
-  // Dynamic GitHub Pages / sub-path detection in browser
+  // Dynamic GitHub Pages / sub-path detection in browser (ONLY when actually on github.io!)
   if (typeof window !== 'undefined' && window.location.pathname) {
-    const isGithubPages = window.location.hostname.endsWith('github.io');
-    const segments = window.location.pathname.split('/').filter(Boolean);
-    const knownTopRoutes = new Set([
-      'shop', 'store', 'new-in', 'sale', 'collection', 'collections',
-      'product', 'search', 'wishlist', 'account', 'cart', 'checkout',
-      'story', 'about', 'journal', 'contact', 'shipping', 'returns',
-      'faq'
-    ]);
-    // If the first pathname segment is NOT a known app route, it is a project repository subpath (e.g. /my-repo/)
-    if (segments.length > 0 && !knownTopRoutes.has(segments[0].toLowerCase())) {
-      return `/${segments[0]}`;
+    const isGithubPages = Boolean(window.location.hostname && window.location.hostname.endsWith('github.io'));
+    if (isGithubPages) {
+      const segments = window.location.pathname.split('/').filter(Boolean);
+      const knownTopRoutes = new Set([
+        'shop', 'store', 'new-in', 'sale', 'collection', 'collections',
+        'product', 'search', 'wishlist', 'account', 'cart', 'checkout',
+        'order-confirmation', 'story', 'about', 'journal', 'contact',
+        'shipping', 'returns', 'faq', 'admin'
+      ]);
+      // If the first pathname segment is NOT a known app route, it is a project repository subpath (e.g. /my-repo/)
+      if (segments.length > 0 && !knownTopRoutes.has(segments[0].toLowerCase())) {
+        return `/${segments[0]}`;
+      }
     }
   }
 
@@ -180,6 +183,13 @@ export function parseCurrentRoute(
   if (cleanPath === '/shipping') return { pathname: cleanPath, view: 'shipping' };
   if (cleanPath === '/returns') return { pathname: cleanPath, view: 'returns' };
   if (cleanPath === '/faq') return { pathname: cleanPath, view: 'faq' };
+
+  if (cleanPath === '/admin' || cleanPath.startsWith('/admin/')) {
+    const adminSegments = cleanPath.split('/').filter(Boolean);
+    const adminSection = adminSegments[1] || 'dashboard';
+    const adminEntityId = adminSegments[2] || undefined;
+    return { pathname: cleanPath, view: 'admin', adminSection, adminEntityId };
+  }
 
   return { pathname: cleanPath, view: '404', is404: true };
 }

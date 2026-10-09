@@ -101,7 +101,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
 
     try {
       setIsLoading(true);
-      const res = await resetPassword(cleanToken, newPassword, confirmPassword);
+      const res = await resetPassword(cleanToken, newPassword, confirmPassword, email.trim() || undefined);
       setStatusMessage(res.message || (language === 'ar' ? 'تم تحديث كلمة المرور بنجاح.' : 'Password updated successfully.'));
       setTimeout(() => {
         onClose();
@@ -226,6 +226,23 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
           </form>
         ) : (
           <form onSubmit={handlePerformReset} className="space-y-4">
+            <div>
+              <label className="block text-[11px] uppercase tracking-wider text-[#1D1D1B] font-medium mb-1.5">
+                {language === 'ar' ? 'البريد الإلكتروني المسجل' : 'Registered Email Address'}
+              </label>
+              <div className="relative">
+                <Mail className="w-4 h-4 text-[#7C746B] absolute top-1/2 -translate-y-1/2 left-3 pointer-events-none" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  required
+                  className="w-full bg-white border border-[#EAE5DE] text-xs py-2.5 pl-9 pr-3 text-[#1D1D1B] focus:border-[#1D1D1B] focus:outline-none"
+                />
+              </div>
+            </div>
+
             <div>
               <div className="flex justify-between items-center mb-1.5">
                 <label className="block text-[11px] uppercase tracking-wider text-[#1D1D1B] font-medium">

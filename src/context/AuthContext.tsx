@@ -14,7 +14,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   forgotPassword: (email: string) => Promise<{ message: string; previewResetToken?: string }>;
-  resetPassword: (token: string, newPassword: string, confirmPassword: string) => Promise<{ message: string }>;
+  resetPassword: (token: string, newPassword: string, confirmPassword: string, email?: string) => Promise<{ message: string }>;
   verifyEmail: (token: string) => Promise<{ message: string; verified: boolean }>;
   resendVerification: (email?: string) => Promise<{ message: string; previewToken?: string }>;
 }
@@ -187,14 +187,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return api.auth.forgotPassword(email);
   };
 
-  const resetPassword = async (token: string, newPassword: string, confirmPassword: string) => {
+  const resetPassword = async (token: string, newPassword: string, confirmPassword: string, email?: string) => {
     if (isSupabaseConfigured()) {
       if (newPassword !== confirmPassword) throw new Error('Passwords do not match.');
       await supabaseAuthService.updatePassword(newPassword);
       return { message: 'Your password has been updated.' };
     }
     if (!isApiConfigured) throw new Error('Password recovery is not configured yet.');
-    return api.auth.resetPassword(token, newPassword, confirmPassword);
+    return api.auth.resetPassword(token, newPassword, confirmPassword, email);
   };
 
   const verifyEmail = async (token: string) => {

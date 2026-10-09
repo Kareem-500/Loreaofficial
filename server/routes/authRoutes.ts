@@ -9,12 +9,17 @@ import {
   AuthenticatedRequest,
   rateLimitAuth,
 } from '../auth';
-import { sendPasswordResetEmail, sendPasswordChangedEmail } from '../emailService';
+import {
+  sendPasswordResetEmail,
+  sendPasswordChangedEmail,
+  sendVerificationEmail,
+  isSmtpConfigured,
+} from '../emailService';
 
 const router = Router();
 
 // Register new customer account
-router.post('/register', rateLimitAuth(8, 10 * 60 * 1000), (req: Request, res: Response) => {
+router.post('/register', rateLimitAuth(8, 10 * 60 * 1000), async (req: Request, res: Response) => {
   try {
     const {
       firstName,
@@ -108,13 +113,27 @@ router.post('/register', rateLimitAuth(8, 10 * 60 * 1000), (req: Request, res: R
       );
     }
 
-    // Generate email verification token (valid for 48 hours)
+    // Generate email verification token (valid for 48 hours) and 6-digit verification code
     const verifyToken = crypto.randomBytes(32).toString('hex');
+    const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
     db.prepare(`
-      INSERT INTO email_verifications (id, user_id, token, expires_at)
-      VALUES (?, ?, ?, ?)
-    `).run(`ev_${Date.now()}`, userId, verifyToken, expiresAt);
+      INSERT INTO email_verifications (id, user_id, token, code, expires_at)
+      VALUES (?, ?, ?, ?, ?)
+    `).run(`ev_${Date.now()}`, userId, verifyToken, verifyCode, expiresAt);
+
+    // Dispatch verification email to client
+    const origin = (req.headers.origin as string) || (req.headers.referer as string) || process.env.SITE_URL || 'https://loreafashion.ai.studio';
+    const cleanOrigin = origin.replace(/\/+$/, '');
+    const verifyUrl = `${cleanOrigin}/?verify_token=${verifyToken}`;
+
+    await sendVerificationEmail({
+      toEmail: normalizedEmail,
+      recipientName: firstName.trim(),
+      verifyCode,
+      verifyToken,
+      verifyUrl,
+    });
 
     // Generate JWT token
     const token = generateAuthToken({
@@ -134,8 +153,9 @@ router.post('/register', rateLimitAuth(8, 10 * 60 * 1000), (req: Request, res: R
     });
 
     return res.status(201).json({
-      message: 'Registration successful. Welcome to LORÉA.',
+      message: 'Registration successful. Welcome to LORÉA. A verification code and link have been dispatched to your email.',
       token,
+      emailSent: isSmtpConfigured(),
       user: {
         id: userId,
         uuid: userUuid,
@@ -374,7 +394,7 @@ router.post('/forgot-password', rateLimitAuth(5, 15 * 60 * 1000), async (req: Re
 // Reset password with token or 6-digit code
 router.post('/reset-password', rateLimitAuth(10, 15 * 60 * 1000), async (req: Request, res: Response) => {
   try {
-    const { token, newPassword, confirmPassword } = req.body;
+    const { token, email, newPassword, confirmPassword } = req.body;
 
     if (!token || !token.trim()) {
       return res.status(400).json({ error: 'Password recovery code is required.' });
@@ -391,14 +411,31 @@ router.post('/reset-password', rateLimitAuth(10, 15 * 60 * 1000), async (req: Re
       return res.status(422).json({ error: strength.message });
     }
 
-    // Check token by either 64-char token OR 6-digit code
-    const tokenRow = db.prepare(`
-      SELECT id, user_id, token, code, expires_at, used
-      FROM password_reset_tokens
-      WHERE (token = ? OR code = ?)
-      ORDER BY created_at DESC
-      LIMIT 1
-    `).get(cleanToken, cleanToken) as any;
+    let tokenRow: any;
+    const normalizedEmail = email ? email.trim().toLowerCase() : null;
+
+    if (normalizedEmail) {
+      const user = db.prepare('SELECT id FROM users WHERE email = ?').get(normalizedEmail) as any;
+      if (!user) {
+        return res.status(400).json({ error: 'No account associated with that email address.' });
+      }
+
+      tokenRow = db.prepare(`
+        SELECT id, user_id, token, code, expires_at, used
+        FROM password_reset_tokens
+        WHERE user_id = ? AND (token = ? OR code = ?)
+        ORDER BY created_at DESC
+        LIMIT 1
+      `).get(user.id, cleanToken, cleanToken);
+    } else {
+      tokenRow = db.prepare(`
+        SELECT id, user_id, token, code, expires_at, used
+        FROM password_reset_tokens
+        WHERE (token = ? OR code = ?)
+        ORDER BY created_at DESC
+        LIMIT 1
+      `).get(cleanToken, cleanToken);
+    }
 
     if (!tokenRow || tokenRow.used === 1) {
       return res.status(400).json({ error: 'This recovery code is invalid or has already been used. Please request a new recovery link.' });
@@ -411,9 +448,9 @@ router.post('/reset-password', rateLimitAuth(10, 15 * 60 * 1000), async (req: Re
 
     const newHash = hashPassword(newPassword);
 
-    // Update password & invalidate token
+    // Update password & invalidate all reset tokens for this user
     db.prepare('UPDATE users SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(newHash, tokenRow.user_id);
-    db.prepare('UPDATE password_reset_tokens SET used = 1 WHERE id = ?').run(tokenRow.id);
+    db.prepare('UPDATE password_reset_tokens SET used = 1 WHERE user_id = ?').run(tokenRow.user_id);
 
     // Send confirmation email
     const userRow = db.prepare('SELECT email FROM users WHERE id = ?').get(tokenRow.user_id) as any;
@@ -428,23 +465,42 @@ router.post('/reset-password', rateLimitAuth(10, 15 * 60 * 1000), async (req: Re
   }
 });
 
-// Verify email with token
+// Verify email with token or code
 router.post('/verify-email', (req: Request, res: Response) => {
   try {
-    const { token } = req.body;
+    const { token, code, email } = req.body;
+    const lookup = (code || token || '').trim();
 
-    if (!token) {
-      return res.status(400).json({ error: 'Verification token is required.' });
+    if (!lookup) {
+      return res.status(400).json({ error: 'Verification code or token is required.' });
     }
 
-    const verifyRow = db.prepare(`
-      SELECT id, user_id, expires_at, verified_at
-      FROM email_verifications
-      WHERE token = ?
-    `).get(token) as any;
+    let verifyRow: any;
+    if (email) {
+      const user = db.prepare('SELECT id FROM users WHERE email = ?').get(email.trim().toLowerCase()) as any;
+      if (user) {
+        verifyRow = db.prepare(`
+          SELECT id, user_id, expires_at, verified_at
+          FROM email_verifications
+          WHERE user_id = ? AND (token = ? OR code = ?)
+          ORDER BY created_at DESC
+          LIMIT 1
+        `).get(user.id, lookup, lookup);
+      }
+    }
 
     if (!verifyRow) {
-      return res.status(400).json({ error: 'Invalid verification token.' });
+      verifyRow = db.prepare(`
+        SELECT id, user_id, expires_at, verified_at
+        FROM email_verifications
+        WHERE token = ? OR code = ?
+        ORDER BY created_at DESC
+        LIMIT 1
+      `).get(lookup, lookup);
+    }
+
+    if (!verifyRow) {
+      return res.status(400).json({ error: 'Invalid verification code.' });
     }
 
     if (verifyRow.verified_at) {
@@ -453,7 +509,7 @@ router.post('/verify-email', (req: Request, res: Response) => {
 
     const isExpired = new Date(verifyRow.expires_at).getTime() < Date.now();
     if (isExpired) {
-      return res.status(400).json({ error: 'Verification token has expired. Please request a new verification email.' });
+      return res.status(400).json({ error: 'Verification code has expired. Please request a new verification email.' });
     }
 
     // Update verified status
@@ -468,14 +524,14 @@ router.post('/verify-email', (req: Request, res: Response) => {
 });
 
 // Resend verification
-router.post('/resend-verification', (req: AuthenticatedRequest, res: Response) => {
+router.post('/resend-verification', async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const email = req.body.email || req.user?.email;
+    const email = (req.body.email || req.user?.email || '').trim().toLowerCase();
     if (!email) {
       return res.status(400).json({ error: 'Email address is required.' });
     }
 
-    const user = db.prepare('SELECT id, email_verified FROM users WHERE email = ?').get(email.trim().toLowerCase()) as any;
+    const user = db.prepare('SELECT id, email_verified FROM users WHERE email = ?').get(email) as any;
     if (!user) {
       return res.json({ message: 'If registered, a verification link has been resent.' });
     }
@@ -485,18 +541,32 @@ router.post('/resend-verification', (req: AuthenticatedRequest, res: Response) =
     }
 
     const newToken = crypto.randomBytes(32).toString('hex');
+    const newCode = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
 
     db.prepare(`
-      INSERT INTO email_verifications (id, user_id, token, expires_at)
-      VALUES (?, ?, ?, ?)
-    `).run(`ev_${Date.now()}`, user.id, newToken, expiresAt);
+      INSERT INTO email_verifications (id, user_id, token, code, expires_at)
+      VALUES (?, ?, ?, ?, ?)
+    `).run(`ev_${Date.now()}`, user.id, newToken, newCode, expiresAt);
+
+    const customer = db.prepare('SELECT first_name FROM customers WHERE user_id = ?').get(user.id) as any;
+    const recipientName = customer?.first_name || 'Client';
+
+    const origin = (req.headers.origin as string) || (req.headers.referer as string) || process.env.SITE_URL || 'https://loreafashion.ai.studio';
+    const cleanOrigin = origin.replace(/\/+$/, '');
+    const verifyUrl = `${cleanOrigin}/?verify_token=${newToken}`;
+
+    await sendVerificationEmail({
+      toEmail: email,
+      recipientName,
+      verifyCode: newCode,
+      verifyToken: newToken,
+      verifyUrl,
+    });
 
     return res.json({
-      message: 'Verification link resent successfully.',
-      ...(process.env.ENABLE_PREVIEW_TOKENS === 'true' && process.env.NODE_ENV !== 'production'
-        ? { previewToken: newToken }
-        : {}),
+      message: 'A new verification code and link have been dispatched to your email.',
+      emailSent: isSmtpConfigured(),
     });
   } catch (err: any) {
     console.error('Resend verification error:', err);

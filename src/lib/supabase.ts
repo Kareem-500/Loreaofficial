@@ -33,7 +33,7 @@ export const isSupabaseConfigured = (): boolean => {
 
 // Fallback dummy URL and key for safe instantiation in browser/build environments
 const safeUrl = isSupabaseConfigured() ? supabaseUrl : 'https://placeholder.supabase.co';
-const safeKey = isSupabaseConfigured() ? supabasePublishableKey : 'not-configured';
+const safeKey = isSupabaseConfigured() ? supabasePublishableKey : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
 
 export const supabase: SupabaseClient = createClient(safeUrl, safeKey, {
   auth: {

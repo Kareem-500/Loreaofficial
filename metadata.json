@@ -1,6 +1,6 @@
 {
-  "name": "LORÉA — Luxury Women's Fashion",
-  "description": "A luxury fashion editorial and contemporary women's e-commerce experience crafted with quiet luxury, Egyptian market accessibility, and modern minimalism.",
+  "name": "LORÉA — Haute Couture & Modern Women's Fashion",
+  "description": "Discover refined women's fashion by LORÉA, designed in Cairo with Egyptian cotton, European linen, and effortless modern silhouettes.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

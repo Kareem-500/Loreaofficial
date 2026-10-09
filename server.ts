@@ -36,19 +36,14 @@ async function startServer() {
     next();
   });
 
-  // CORS & Preflight Handling with a strict origin allowlist for production deployment.
+  // CORS & Preflight Handling (supports custom domain, GitHub Pages, and AI Studio preview containers)
   app.use((req, res, next) => {
     const origin = req.headers.origin;
-    const allowedOrigins = new Set([
-      process.env.SITE_URL,
-      ...(process.env.CORS_ALLOWED_ORIGINS || '').split(',').map((value) => value.trim()),
-      'http://localhost:3000',
-      'http://localhost:5173',
-    ].filter((value): value is string => Boolean(value)));
-
-    if (origin && allowedOrigins.has(origin)) {
+    if (origin) {
       res.header('Access-Control-Allow-Origin', origin);
       res.header('Access-Control-Allow-Credentials', 'true');
+    } else {
+      res.header('Access-Control-Allow-Origin', '*');
     }
 
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');

@@ -120,9 +120,7 @@ function getStoredToken(): string | null {
 }
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-// In local development the Express/Vite host serves /api. A static Pages build
-// has no API unless a separately hosted HTTPS endpoint is configured.
-export const isApiConfigured = import.meta.env.DEV || Boolean(API_BASE_URL);
+export const isApiConfigured = true;
 
 export function getApiUrl(url: string): string {
   return `${API_BASE_URL}${url}`;
@@ -141,9 +139,6 @@ export function setStoredToken(token: string | null) {
 }
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
-  if (!isApiConfigured) {
-    throw new Error('This feature needs a configured backend API.');
-  }
   const token = getStoredToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -182,10 +177,10 @@ export const api = {
     logout: () => request<{ message: string }>('/api/auth/logout', { method: 'POST' }),
     me: () => request<{ user: User | null }>('/api/auth/me'),
     forgotPassword: (email: string) => request<{ message: string; previewResetToken?: string }>('/api/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
-    resetPassword: (token: string, newPassword: string, confirmPassword: string) =>
+    resetPassword: (token: string, newPassword: string, confirmPassword: string, email?: string) =>
       request<{ message: string }>('/api/auth/reset-password', {
         method: 'POST',
-        body: JSON.stringify({ token, newPassword, confirmPassword }),
+        body: JSON.stringify({ token, newPassword, confirmPassword, email }),
       }),
     verifyEmail: (token: string) => request<{ message: string; verified: boolean }>('/api/auth/verify-email', { method: 'POST', body: JSON.stringify({ token }) }),
     resendVerification: (email?: string) => request<{ message: string; previewToken?: string }>('/api/auth/resend-verification', { method: 'POST', body: JSON.stringify({ email }) }),
@@ -465,6 +460,7 @@ export const api = {
     getActivityLogs: () => request<{ logs: any[] }>('/api/admin/activity-logs'),
     getSettings: () => request<{ settings: Record<string, string> }>('/api/admin/settings'),
     updateSettings: (settings: Record<string, string>) => request<{ message: string }>('/api/admin/settings', { method: 'PUT', body: JSON.stringify({ settings }) }),
+    testEmail: (toEmail: string) => request<{ message: string; isLiveSmtp?: boolean }>('/api/admin/settings/test-email', { method: 'POST', body: JSON.stringify({ toEmail }) }),
     getFinanceOverview: (timeframe?: string) => request<any>('/api/admin/finance/overview' + (timeframe ? '?timeframe=' + timeframe : '')),
     getFinanceTransactions: () => request<{ transactions: any[] }>('/api/admin/finance/transactions'),
     getFinanceSettings: () => request<{ settings: Record<string, string> }>('/api/admin/finance/settings'),

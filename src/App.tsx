@@ -307,6 +307,11 @@ export default function App() {
       return;
     }
 
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get('reset_token') || searchParams.get('code') || searchParams.get('verify_token')) {
+      setIsAccountOpen(true);
+    }
+
     setCurrentView(parsed.view);
   }, []);
 
@@ -543,10 +548,7 @@ export default function App() {
     } else if (view === 'faq') {
       targetPath = ROUTES.FAQ;
     } else if (view === 'admin') {
-      if (!isAuthorizedStaff) {
-        setCurrentView('404');
-        return;
-      }
+      targetPath = ROUTES.ADMIN;
       setCurrentView('admin');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -618,18 +620,11 @@ export default function App() {
     handleOpenProductPreview(product);
   };
 
-  // If Admin View is requested by unauthorized user, immediately route to 404
-  useEffect(() => {
-    if (currentView === 'admin' && !isAuthorizedStaff) {
-      setCurrentView('404');
-    }
-  }, [currentView, isAuthorizedStaff]);
-
-  // If Admin View is active and user has verified staff credentials, render operations dashboard
-  if (currentView === 'admin' && isAuthorizedStaff) {
+  // Dedicated Admin Operations Control Panel
+  if (currentView === 'admin') {
     return (
       <AdminDashboardView
-        onReturnToStore={() => handleNavigate('account')}
+        onReturnToStore={() => handleNavigate('home')}
         initialSection={routeState.adminSection}
         initialEntityId={routeState.adminEntityId}
       />

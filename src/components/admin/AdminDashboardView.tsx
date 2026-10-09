@@ -190,6 +190,9 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
   const [adminUsers, setAdminUsers] = useState<any[]>([]);
   const [activityLogs, setActivityLogs] = useState<any[]>([]);
   const [settings, setSettings] = useState<Record<string, string>>({});
+  const [testEmailAddress, setTestEmailAddress] = useState('');
+  const [isSendingTestEmail, setIsSendingTestEmail] = useState(false);
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
 
   // Product Modals & Selection States
   const [selectedProductForDetail, setSelectedProductForDetail] = useState<any | null>(null);
@@ -1564,11 +1567,16 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
           {activeSection === 'settings_store' && (
             <div className="space-y-6 max-w-4xl mx-auto">
               <div>
-                <h2 className="font-serif text-3xl font-light text-[#1D1D1B]">Store Configuration</h2>
-                <p className="text-xs text-[#7C746B]">Configure brand parameters, atelier coordinates, and delivery policies.</p>
+                <h2 className="font-serif text-3xl font-light text-[#1D1D1B]">Store & Communications Configuration</h2>
+                <p className="text-xs text-[#7C746B]">Configure brand parameters, atelier coordinates, delivery policies, and live outgoing SMTP email service.</p>
               </div>
 
+              {/* General Store Profile */}
               <div className="bg-white border border-[#EAE5DE] p-6 shadow-xs space-y-6">
+                <div className="flex items-center justify-between border-b border-[#EAE5DE] pb-3">
+                  <h3 className="font-serif text-lg font-light text-[#1D1D1B]">Atelier Brand Profile</h3>
+                  <span className="text-[10px] uppercase font-mono tracking-widest text-[#BA945A]">MAISON PARAMETERS</span>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                   <div>
                     <label className="block uppercase tracking-wider font-semibold text-[#7C746B] mb-1">
@@ -1576,7 +1584,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
                     </label>
                     <input
                       type="text"
-                      defaultValue="LORÉA Haute Couture"
+                      value={settings.store_name || 'LORÉA Haute Couture'}
+                      onChange={(e) => setSettings({ ...settings, store_name: e.target.value })}
                       className="w-full bg-[#FAF8F5] border border-[#EAE5DE] py-2 px-3 text-[#1D1D1B]"
                     />
                   </div>
@@ -1586,7 +1595,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
                     </label>
                     <input
                       type="text"
-                      defaultValue="Zamalek & New Cairo, Egypt"
+                      value={settings.store_location || 'Zamalek & New Cairo, Egypt'}
+                      onChange={(e) => setSettings({ ...settings, store_location: e.target.value })}
                       className="w-full bg-[#FAF8F5] border border-[#EAE5DE] py-2 px-3 text-[#1D1D1B]"
                     />
                   </div>
@@ -1596,7 +1606,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
                     </label>
                     <input
                       type="email"
-                      defaultValue="concierge@lorea.com"
+                      value={settings.concierge_email || 'concierge@loreaofficial.com'}
+                      onChange={(e) => setSettings({ ...settings, concierge_email: e.target.value })}
                       className="w-full bg-[#FAF8F5] border border-[#EAE5DE] py-2 px-3 text-[#1D1D1B]"
                     />
                   </div>
@@ -1606,18 +1617,147 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
                     </label>
                     <input
                       type="tel"
-                      defaultValue="+20 100 892 4432"
+                      value={settings.concierge_phone || '+20 100 892 4432'}
+                      onChange={(e) => setSettings({ ...settings, concierge_phone: e.target.value })}
+                      className="w-full bg-[#FAF8F5] border border-[#EAE5DE] py-2 px-3 text-[#1D1D1B]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Outgoing Email & SMTP Service */}
+              <div className="bg-white border border-[#EAE5DE] p-6 shadow-xs space-y-6">
+                <div className="flex items-center justify-between border-b border-[#EAE5DE] pb-3">
+                  <div>
+                    <h3 className="font-serif text-lg font-light text-[#1D1D1B]">Live Outgoing Email & SMTP Service</h3>
+                    <p className="text-[11px] text-[#7C746B]">Configure your real mail server (e.g. Gmail App Password, SendGrid, Mailgun) to dispatch registration verification and password reset emails directly to customer inboxes.</p>
+                  </div>
+                  <span className="text-[10px] uppercase font-mono tracking-widest text-[#BA945A]">EMAIL GATEWAY</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                  <div className="sm:col-span-2">
+                    <label className="block uppercase tracking-wider font-semibold text-[#7C746B] mb-1">
+                      SMTP Host (e.g. smtp.gmail.com)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="smtp.gmail.com"
+                      value={settings.smtp_host || ''}
+                      onChange={(e) => setSettings({ ...settings, smtp_host: e.target.value })}
+                      className="w-full bg-[#FAF8F5] border border-[#EAE5DE] py-2 px-3 text-[#1D1D1B] font-mono text-[11px]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block uppercase tracking-wider font-semibold text-[#7C746B] mb-1">
+                      Port (465 SSL / 587 TLS)
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="587"
+                      value={settings.smtp_port || '587'}
+                      onChange={(e) => setSettings({ ...settings, smtp_port: e.target.value })}
+                      className="w-full bg-[#FAF8F5] border border-[#EAE5DE] py-2 px-3 text-[#1D1D1B] font-mono text-[11px]"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block uppercase tracking-wider font-semibold text-[#7C746B] mb-1">
+                      SMTP User / Account Email
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="concierge@loreaofficial.com or your-email@gmail.com"
+                      value={settings.smtp_user || ''}
+                      onChange={(e) => setSettings({ ...settings, smtp_user: e.target.value })}
+                      className="w-full bg-[#FAF8F5] border border-[#EAE5DE] py-2 px-3 text-[#1D1D1B]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block uppercase tracking-wider font-semibold text-[#7C746B] mb-1">
+                      SMTP App Password
+                    </label>
+                    <input
+                      type="password"
+                      placeholder="••••••••••••••••"
+                      value={settings.smtp_pass || ''}
+                      onChange={(e) => setSettings({ ...settings, smtp_pass: e.target.value })}
+                      className="w-full bg-[#FAF8F5] border border-[#EAE5DE] py-2 px-3 text-[#1D1D1B]"
+                    />
+                  </div>
+                  <div className="sm:col-span-3">
+                    <label className="block uppercase tracking-wider font-semibold text-[#7C746B] mb-1">
+                      From Sender Header
+                    </label>
+                    <input
+                      type="text"
+                      placeholder='"LORÉA Haute Couture" <concierge@loreaofficial.com>'
+                      value={settings.smtp_from || '"LORÉA Haute Couture" <concierge@loreaofficial.com>'}
+                      onChange={(e) => setSettings({ ...settings, smtp_from: e.target.value })}
                       className="w-full bg-[#FAF8F5] border border-[#EAE5DE] py-2 px-3 text-[#1D1D1B]"
                     />
                   </div>
                 </div>
 
+                {/* Email Test Panel */}
+                <div className="bg-[#F7F4EF] border border-[#EAE5DE] p-4 text-xs space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-[#1D1D1B] uppercase tracking-wider text-[11px]">
+                      Test Real Email Dispatch
+                    </span>
+                    <span className="text-[10px] text-[#7C746B]">
+                      Sends a live branded verification test email to verify inbox delivery.
+                    </span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <input
+                      type="email"
+                      placeholder="kareemzohrey200@gmail.com"
+                      value={testEmailAddress}
+                      onChange={(e) => setTestEmailAddress(e.target.value)}
+                      className="flex-1 bg-white border border-[#EAE5DE] py-2 px-3 text-[#1D1D1B]"
+                    />
+                    <button
+                      type="button"
+                      disabled={isSendingTestEmail}
+                      onClick={async () => {
+                        if (!testEmailAddress.trim()) {
+                          notify('error', 'Please enter a test recipient email.');
+                          return;
+                        }
+                        try {
+                          setIsSendingTestEmail(true);
+                          const res = await api.admin.testEmail(testEmailAddress.trim());
+                          notify('success', res.message || 'Test email dispatched.');
+                        } catch (err: any) {
+                          notify('error', err.message || 'Failed to dispatch test email.');
+                        } finally {
+                          setIsSendingTestEmail(false);
+                        }
+                      }}
+                      className="px-4 py-2 bg-[#BA945A] hover:bg-[#A38048] text-white font-medium text-xs uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer"
+                    >
+                      {isSendingTestEmail ? 'Sending...' : 'Send Test Email'}
+                    </button>
+                  </div>
+                </div>
+
                 <div className="pt-4 border-t border-[#EAE5DE] flex justify-end">
                   <button
-                    onClick={() => notify('success', 'Store settings updated successfully.')}
-                    className="px-6 py-2.5 bg-[#1D1D1B] text-[#FAF8F5] text-xs uppercase tracking-wider font-medium hover:bg-black transition-colors"
+                    disabled={isSavingSettings}
+                    onClick={async () => {
+                      try {
+                        setIsSavingSettings(true);
+                        await api.admin.updateSettings(settings);
+                        notify('success', 'Store and SMTP email settings saved successfully.');
+                      } catch (err: any) {
+                        notify('error', err.message || 'Failed to save settings.');
+                      } finally {
+                        setIsSavingSettings(false);
+                      }
+                    }}
+                    className="px-6 py-2.5 bg-[#1D1D1B] text-[#FAF8F5] text-xs uppercase tracking-wider font-medium hover:bg-black transition-colors disabled:opacity-50 cursor-pointer"
                   >
-                    Save Changes
+                    {isSavingSettings ? 'Saving...' : 'Save All Settings'}
                   </button>
                 </div>
               </div>
