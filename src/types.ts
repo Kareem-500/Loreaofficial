@@ -17,6 +17,16 @@ export interface Review {
   comment: string;
   verified: boolean;
 }
+export interface ProductImage {
+  id: string;
+  productId: string;
+  imageUrl: string;
+  imageType: 'front' | 'back';
+  displayOrder: number;
+  isPrimary: boolean;
+  altText: string;
+  createdAt?: string;
+}
 
 export interface Product {
   id: string;
@@ -37,6 +47,7 @@ export interface Product {
   colors: ProductColor[];
   sizes: ('XS' | 'S' | 'M' | 'L' | 'XL')[];
   images: string[];
+  productImages?: ProductImage[];
   description: string;
   fabric: string;
   fit: string;

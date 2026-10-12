@@ -18,7 +18,7 @@ export const CATEGORIES: Category[] = [
     id: 'dresses',
     name: 'Dresses',
     nameAr: 'فساتين',
-    image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1200&auto=format&fit=crop',
+    image: '/products/lorea-dress-violette/front.webp',
     description: 'Sculptural silhouettes and fluid natural drapes designed for quiet presence.',
     itemCount: 14
   },
@@ -26,7 +26,7 @@ export const CATEGORIES: Category[] = [
     id: 'tops',
     name: 'Tops & Shirts',
     nameAr: 'قمصان وبلوزات',
-    image: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1200&auto=format&fit=crop',
+    image: '/products/lorea-top-atelier-blouse/front.webp',
     description: 'Tailored Giza cotton button-downs and gossamer silk blouses.',
     itemCount: 18
   },
@@ -34,7 +34,7 @@ export const CATEGORIES: Category[] = [
     id: 'sets',
     name: 'Coordinated Sets',
     nameAr: 'أطقم منسقة',
-    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop',
+    image: '/products/lorea-set-three-piece-linen/front.webp',
     description: 'Effortless monochromatic pairings in textured linen and fine knits.',
     itemCount: 9
   },
@@ -42,7 +42,7 @@ export const CATEGORIES: Category[] = [
     id: 'outerwear',
     name: 'Outerwear',
     nameAr: 'معاطف وسترات',
-    image: 'https://images.unsplash.com/photo-1548883354-7622d03aca27?q=80&w=1200&auto=format&fit=crop',
+    image: '/products/lorea-03/front.webp',
     description: 'Architectural trenches, double-faced wool coats, and relaxed car coats.',
     itemCount: 11
   },
@@ -50,7 +50,7 @@ export const CATEGORIES: Category[] = [
     id: 'pants',
     name: 'Trousers & Skirts',
     nameAr: 'بناطيل وتنانير',
-    image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1200&auto=format&fit=crop',
+    image: '/products/lorea-bottom-pleated-trousers/front.webp',
     description: 'High-waisted wide leg trousers and bias-cut liquid silk skirts.',
     itemCount: 12
   },
@@ -58,7 +58,7 @@ export const CATEGORIES: Category[] = [
     id: 'modest-edit',
     name: 'Modest Edit',
     nameAr: 'المجموعة المحتشمة',
-    image: 'https://images.unsplash.com/photo-1584273143981-41c073dfe8f8?q=80&w=1200&auto=format&fit=crop',
+    image: '/products/lorea-abaya-crepe-couture/front.webp',
     description: 'Elevated long-line silhouettes, breathable opacities, and modern modesty.',
     itemCount: 16
   }
@@ -85,8 +85,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      violetteDressImg,
-      'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-dress-violette/front.webp',
+      '/products/lorea-dress-violette/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-dress-violette-front',
+        productId: 'lorea-dress-violette',
+        imageUrl: '/products/lorea-dress-violette/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA SHEER BALLOON SLEEVE EMBELLISHED MERMAID MAXI DRESS front view'
+      },
+      {
+        id: 'lorea-dress-violette-back',
+        productId: 'lorea-dress-violette',
+        imageUrl: '/products/lorea-dress-violette/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA SHEER BALLOON SLEEVE EMBELLISHED MERMAID MAXI DRESS back view'
+      }
     ],
     description: 'A striking couture evening piece crafted with a sculpted mermaid contour, sheer statement balloon sleeves, and delicate handcrafted crystal beadwork along the cuffs.',
     fabric: 'Crepe Silk & Italian Sheer Organza',
@@ -120,8 +140,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      whiteRuffledDressImg,
-      celestineDressImg
+      '/products/lorea-dress-celestine/front.webp',
+      '/products/lorea-dress-celestine/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-dress-celestine-front',
+        productId: 'lorea-dress-celestine',
+        imageUrl: '/products/lorea-dress-celestine/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA CRYSTAL EMBELLISHED LONG SLEEVE MERMAID MAXI DRESS - CELESTINE front view'
+      },
+      {
+        id: 'lorea-dress-celestine-back',
+        productId: 'lorea-dress-celestine',
+        imageUrl: '/products/lorea-dress-celestine/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA CRYSTAL EMBELLISHED LONG SLEEVE MERMAID MAXI DRESS - CELESTINE back view'
+      }
     ],
     description: 'Ethereal designer mini dress and gown with off-shoulder layered ruffles and delicate crystal drops cascading across the bodice.',
     fabric: 'Heavy Silk Crepe & Shimmer Chiffon',
@@ -155,8 +195,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      azurelleDressImg,
-      'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-dress-azurelle/front.webp',
+      '/products/lorea-dress-azurelle/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-dress-azurelle-front',
+        productId: 'lorea-dress-azurelle',
+        imageUrl: '/products/lorea-dress-azurelle/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA EMBELLISHED HIGH NECK FLARED SLEEVE MAXI DRESS - AZURELLE front view'
+      },
+      {
+        id: 'lorea-dress-azurelle-back',
+        productId: 'lorea-dress-azurelle',
+        imageUrl: '/products/lorea-dress-azurelle/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA EMBELLISHED HIGH NECK FLARED SLEEVE MAXI DRESS - AZURELLE back view'
+      }
     ],
     description: 'Statuesque high-neck maxi dress with elongated bell sleeves and opulent jeweled beadwork adorning the collar.',
     fabric: 'Fine Wool-Silk Blend with Micro Beading',
@@ -190,8 +250,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      coraliaDressImg,
-      'https://images.unsplash.com/photo-1548883354-7622d03aca27?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-dress-coralia/front.webp',
+      '/products/lorea-dress-coralia/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-dress-coralia-front',
+        productId: 'lorea-dress-coralia',
+        imageUrl: '/products/lorea-dress-coralia/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA FEATHER CUFF EMBELLISHED LONG SLEEVE MAXI DRESS - CORALIA front view'
+      },
+      {
+        id: 'lorea-dress-coralia-back',
+        productId: 'lorea-dress-coralia',
+        imageUrl: '/products/lorea-dress-coralia/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA FEATHER CUFF EMBELLISHED LONG SLEEVE MAXI DRESS - CORALIA back view'
+      }
     ],
     description: 'An iconic runway design featuring soft feather trimmed sleeves, golden micro-thread neckline embroidery, and a tailored sheath structure.',
     fabric: 'Sculptural Double-Faced Satin & Ethical Feather Trimming',
@@ -225,8 +305,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      emeraldDressImg,
-      'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-dress-emerald/front.webp',
+      '/products/lorea-dress-emerald/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-dress-emerald-front',
+        productId: 'lorea-dress-emerald',
+        imageUrl: '/products/lorea-dress-emerald/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA ONE SHOULDER DRAPED MAXI DRESS - EMERALD front view'
+      },
+      {
+        id: 'lorea-dress-emerald-back',
+        productId: 'lorea-dress-emerald',
+        imageUrl: '/products/lorea-dress-emerald/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA ONE SHOULDER DRAPED MAXI DRESS - EMERALD back view'
+      }
     ],
     description: 'A masterpiece of Grecian draping, this one-shoulder emerald evening gown cascades effortlessly to the floor with liquid silk jersey movement.',
     fabric: 'Liquid Silk Georgette & Crepe de Chine',
@@ -260,8 +360,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      catDressesImg,
-      'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-dress-ivory-pleat/front.webp',
+      '/products/lorea-dress-ivory-pleat/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-dress-ivory-pleat-front',
+        productId: 'lorea-dress-ivory-pleat',
+        imageUrl: '/products/lorea-dress-ivory-pleat/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA PLEATED V-NECK BALLOON SLEEVE MAXI GOWN front view'
+      },
+      {
+        id: 'lorea-dress-ivory-pleat-back',
+        productId: 'lorea-dress-ivory-pleat',
+        imageUrl: '/products/lorea-dress-ivory-pleat/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA PLEATED V-NECK BALLOON SLEEVE MAXI GOWN back view'
+      }
     ],
     description: 'A diaphanous vision of fluid movement, cut in airy pleated georgette with romantic sheer bishop sleeves and a flattering fitted waistband.',
     fabric: 'Fine Silk Georgette & French Tulle',
@@ -295,8 +415,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      catTopsImg,
-      'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-top-atelier-blouse/front.webp',
+      '/products/lorea-top-atelier-blouse/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-top-atelier-blouse-front',
+        productId: 'lorea-top-atelier-blouse',
+        imageUrl: '/products/lorea-top-atelier-blouse/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA ROMANTIC BALLOON SLEEVE COTTON ATELIER BLOUSE front view'
+      },
+      {
+        id: 'lorea-top-atelier-blouse-back',
+        productId: 'lorea-top-atelier-blouse',
+        imageUrl: '/products/lorea-top-atelier-blouse/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA ROMANTIC BALLOON SLEEVE COTTON ATELIER BLOUSE back view'
+      }
     ],
     description: 'Crafted from Egypt’s finest Giza 45 cotton poplin, this shirt features sculptural gathered bishop sleeves and a structured pointed spread collar.',
     fabric: '100% Giza 45 Long-Staple Cotton Poplin',
@@ -330,8 +470,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      catBottomsImg,
-      'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-bottom-pleated-trousers/front.webp',
+      '/products/lorea-bottom-pleated-trousers/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-bottom-pleated-trousers-front',
+        productId: 'lorea-bottom-pleated-trousers',
+        imageUrl: '/products/lorea-bottom-pleated-trousers/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA HIGH-WAISTED TAILORED WIDE-LEG PALAZZO TROUSERS front view'
+      },
+      {
+        id: 'lorea-bottom-pleated-trousers-back',
+        productId: 'lorea-bottom-pleated-trousers',
+        imageUrl: '/products/lorea-bottom-pleated-trousers/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA HIGH-WAISTED TAILORED WIDE-LEG PALAZZO TROUSERS back view'
+      }
     ],
     description: 'Precision-tailored in heavyweight wool-viscose twill with double deep pleats that open into an elongated, sweeping wide leg silhouette.',
     fabric: 'Fine Wool & Viscose Twill Blend',
@@ -365,8 +525,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      catSetsImg,
-      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-set-three-piece-linen/front.webp',
+      '/products/lorea-set-three-piece-linen/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-set-three-piece-linen-front',
+        productId: 'lorea-set-three-piece-linen',
+        imageUrl: '/products/lorea-set-three-piece-linen/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA MONOCHROMATIC THREE-PIECE TAILORED LINEN SUIT front view'
+      },
+      {
+        id: 'lorea-set-three-piece-linen-back',
+        productId: 'lorea-set-three-piece-linen',
+        imageUrl: '/products/lorea-set-three-piece-linen/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA MONOCHROMATIC THREE-PIECE TAILORED LINEN SUIT back view'
+      }
     ],
     description: 'An immaculate three-piece ensemble comprising a soft-shouldered single-button blazer, fitted V-neck vest, and pleated high-rise palazzo trousers.',
     fabric: '100% Belgian Flax Heavyweight Linen & Mulberry Silk Lining',
@@ -400,8 +580,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      catScarvesImg,
-      'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-scarf-jacquard-silk/front.webp',
+      '/products/lorea-scarf-jacquard-silk/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-scarf-jacquard-silk-front',
+        productId: 'lorea-scarf-jacquard-silk',
+        imageUrl: '/products/lorea-scarf-jacquard-silk/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA HERITAGE JACQUARD MULBERRY SILK SCARF & WRAP front view'
+      },
+      {
+        id: 'lorea-scarf-jacquard-silk-back',
+        productId: 'lorea-scarf-jacquard-silk',
+        imageUrl: '/products/lorea-scarf-jacquard-silk/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA HERITAGE JACQUARD MULBERRY SILK SCARF & WRAP back view'
+      }
     ],
     description: 'Spun from pure grade 6A mulberry silk with an artisanal jacquard weave that catches light gracefully. Hand-rolled hems and non-slip drape.',
     fabric: '100% Grade 6A Pure Mulberry Silk (18 momme)',
@@ -435,8 +635,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      catModestImg,
-      'https://images.unsplash.com/photo-1584273143981-41c073dfe8f8?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-abaya-crepe-couture/front.webp',
+      '/products/lorea-abaya-crepe-couture/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-abaya-crepe-couture-front',
+        productId: 'lorea-abaya-crepe-couture',
+        imageUrl: '/products/lorea-abaya-crepe-couture/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA ARCHITECTURAL SILK CREPE COUTURE ABAYA front view'
+      },
+      {
+        id: 'lorea-abaya-crepe-couture-back',
+        productId: 'lorea-abaya-crepe-couture',
+        imageUrl: '/products/lorea-abaya-crepe-couture/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA ARCHITECTURAL SILK CREPE COUTURE ABAYA back view'
+      }
     ],
     description: 'An architectural expression of modern modest elegance. Tailored from weighted Japanese silk crepe that falls in uninterrupted vertical lines.',
     fabric: 'Heavy Japanese Silk Crepe de Chine',
@@ -468,9 +688,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-01/front.webp',
+      '/products/lorea-01/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-01-front',
+        productId: 'lorea-01',
+        imageUrl: '/products/lorea-01/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA Architectural Linen Column Dress front view'
+      },
+      {
+        id: 'lorea-01-back',
+        productId: 'lorea-01',
+        imageUrl: '/products/lorea-01/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA Architectural Linen Column Dress back view'
+      }
     ],
     description: 'A timeless column dress crafted from European flax linen softened with a heritage stone wash. Designed with intentional negative space, an elongated boatneck, and delicate French seams that celebrate the body without clinging.',
     fabric: '100% Pre-washed European Flax Linen (185 gsm)',
@@ -521,9 +760,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1485968579580-b6d095142e6e?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-02/front.webp',
+      '/products/lorea-02/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-02-front',
+        productId: 'lorea-02',
+        imageUrl: '/products/lorea-02/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA Giza 45 Cotton Oversized Shirt front view'
+      },
+      {
+        id: 'lorea-02-back',
+        productId: 'lorea-02',
+        imageUrl: '/products/lorea-02/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA Giza 45 Cotton Oversized Shirt back view'
+      }
     ],
     description: 'The foundation of modern effortless dressing. Crafted from Egypt’s finest Giza 45 extra-long staple cotton, offering an extraordinary silky hand-feel and crisp, non-wrinkle longevity. Featuring natural mother-of-pearl buttons and drop shoulders.',
     fabric: '100% Giza 45 Egyptian Cotton Poplin (120/2 yarn count)',
@@ -566,9 +824,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['S', 'M', 'L'],
     images: [
-      'https://images.unsplash.com/photo-1548883354-7622d03aca27?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-03/front.webp',
+      '/products/lorea-03/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-03-front',
+        productId: 'lorea-03',
+        imageUrl: '/products/lorea-03/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA Tailored Silk-Wool Sand Trench front view'
+      },
+      {
+        id: 'lorea-03-back',
+        productId: 'lorea-03',
+        imageUrl: '/products/lorea-03/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA Tailored Silk-Wool Sand Trench back view'
+      }
     ],
     description: 'An architectural outerwear masterpiece inspired by desert shadows and urban clean lines. Woven from a lustrous silk-wool blend that provides warmth without bulk, finished with horn buttons and a dramatic storm flap.',
     fabric: '65% Virgin Wool, 35% Mulberry Silk. Cupro satin interior lining.',
@@ -610,9 +887,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      'https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-04/front.webp',
+      '/products/lorea-04/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-04-front',
+        productId: 'lorea-04',
+        imageUrl: '/products/lorea-04/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA Liquid Silk Charmeuse Bias Skirt front view'
+      },
+      {
+        id: 'lorea-04-back',
+        productId: 'lorea-04',
+        imageUrl: '/products/lorea-04/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA Liquid Silk Charmeuse Bias Skirt back view'
+      }
     ],
     description: 'Cut on the true bias to follow the natural curves of the female silhouette with liquid fluidity. Made from ultra-dense 22-momme silk that resists static cling and drapes effortlessly from dawn to dinner.',
     fabric: '100% Grade 6A Mulberry Silk Charmeuse (22 momme)',
@@ -654,9 +950,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      'https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-05/front.webp',
+      '/products/lorea-05/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-05-front',
+        productId: 'lorea-05',
+        imageUrl: '/products/lorea-05/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA The Nile Flow Tiered Maxi Dress front view'
+      },
+      {
+        id: 'lorea-05-back',
+        productId: 'lorea-05',
+        imageUrl: '/products/lorea-05/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA The Nile Flow Tiered Maxi Dress back view'
+      }
     ],
     description: 'Inspired by gentle river breezes and morning light across Aswan. Detailed with artisan micro-pintucks along the bodice, hidden seam pockets, and generous tiered flounces that float as you walk.',
     fabric: '100% Certified Organic Egyptian Cotton Voile with self-cotton lining',
@@ -698,9 +1013,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-06/front.webp',
+      '/products/lorea-06/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-06-front',
+        productId: 'lorea-06',
+        imageUrl: '/products/lorea-06/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA Relaxed Tailored Linen Trouser front view'
+      },
+      {
+        id: 'lorea-06-back',
+        productId: 'lorea-06',
+        imageUrl: '/products/lorea-06/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA Relaxed Tailored Linen Trouser back view'
+      }
     ],
     description: 'A masterclass in tailored ease. Built with generous front pleats that expand gracefully when seated and drape straight down to pool subtly over sandals or loafers.',
     fabric: '100% Belgian Flax Heavyweight Linen (230 gsm)',
@@ -731,9 +1065,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['S', 'M', 'L'],
     images: [
-      'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1548883354-7622d03aca27?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-07/front.webp',
+      '/products/lorea-07/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-07-front',
+        productId: 'lorea-07',
+        imageUrl: '/products/lorea-07/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA Textured Bouclé Cocoon Cardigan front view'
+      },
+      {
+        id: 'lorea-07-back',
+        productId: 'lorea-07',
+        imageUrl: '/products/lorea-07/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA Textured Bouclé Cocoon Cardigan back view'
+      }
     ],
     description: 'Enveloping softness with tactile depth. Knit in a chunky bouclé stitch that traps warmth while remaining featherlight on the shoulders. Features ribbed sleeve cuffs and an open drape collar.',
     fabric: '50% Baby Alpaca, 35% Egyptian Long-Staple Cotton, 15% Recycled Polyamide',
@@ -764,9 +1117,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-08/front.webp',
+      '/products/lorea-08/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-08-front',
+        productId: 'lorea-08',
+        imageUrl: '/products/lorea-08/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA Monochrome Linen Shirt & Short Set front view'
+      },
+      {
+        id: 'lorea-08-back',
+        productId: 'lorea-08',
+        imageUrl: '/products/lorea-08/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA Monochrome Linen Shirt & Short Set back view'
+      }
     ],
     description: 'The definitive warm-weather uniform. Comprises a boxy cuban collar shirt paired with tailored drawstring shorts, designed to be worn together or styled effortlessly as separates.',
     fabric: '100% Stonewashed European Flax Linen',
@@ -797,9 +1169,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      'https://images.unsplash.com/photo-1485968579580-b6d095142e6e?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-09/front.webp',
+      '/products/lorea-09/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-09-front',
+        productId: 'lorea-09',
+        imageUrl: '/products/lorea-09/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA Structured Poplin Wrap Blouse front view'
+      },
+      {
+        id: 'lorea-09-back',
+        productId: 'lorea-09',
+        imageUrl: '/products/lorea-09/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA Structured Poplin Wrap Blouse back view'
+      }
     ],
     description: 'Modern tailoring meets feminine grace. Constructed from crisp Egyptian poplin with a crossover wrap bodice that accentuates the natural waistline before flaring gently over the hips.',
     fabric: '100% Giza Cotton Poplin',
@@ -832,9 +1223,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      'https://images.unsplash.com/photo-1584273143981-41c073dfe8f8?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-10/front.webp',
+      '/products/lorea-10/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-10-front',
+        productId: 'lorea-10',
+        imageUrl: '/products/lorea-10/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA Minimalist Sand Silk Tunic & Trouser Set front view'
+      },
+      {
+        id: 'lorea-10-back',
+        productId: 'lorea-10',
+        imageUrl: '/products/lorea-10/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA Minimalist Sand Silk Tunic & Trouser Set back view'
+      }
     ],
     description: 'The pinnacle of contemporary modest evening wear. An elongated mid-calf tunic with discreet side slits layered over high-rise wide leg trousers. Made from a weighted silk-viscose crepe that cascades without static.',
     fabric: '70% Silk Charmeuse, 30% Eco-Vero Viscose',
@@ -875,9 +1285,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L'],
     images: [
-      'https://images.unsplash.com/photo-1566174053879-31528523f8ae?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-11/front.webp',
+      '/products/lorea-11/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-11-front',
+        productId: 'lorea-11',
+        imageUrl: '/products/lorea-11/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA Sleeveless Drape Cowl Neck Gown front view'
+      },
+      {
+        id: 'lorea-11-back',
+        productId: 'lorea-11',
+        imageUrl: '/products/lorea-11/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA Sleeveless Drape Cowl Neck Gown back view'
+      }
     ],
     description: 'Sculptural sensuality rooted in minimalism. A softly falling cowl neckline frames the collarbones, while the body contours effortlessly without restrictive boning, pooling into a subtle sweep train.',
     fabric: '95% Micro-Modal Silk Jersey, 5% Elastane',
@@ -909,8 +1338,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-12/front.webp',
+      '/products/lorea-12/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-12-front',
+        productId: 'lorea-12',
+        imageUrl: '/products/lorea-12/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA The Everyday Pima Rib Tank front view'
+      },
+      {
+        id: 'lorea-12-back',
+        productId: 'lorea-12',
+        imageUrl: '/products/lorea-12/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA The Everyday Pima Rib Tank back view'
+      }
     ],
     description: 'The foundation layer perfected. Knit from double-mercerized Egyptian cotton with fine elastane recovery so it retains its sculpted shape wash after wash. Seamless body construction.',
     fabric: '92% Mercerized Egyptian Pima Cotton, 8% Lycra',
@@ -943,8 +1392,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     images: [
-      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-13/front.webp',
+      '/products/lorea-13/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-13-front',
+        productId: 'lorea-13',
+        imageUrl: '/products/lorea-13/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA Pure Mulberry Silk Kimono Robe front view'
+      },
+      {
+        id: 'lorea-13-back',
+        productId: 'lorea-13',
+        imageUrl: '/products/lorea-13/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA Pure Mulberry Silk Kimono Robe back view'
+      }
     ],
     description: 'An elevated home retreat silhouette. Crafted from 22-momme pure mulberry silk that glides weightlessly over skin, with interior ties for secure closure and dramatic floor-skimming length.',
     fabric: '100% Grade 6A Pure Mulberry Silk (22 momme)',
@@ -978,8 +1447,28 @@ const RAW_PRODUCTS: Product[] = [
     ],
     sizes: ['M'],
     images: [
-      'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1584273143981-41c073dfe8f8?q=80&w=1200&auto=format&fit=crop'
+      '/products/lorea-14/front.webp',
+      '/products/lorea-14/back.webp'
+    ],
+    productImages: [
+      {
+        id: 'lorea-14-front',
+        productId: 'lorea-14',
+        imageUrl: '/products/lorea-14/front.webp',
+        imageType: 'front',
+        displayOrder: 1,
+        isPrimary: true,
+        altText: 'LORÉA Featherweight Giza Cotton Modal Hijab front view'
+      },
+      {
+        id: 'lorea-14-back',
+        productId: 'lorea-14',
+        imageUrl: '/products/lorea-14/back.webp',
+        imageType: 'back',
+        displayOrder: 2,
+        isPrimary: false,
+        altText: 'LORÉA Featherweight Giza Cotton Modal Hijab back view'
+      }
     ],
     description: 'The definitive daily luxury scarf. Blended from extra-long staple Egyptian Giza cotton and Austrian modal for a buttery touch that stays impeccably in place without pins or slippage.',
     fabric: '60% Egyptian Giza Cotton, 40% Modal Voile',

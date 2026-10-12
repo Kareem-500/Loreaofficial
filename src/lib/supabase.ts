@@ -124,9 +124,11 @@ export interface SupabaseProductImage {
   id: string;
   product_id: string;
   image_url: string;
-  alt_text?: string | null;
+  image_type?: 'front' | 'back' | string;
+  display_order?: number;
   sort_order: number;
   is_primary: boolean;
+  alt_text?: string | null;
   created_at: string;
 }
 

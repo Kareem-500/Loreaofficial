@@ -126,6 +126,9 @@ Sitemap: ${siteUrl}/sitemap.xml
     res.send(xml);
   });
 
+  // Static public assets (products, brand logos, webp/jpg images)
+  app.use(express.static(path.join(process.cwd(), 'public')));
+
   // Static brand assets
   app.get(['/LOREA fashion.svg', '/LOREA%20fashion.svg'], (req, res) => {
     res.type('image/svg+xml');
