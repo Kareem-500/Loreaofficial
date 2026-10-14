@@ -148,7 +148,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               </div>
             ) : (
               safeItems.map((item) => {
-                const itemImg = item.product.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop';
+                const itemImg = item.product.images?.[0] || '/products/lorea-dress-violette/front.webp';
                 const itemPrice = item.product.priceEgp || 0;
 
                 return (

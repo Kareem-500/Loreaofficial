@@ -320,7 +320,7 @@ export const ProductsSection: React.FC<ProductsSectionProps> = ({
                 </tr>
               ) : (
                 filteredProducts.map((p) => {
-                  const img = p.primary_image || p.image || (p.images && p.images[0]) || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80';
+                  const img = p.primary_image || p.image || (p.images && p.images[0]) || '/products/lorea-dress-violette/front.webp';
                   const isSelected = selectedIds.includes(p.id);
                   const stock = p.total_stock !== undefined ? p.total_stock : 15;
                   const isMenuOpen = activeMenuId === p.id;

@@ -233,7 +233,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {searchResults.products.map((product) => {
-                      const img = product.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop';
+                      const img = product.images?.[0] || '/products/lorea-dress-violette/front.webp';
 
                       return (
                         <div

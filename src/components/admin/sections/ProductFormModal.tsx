@@ -70,7 +70,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
   // Images
   const [images, setImages] = useState<string[]>([
-    'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=85',
+    '/products/lorea-dress-violette/front.webp',
+    '/products/lorea-dress-violette/back.webp',
   ]);
   const [newImageUrl, setNewImageUrl] = useState('');
 

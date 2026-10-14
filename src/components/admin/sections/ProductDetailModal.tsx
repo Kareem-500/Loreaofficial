@@ -44,7 +44,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   const unitEconomics = calculateUnitEconomics(product.price_egp || product.priceEgp, product.cost_price_egp || product.costPriceEgp);
   const images = (product.images && product.images.length > 0)
     ? (typeof product.images[0] === 'string' ? product.images : product.images.map((i: any) => i.image_url))
-    : [product.primary_image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=85'];
+    : [product.primary_image || '/products/lorea-dress-violette/front.webp'];
 
   const variants = product.variants || [];
 

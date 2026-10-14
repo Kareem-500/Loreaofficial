@@ -4,6 +4,7 @@ import {
   Heart,
   ShoppingBag,
   Share2,
+  ChevronLeft,
   ChevronRight,
   Shield,
   Truck,
@@ -75,7 +76,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
   const images = (product.images && product.images.length > 0)
     ? product.images
-    : ['https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop'];
+    : ['/products/lorea-dress-violette/front.webp', '/products/lorea-dress-violette/back.webp'];
 
   const colors = (product.colors && product.colors.length > 0)
     ? product.colors
@@ -158,15 +159,44 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[500px]">
             
             {/* LEFT: Product Image Gallery (7 Columns on Desktop) */}
-            <div className="lg:col-span-7 bg-[#F0EDE8] p-4 sm:p-6 lg:p-8 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-[#EAE5DE]">
+            <div className="lg:col-span-7 bg-[#FAF7F2] p-4 sm:p-6 lg:p-8 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-[#EAE5DE]">
               {/* Main Stage Image */}
-              <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#EAE5DE] shadow-xs group">
+              <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#FAF7F2] shadow-xs group">
                 <img
                   src={images[selectedImageIndex] || images[0]}
-                  alt={`${product.name} - View ${selectedImageIndex + 1}`}
+                  alt={`${product.name} — ${selectedImageIndex === 0 ? 'Front View' : 'Back View'}`}
                   loading="eager"
-                  className="w-full h-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                  className="w-full h-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-103"
                 />
+
+                {/* View Position Indicator Badge (FRONT / BACK) */}
+                <div className="absolute bottom-3 right-3 z-10">
+                  <span className="font-mono text-[9px] tracking-[0.24em] uppercase bg-[#1D1D1B]/85 text-[#FAF8F5] px-2.5 py-1 backdrop-blur-xs shadow-xs">
+                    {selectedImageIndex === 0 ? '01 / 02 · FRONT' : '02 / 02 · BACK'}
+                  </span>
+                </div>
+
+                {/* Chevron Quick Navigation */}
+                {images.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 text-[#1D1D1B] hover:bg-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm cursor-pointer"
+                      aria-label="Previous view"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 text-[#1D1D1B] hover:bg-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm cursor-pointer"
+                      aria-label="Next view"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
 
                 {/* Badge if present */}
                 {product.badge && (
@@ -190,28 +220,34 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 </button>
               </div>
 
-              {/* Thumbnails Row (if multiple images) */}
+              {/* Thumbnails Row with Front / Back Labels */}
               {images.length > 1 && (
                 <div className="flex items-center space-x-3 mt-4 overflow-x-auto no-scrollbar py-1">
-                  {images.map((img, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setSelectedImageIndex(idx)}
-                      className={`relative w-16 h-20 shrink-0 overflow-hidden border transition-all cursor-pointer ${
-                        selectedImageIndex === idx
-                          ? 'border-[#BA945A] ring-1 ring-[#BA945A]'
-                          : 'border-transparent opacity-70 hover:opacity-100'
-                      }`}
-                      aria-label={`View thumbnail ${idx + 1}`}
-                    >
-                      <img
-                        src={img}
-                        alt=""
-                        className="w-full h-full object-cover object-top"
-                      />
-                    </button>
-                  ))}
+                  {images.map((img, idx) => {
+                    const label = idx === 0 ? '01 · FRONT' : idx === 1 ? '02 · BACK' : `VIEW ${idx + 1}`;
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setSelectedImageIndex(idx)}
+                        className={`relative w-20 h-24 shrink-0 overflow-hidden border transition-all cursor-pointer group/thumb ${
+                          selectedImageIndex === idx
+                            ? 'border-[#BA945A] ring-1 ring-[#BA945A]'
+                            : 'border-[#EAE5DE] opacity-75 hover:opacity-100'
+                        }`}
+                        aria-label={`View thumbnail ${label}`}
+                      >
+                        <img
+                          src={img}
+                          alt={`${product.name} ${label}`}
+                          className="w-full h-full object-cover object-top"
+                        />
+                        <span className="absolute bottom-0 inset-x-0 bg-[#1D1D1B]/80 text-[#FAF8F5] text-[8px] font-mono tracking-wider text-center py-0.5 backdrop-blur-xs">
+                          {label}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>

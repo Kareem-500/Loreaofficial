@@ -405,7 +405,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                       <div key={item.id} className="pt-2 flex items-center justify-between text-xs">
                         <div className="flex items-center space-x-2.5">
                           <img
-                            src={item.product?.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop'}
+                            src={item.product?.images?.[0] || '/products/lorea-dress-violette/front.webp'}
                             alt={item.product?.name || 'Garment'}
                             className="w-10 h-12 object-cover bg-[#EAE5DE]"
                           />

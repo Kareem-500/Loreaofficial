@@ -123,7 +123,7 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
               </div>
             ) : (
               safeProducts.map((product) => {
-                const img = product.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop';
+                const img = product.images?.[0] || '/products/lorea-dress-violette/front.webp';
 
                 return (
                   <div key={product.id} className="py-4 flex gap-3.5 sm:gap-4">

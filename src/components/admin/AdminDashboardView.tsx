@@ -217,7 +217,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
     nameAr: '',
     slug: '',
     description: '',
-    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80',
+    image: '/products/lorea-dress-violette/front.webp',
   });
 
   const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);

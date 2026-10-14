@@ -38,7 +38,7 @@ export const WOMEN_CATEGORIES: CollectionCategory[] = [
     slug: 'dresses',
     subtitle: 'Sculptural drapery & effortless silhouettes',
     description: 'Timeless maxi, midi, and column dresses cut from stone-washed European flax linen, fine Egyptian cotton, and pure liquid silk.',
-    image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1200&auto=format&fit=crop',
+    image: '/products/lorea-dress-violette/front.webp',
     subcategories: [
       { id: 'maxi-dresses', name: 'Maxi Dresses', nameAr: 'فساتين ماكسي', slug: 'maxi-dresses' },
       { id: 'midi-dresses', name: 'Midi Dresses', nameAr: 'فساتين ميدي', slug: 'midi-dresses' },
@@ -57,7 +57,7 @@ export const WOMEN_CATEGORIES: CollectionCategory[] = [
     slug: 'tops',
     subtitle: 'Giza cotton tailoring & gossamer blouses',
     description: 'Crisp oversized button-downs, gossamer silk blouses, and foundational tees spun from certified Egyptian Giza 45 extra-long staple cotton.',
-    image: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1200&auto=format&fit=crop',
+    image: '/products/lorea-top-atelier-blouse/front.webp',
     subcategories: [
       { id: 't-shirts', name: 'T-Shirts', nameAr: 'تيشيرتات', slug: 't-shirts' },
       { id: 'blouses', name: 'Blouses', nameAr: 'بلوزات', slug: 'blouses' },
@@ -77,7 +77,7 @@ export const WOMEN_CATEGORIES: CollectionCategory[] = [
     slug: 'bottoms',
     subtitle: 'High-waisted trousers & fluid bias skirts',
     description: 'Architectural pleated trousers, wide-leg linen culottes, and sweeping silk charmeuse bias skirts designed for effortless motion.',
-    image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1200&auto=format&fit=crop',
+    image: '/products/lorea-bottom-pleated-trousers/front.webp',
     subcategories: [
       { id: 'trousers', name: 'Trousers', nameAr: 'بناطيل رسمية', slug: 'trousers' },
       { id: 'wide-leg-pants', name: 'Wide-Leg Pants', nameAr: 'بناطيل واسعة', slug: 'wide-leg-pants' },
@@ -98,7 +98,7 @@ export const WOMEN_CATEGORIES: CollectionCategory[] = [
     slug: 'sets',
     subtitle: 'Monochromatic pairs & co-ords',
     description: 'Harmonious two-piece and three-piece sets in textured woven linen, silk knitwear, and matching palette combinations.',
-    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop',
+    image: '/products/lorea-set-three-piece-linen/front.webp',
     subcategories: [
       { id: 'two-piece-sets', name: 'Two-Piece Sets', nameAr: 'أطقم قطعتين', slug: 'two-piece-sets' },
       { id: 'three-piece-sets', name: 'Three-Piece Sets', nameAr: 'أطقم ثلاث قطع', slug: 'three-piece-sets' },
@@ -116,7 +116,7 @@ export const WOMEN_CATEGORIES: CollectionCategory[] = [
     slug: 'outerwear',
     subtitle: 'Architectural trenches & fine tailoring',
     description: 'Double-faced virgin wool coats, structured blazers, draped trenches, and lightweight Egyptian cotton capes.',
-    image: 'https://images.unsplash.com/photo-1548883354-7622d03aca27?q=80&w=1200&auto=format&fit=crop',
+    image: '/products/lorea-03/front.webp',
     subcategories: [
       { id: 'blazers', name: 'Blazers', nameAr: 'بليزرات', slug: 'blazers' },
       { id: 'jackets', name: 'Jackets', nameAr: 'جواكيت', slug: 'jackets' },
@@ -135,7 +135,7 @@ export const WOMEN_CATEGORIES: CollectionCategory[] = [
     slug: 'modest',
     subtitle: 'Breathable opacities & elevated coverage',
     description: 'Full-coverage luxury silhouettes crafted with graceful movement, higher necklines, elongated sleeves, and non-sheer Egyptian natural weaves.',
-    image: 'https://images.unsplash.com/photo-1584273143981-41c073dfe8f8?q=80&w=1200&auto=format&fit=crop',
+    image: '/products/lorea-abaya-crepe-couture/front.webp',
     subcategories: [
       { id: 'modest-dresses', name: 'Modest Dresses', nameAr: 'فساتين محتشمة', slug: 'modest-dresses' },
       { id: 'long-shirts', name: 'Long Shirts', nameAr: 'قمصان طويلة', slug: 'long-shirts' },
@@ -154,7 +154,7 @@ export const WOMEN_CATEGORIES: CollectionCategory[] = [
     slug: 'loungewear',
     subtitle: 'Organic cotton jersey & Mulberry silk robes',
     description: 'Ultra-soft relaxed homewear, featherweight silk robes, and breathable cotton pajama sets for refined sanctuary living.',
-    image: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?q=80&w=1200&auto=format&fit=crop',
+    image: '/products/lorea-04/front.webp',
     subcategories: [
       { id: 'pajamas', name: 'Pajamas', nameAr: 'بيجامات', slug: 'pajamas' },
       { id: 'homewear', name: 'Homewear', nameAr: 'ملابس منزلية', slug: 'homewear' },
@@ -170,7 +170,7 @@ export const WOMEN_CATEGORIES: CollectionCategory[] = [
     slug: 'scarves',
     subtitle: 'Modal silk, linen gauze & pure cashmere',
     description: 'Weightless Egyptian cotton voiles, pure modal hijabs, gossamer summer shawls, and brushed winter cashmere scarves.',
-    image: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?q=80&w=1200&auto=format&fit=crop',
+    image: '/products/lorea-scarf-jacquard-silk/front.webp',
     subcategories: [
       { id: 'hijabs', name: 'Hijabs', nameAr: 'طرح وحجابات', slug: 'hijabs' },
       { id: 'scarves-sub', name: 'Scarves', nameAr: 'أوشحة قطن وحرير', slug: 'scarves' },

@@ -100,8 +100,23 @@ export default function App() {
                   ? Array.from(new Set(dbP.product_variants.map((v) => v.size as 'XS' | 'S' | 'M' | 'L' | 'XL')))
                   : matchedLocal?.sizes) || ['XS', 'S', 'M', 'L', 'XL'],
                 images: (dbP.product_images && dbP.product_images.length > 0
-                  ? dbP.product_images.map((img) => img.image_url)
+                  ? [...dbP.product_images]
+                      .sort((a, b) => ((a.sort_order ?? a.display_order ?? 0) - (b.sort_order ?? b.display_order ?? 0)))
+                      .map((img) => img.image_url)
                   : dbP.main_image_url ? [dbP.main_image_url] : matchedLocal?.images) || [],
+                productImages: (dbP.product_images && dbP.product_images.length > 0
+                  ? [...dbP.product_images]
+                      .sort((a, b) => ((a.sort_order ?? a.display_order ?? 0) - (b.sort_order ?? b.display_order ?? 0)))
+                      .map((img, idx) => ({
+                        id: img.id || `${dbP.id}-${idx}`,
+                        productId: dbP.id,
+                        imageUrl: img.image_url,
+                        imageType: (img.image_type || (idx === 0 ? 'front' : 'back')) as 'front' | 'back' | 'detail' | 'editorial',
+                        displayOrder: img.display_order ?? img.sort_order ?? (idx + 1),
+                        isPrimary: img.is_primary !== undefined ? img.is_primary : idx === 0,
+                        altText: img.alt_text || `${dbP.name} ${idx === 0 ? 'front view' : 'back view'}`
+                      }))
+                  : matchedLocal?.productImages),
                 description: dbP.description || matchedLocal?.description || '',
                 fabric: dbP.material || matchedLocal?.fabric || '',
                 fit: matchedLocal?.fit || '',

@@ -18,8 +18,8 @@ export const EditorialCampaign: React.FC<EditorialCampaignProps> = ({
           <div className="lg:col-span-7 grid grid-cols-12 gap-4 sm:gap-6">
             <div className="col-span-8 relative aspect-3/4 overflow-hidden bg-[#222]">
               <img
-                src="https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?q=80&w=1200&auto=format&fit=crop"
-                alt="LORÉA Summer Campaign Editorial"
+                src="/products/lorea-01/front.webp"
+                alt="LORÉA Column Dress Campaign Editorial"
                 loading="lazy"
                 className="w-full h-full object-cover object-center transform hover:scale-103 transition-transform duration-700"
               />
@@ -31,8 +31,8 @@ export const EditorialCampaign: React.FC<EditorialCampaignProps> = ({
             <div className="col-span-4 flex flex-col justify-between space-y-4">
               <div className="aspect-3/4 relative overflow-hidden bg-[#222]">
                 <img
-                  src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=800&auto=format&fit=crop"
-                  alt="Fabric Detail"
+                  src="/products/lorea-01/back.webp"
+                  alt="LORÉA Column Dress Back & Fabric Detail"
                   loading="lazy"
                   className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700"
                 />

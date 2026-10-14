@@ -21,7 +21,7 @@ export interface ProductImage {
   id: string;
   productId: string;
   imageUrl: string;
-  imageType: 'front' | 'back';
+  imageType: 'front' | 'back' | 'detail' | 'editorial';
   displayOrder: number;
   isPrimary: boolean;
   altText: string;

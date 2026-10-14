@@ -332,14 +332,15 @@ export const CollectionSpotlight: React.FC<CollectionSpotlightProps> = ({
                 <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#EAE5DE] mb-4 sm:mb-5 border border-[#EAE5DE]/80">
                   <img
                     src={
-                      item.images?.[0] ||
-                      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop'
+                      (isHovered && item.images && item.images.length > 1)
+                        ? item.images[1]
+                        : (item.images?.[0] || '/products/lorea-dress-violette/front.webp')
                     }
-                    alt={item.name}
+                    alt={`${item.name} — ${isHovered && item.images && item.images.length > 1 ? 'Back View' : 'Front View'}`}
                     loading="lazy"
                     decoding="async"
-                    className={`w-full h-full object-cover object-center transition-transform duration-700 ease-out ${
-                      isHovered ? 'scale-105' : 'scale-100'
+                    className={`w-full h-full object-cover object-center transition-all duration-700 ease-out ${
+                      isHovered ? 'scale-103' : 'scale-100'
                     }`}
                   />
 

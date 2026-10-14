@@ -48,7 +48,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   const images = product.images && product.images.length > 0
     ? product.images
-    : ['https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop'];
+    : ['/products/lorea-dress-violette/front.webp', '/products/lorea-dress-violette/back.webp'];
 
   const currentImage =
     isHovered && images.length > 1
@@ -77,10 +77,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       aria-label={`View ${product.name}`}
     >
       {/* 1. Image Container — Perfectly uniform 3:4 portrait aspect ratio */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F6F6F6] mb-3.5 sm:mb-4">
+      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#FAF7F2] mb-3.5 sm:mb-4">
         <ProgressiveFashionImage
           src={currentImage}
-          alt={product.name}
+          alt={`${product.name} — ${isHovered && images.length > 1 ? 'Back View' : 'Front View'}`}
           aspectRatioClass="aspect-[3/4]"
           hoverZoom={true}
         />

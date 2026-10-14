@@ -3,6 +3,7 @@ import {
   Heart,
   ShoppingBag,
   Share2,
+  ChevronLeft,
   ChevronRight,
   Shield,
   Truck,
@@ -105,7 +106,7 @@ export const ProductPageView: React.FC<ProductPageViewProps> = ({
 
   const safeImages = (product.images && product.images.length > 0)
     ? product.images
-    : ['https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop'];
+    : ['/products/lorea-dress-violette/front.webp', '/products/lorea-dress-violette/back.webp'];
 
   const safeColors = (product.colors && product.colors.length > 0)
     ? product.colors
@@ -165,12 +166,41 @@ export const ProductPageView: React.FC<ProductPageViewProps> = ({
           {/* LEFT: Image Gallery (7 Cols) */}
           <div className="lg:col-span-7 flex flex-col space-y-4">
             {/* Primary Main Image */}
-            <div className="relative aspect-3/4 w-full overflow-hidden bg-[#EAE5DE] shadow-xs">
+            <div className="relative aspect-3/4 w-full overflow-hidden bg-[#FAF7F2] shadow-xs group">
               <img
                 src={safeImages[selectedImageIndex] || safeImages[0]}
-                alt={product.name}
-                className="w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
+                alt={`${product.name} — ${selectedImageIndex === 0 ? 'Front View' : 'Back View'}`}
+                className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-103"
               />
+
+              {/* View Position Indicator Badge (FRONT / BACK) */}
+              <div className="absolute bottom-4 right-4 z-10">
+                <span className="font-mono text-[10px] tracking-[0.24em] uppercase bg-[#1D1D1B]/85 text-[#FAF8F5] px-3 py-1.5 backdrop-blur-xs shadow-sm">
+                  {selectedImageIndex === 0 ? '01 / 02 · FRONT' : '02 / 02 · BACK'}
+                </span>
+              </div>
+
+              {/* Chevron Arrows for Quick View Toggle */}
+              {safeImages.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedImageIndex((prev) => (prev === 0 ? safeImages.length - 1 : prev - 1))}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 text-[#1D1D1B] hover:bg-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm cursor-pointer"
+                    aria-label="Previous view"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedImageIndex((prev) => (prev === safeImages.length - 1 ? 0 : prev + 1))}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 text-[#1D1D1B] hover:bg-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm cursor-pointer"
+                    aria-label="Next view"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </>
+              )}
 
               {/* Badge */}
               {product.badge && (
@@ -197,23 +227,33 @@ export const ProductPageView: React.FC<ProductPageViewProps> = ({
               )}
             </div>
 
-            {/* Thumbnail Navigation */}
+            {/* Thumbnail Navigation with Front / Back Labels */}
             {safeImages.length > 1 && (
               <div className="flex space-x-3 overflow-x-auto pb-2">
-                {safeImages.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedImageIndex(idx)}
-                    className={`relative w-20 sm:w-24 aspect-3/4 shrink-0 overflow-hidden border-2 transition-all cursor-pointer ${
-                      selectedImageIndex === idx
-                        ? 'border-[#BA945A] opacity-100'
-                        : 'border-transparent opacity-65 hover:opacity-90'
-                    }`}
-                    aria-label={`View image ${idx + 1}`}
-                  >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
-                  </button>
-                ))}
+                {safeImages.map((img, idx) => {
+                  const label = idx === 0 ? '01 · FRONT' : idx === 1 ? '02 · BACK' : `VIEW ${idx + 1}`;
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedImageIndex(idx)}
+                      className={`relative w-24 sm:w-28 aspect-3/4 shrink-0 overflow-hidden border-2 transition-all cursor-pointer group/thumb ${
+                        selectedImageIndex === idx
+                          ? 'border-[#BA945A] opacity-100 ring-1 ring-[#BA945A]/40'
+                          : 'border-[#EAE5DE] opacity-75 hover:opacity-100'
+                      }`}
+                      aria-label={`View ${label}`}
+                    >
+                      <img
+                        src={img}
+                        alt={`${product.name} ${label}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <span className="absolute bottom-0 inset-x-0 bg-[#1D1D1B]/80 text-[#FAF8F5] text-[9px] font-mono tracking-wider text-center py-1 backdrop-blur-xs">
+                        {label}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
